@@ -1150,10 +1150,11 @@ body.is-zoomed .ribbon {
   --fl2: #b8661f;
 }
 
+/* sem filtro: a estrela cresce até 3× no meio da troca de cena, e um desfoque nela
+   era recalculado pela GPU a cada quadro */
 #flash svg {
   width: 160vmax;
   height: 160vmax;
-  filter: blur(2px);
 }
 
 :root[data-theme='dark'] #flash {

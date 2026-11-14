@@ -2,6 +2,16 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.2.0] — 2026-11-14
+### Alterado
+- **Música desde o início**: se o navegador libera som automático, a abertura já começa tocando; se bloqueia (regra de todos os navegadores: som só depois de um gesto na página), o monograma da entrada pede “toque para abrir o livro ♪” — e esse toque liga a trilha e dá a partida na cena ao mesmo tempo, em vez de a cena rodar muda.
+### Desempenho (travadas no celular)
+- **Virar a página**: a página que chega é desenhada já, mas escrita (palavras, desenhos, gravuras) só quando a folha assenta — nada mais é repintado no meio da virada (pintura −47% durante o movimento).
+- Sombra projetada pela folha agora é uma faixa que só desliza (antes um degradê redesenhado a cada quadro); faixas da folha maleável em camadas próprias.
+- **Troca de cena da abertura**: o clarão-estrela (camada de 160vmax que cresce até 3×) não tem mais desfoque — a GPU refazia o filtro a cada quadro; câmera e livro em camadas próprias durante a cena.
+- Feixe de luz do fundo sem desfoque nem modo de mistura (camada de tela inteira recomposta em toda animação); mesa sem máscara.
+- Objetos da mesa: sombra do cinzeiro no desenho (não sobre a fumaça animada) e a animação de entrada não prende mais cada objeto numa camada.
+
 ## [4.1.0] — 2026-11-14
 ### Adicionado
 - **Português e inglês**: o livro inteiro (páginas, objetos, celular, botões, avisos) existe nas duas línguas. Na primeira visita segue o idioma do aparelho; o interruptor discreto **PT ⇄ EN** no topo troca e a escolha fica guardada. README também em inglês (`README.en.md`).

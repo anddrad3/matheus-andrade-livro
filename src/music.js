@@ -179,8 +179,11 @@ export function createMusic({ getTheme, onChange }) {
   // começa mudo (já tocando desde o <head>) e descobre se pode ligar o som
   blocked = true;
   play();
+  // o navegador deixa tocar com som sem um toque? (a abertura espera por isso)
+  let autoplayOk = Promise.resolve(false);
   if (volumeWorks && !muted) {
-    canAutoplay().then((ok) => {
+    autoplayOk = canAutoplay();
+    autoplayOk.then((ok) => {
       if (ok) audible();
       else waitForGesture();
     });
@@ -211,6 +214,10 @@ export function createMusic({ getTheme, onChange }) {
     },
     get blocked() {
       return blocked;
+    },
+    /** promessa: true se o som pode entrar sem um toque */
+    get autoplay() {
+      return autoplayOk;
     },
     setVolume(v) {
       volume = Math.min(1, Math.max(0, v));

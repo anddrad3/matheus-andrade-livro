@@ -828,8 +828,6 @@ html:not(.laid) #stage {
   height: calc(var(--pw) * 6.8);
   margin: calc(var(--pw) * -3.4) 0 0 calc(var(--pw) * -3.4);
   border-radius: 50%;
-  -webkit-mask: radial-gradient(closest-side, #000 82%, transparent 100%);
-  mask: radial-gradient(closest-side, #000 82%, transparent 100%);
 }
 
 /* carregando: o monograma grande (primeira coisa pintada, sem depender de JS) */
@@ -859,4 +857,104 @@ html:not(.laid) #stage {
 :root[data-theme='dark'] .loader-mono i {
   color: #d11c24;
   opacity: 1;
+}
+
+/* ─────────── virar página leve: nada é repintado durante o movimento ─────────── */
+/* sombra projetada: faixa fixa que desliza (antes um degradê redesenhado a cada quadro) */
+.cast-r,
+.cast-l,
+:root[data-theme='dark'] .cast-r,
+:root[data-theme='dark'] .cast-l {
+  background: none;
+  overflow: hidden;
+}
+
+.cast b {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.cast-r b {
+  background: linear-gradient(to right, rgba(25, 12, 2, 1), rgba(25, 12, 2, 0.35) 8%, transparent 30%);
+}
+
+.cast-l b {
+  background: linear-gradient(to left, rgba(25, 12, 2, 1), rgba(25, 12, 2, 0.35) 8%, transparent 30%);
+}
+
+:root[data-theme='dark'] .cast-r b {
+  background: linear-gradient(to right, rgba(6, 6, 8, 1), rgba(6, 6, 8, 0.35) 8%, transparent 30%);
+}
+
+:root[data-theme='dark'] .cast-l b {
+  background: linear-gradient(to left, rgba(6, 6, 8, 1), rgba(6, 6, 8, 0.35) 8%, transparent 30%);
+}
+
+/* faixas da folha maleável e câmera da abertura em camadas próprias: a GPU só
+   move as camadas, sem repintar a cada quadro do zoom/curva */
+.bstrip {
+  will-change: transform;
+}
+
+body:not(.is-open) #camera,
+body:not(.is-open) #book {
+  will-change: transform;
+}
+
+/* som bloqueado pelo navegador: o monograma pede um toque (que liga a música e a cena juntas) */
+.loader-gate {
+  display: none;
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: rgba(244, 220, 150, 0.9);
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+.loader-gate i {
+  font-style: normal;
+  color: var(--gold, #c09a52);
+}
+
+#loader.is-gate {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#loader.is-gate .loader-gate {
+  display: block;
+}
+
+#loader.is-gate .loader-text,
+#loader.is-gate .loader-orn {
+  display: none;
+}
+
+:root[data-theme='dark'] .loader-gate {
+  color: #e4e7ec;
+}
+
+:root[data-theme='dark'] .loader-gate i {
+  color: #d11c24;
+}
+
+/* objetos da mesa: a sombra por filtro vai no desenho, não no botão que contém a
+   fumaça animada (senão a GPU refaz o filtro a cada quadro da fumaça); e a animação
+   de entrada não fica "segurando" cada objeto numa camada depois que termina */
+.dp {
+  animation-fill-mode: backwards;
+}
+
+.dp-ashtray,
+.prop-ashtray,
+:root[data-theme='dark'] .dp-ashtray {
+  filter: none !important;
+}
+
+.dp-ashtray svg,
+.prop-ashtray svg {
+  filter: drop-shadow(-4px 10px 8px rgba(0, 0, 0, 0.55));
 }

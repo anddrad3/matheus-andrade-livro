@@ -4,7 +4,7 @@
 
 Portfolio of **Matheus da Silva Andrade** — full stack developer, teacher and researcher — shaped as a **deluxe-edition book**, in Portuguese and English.
 
-**Version 4.1.0** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
+**Version 4.2.0** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
 
 🔗 **Live:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
@@ -44,6 +44,7 @@ The site follows the **visitor’s device**: light theme → classic edition, da
 - **Desk phone**: opens a music app showing the edition’s track, a note about it and a Doré engraving from the *Divine Comedy* as cover art; pause, restart, scrub, volume, page sounds and switching editions.
 - **Zoom**: on desktop, the **− 100% +** buttons at the top, the `+` `−` `0` keys or Ctrl + wheel / trackpad pinch; on a phone, pinch. When zoomed in, drag to move around the page.
 - **Language**: the **PT ⇄ EN** switch at the top — the whole book (pages, objects, phone, buttons) changes language.
+- **Soundtrack from the first moment**: if the browser already allows sound, the opening starts playing; if not (browser rule: sound only after a tap), the monogram asks “tap to open the book ♪” and that tap starts the music and the scene together.
 - **Replay the opening** (the music restarts with it) at any time; **M·A** closes the book on its cover.
 - **Phone**: one page at a time with the objects on the desk around it; swipe to turn; the **“2 pages”** button shows both (with the phone upright, the book lies down on the screen — just turn the device); book tabs for the chapters; a **bottom bar** with theme, music, page sounds, 360° and opening.
 
@@ -51,7 +52,8 @@ The site follows the **visitor’s device**: light theme → classic edition, da
 
 - No layout shift on load (CLS 0): the stage only appears once measured; images have `width`/`height`.
 - First paint depends on neither JavaScript nor external fonts (monogram in a system font); Google Fonts load without blocking.
-- Page turns no longer recalculate the style of hundreds of words every frame; hidden animations are paused; smoke is animated on the GPU.
+- Page turns no longer recalculate the style of hundreds of words every frame; the incoming page is written only after the leaf settles (nothing is painted mid-turn); the cast shadow and the paper curve only move GPU layers.
+- No filter recomputed by the GPU every frame: no blur on the scene-change flash or the background light beam; object shadows kept off animated layers.
 - Images and soundtrack cached for a year (`public/.htaccess`); soundtracks as 80 kbps mono MP3; the other theme’s engravings and the GitHub logbook only load when needed.
 
 ## Editing the content

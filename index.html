@@ -91,7 +91,7 @@
                 <div class="block block-r"><i class="bs bs-fore"></i><i class="bs bs-spine"></i><i class="bs bs-top"></i><i class="bs bs-bottom"></i></div>
               </div>
               <div class="leaves"></div>
-              <div class="cast" aria-hidden="true"><i class="cast-l"></i><i class="cast-r"></i></div>
+              <div class="cast" aria-hidden="true"><i class="cast-l"><b></b></i><i class="cast-r"><b></b></i></div>
               <a class="ribbon" href="#sumario" data-goto="4" aria-label="Marcador: voltar ao sumário"><span></span></a>
             </div>
           </div>
@@ -168,9 +168,13 @@
       <span class="loader-mono">M<i>·</i>A</span>
       <span class="loader-orn">❦</span>
       <span class="loader-text">Encadernando o volume</span>
+      <span class="loader-gate">toque para abrir o livro <i>♪</i></span>
     </div>
     <script>
-      if (document.documentElement.dataset.lang === 'en') document.querySelector('.loader-text').textContent = 'Binding the volume';
+      if (document.documentElement.dataset.lang === 'en') {
+        document.querySelector('.loader-text').textContent = 'Binding the volume';
+        document.querySelector('.loader-gate').innerHTML = 'tap to open the book <i>♪</i>';
+      }
     </script>
 
     <div class="grain" aria-hidden="true"></div>

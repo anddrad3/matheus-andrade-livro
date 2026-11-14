@@ -205,20 +205,23 @@ export class Book {
     this.leaves.forEach((leaf, k) => leaf.classList.toggle('is-culled', !keep.has(k)));
   }
 
-  updateVisibility(pages = this.visiblePages()) {
-    const set = new Set(pages);
+  /**
+   * @param {number[]} pages páginas a mostrar
+   * @param {boolean} hold  as que chegam agora ficam prontas (desenhadas, sem
+   *   ocultar) mas só são "escritas" depois — nada é pintado no meio da virada
+   */
+  updateVisibility(pages = this.visiblePages(), hold = false) {
+    const set = new Set(hold ? pages.filter((p) => this.pageEls[p]?.classList.contains('is-visible')) : pages);
     // páginas que vão aparecer agora: tira do modo "pulado", prepara a escrita
     // e calcula o estado inicial ANTES de marcar como visível — assim a
     // transição de escrita/desenho acontece de verdade
     const incoming = pages.map((p) => this.pageEls[p]).filter((el) => el && !el.classList.contains('is-visible'));
     if (incoming.length) {
-      const lead = this.inkLead;
       incoming.forEach((el) => {
         this.leaves[Math.floor(el.dataset.page / 2)].classList.remove('is-culled');
         if (!this.reduced) inkify(el);
-        // a escrita começa quando a página fica de fato à mostra
-        const side = el.classList.contains('left') ? 'left' : 'right';
-        el.style.setProperty('--ink0', `${lead ? lead[side] : 160}ms`);
+        // a escrita começa logo que a página fica à mostra (a folha já assentou)
+        el.style.setProperty('--ink0', '60ms');
       });
       void this.el.offsetWidth;
     }
@@ -244,13 +247,15 @@ export class Book {
     }
     const rad = (deg * Math.PI) / 180;
     const right = deg < 90;
-    // borda projetada da folha, em % de meia-página medida a partir da lombada
+    // borda projetada da folha, em % da página medida a partir da lombada
     const edge = Math.abs(Math.cos(rad)) * 100;
     const strength = Math.sin(rad);
+    if (!this.castBands) this.castBands = { r: this.cast.querySelector('.cast-r b'), l: this.cast.querySelector('.cast-l b') };
+    const band = right ? this.castBands.r : this.castBands.l;
+    band.style.transform = `translate3d(${right ? edge.toFixed(2) : (-edge).toFixed(2)}%,0,0)`;
+    band.style.opacity = (strength * 0.55).toFixed(3);
+    if (this.cast.dataset.side !== (right ? 'right' : 'left')) this.cast.dataset.side = right ? 'right' : 'left';
     this.cast.style.opacity = 1;
-    this.cast.style.setProperty('--edge', `${edge.toFixed(2)}%`);
-    this.cast.style.setProperty('--k', (strength * 0.55).toFixed(3));
-    this.cast.dataset.side = right ? 'right' : 'left';
   }
 
   /* ─────────── folha maleável ─────────── */
@@ -315,8 +320,7 @@ export class Book {
     if (!g) return null;
     if (g.t === this.N) g.side = 'left';
     if (g.t === 0) g.side = 'right';
-    this.inkLead = null;
-    this.updateVisibility([...new Set([...this.visiblePages(), ...this.visiblePages(g.t, g.side)])]);
+    this.updateVisibility([...new Set([...this.visiblePages(), ...this.visiblePages(g.t, g.side)])], true);
     if (g.k != null) {
       g.leaf = this.leaves[g.k];
       g.bend = this.makeBend(g.leaf, dir, tilt);
@@ -441,10 +445,9 @@ export class Book {
     // atraso da escrita: direita aparece quando a folha a descobre; esquerda quando a folha assenta
     const nFlip = Math.abs(t - this.s);
     const span = nFlip <= 1 ? 1150 : (nFlip - 1) * Math.min(110, 600 / nFlip) + Math.max(550, 850 - nFlip * 30);
-    this.inkLead = nFlip ? { right: Math.round(span * 0.45), left: Math.round(span * 0.85) } : null;
-    // Revela os destinos já no início, para a página surgir enquanto vira
-    this.updateVisibility([...new Set([...this.visiblePages(), ...dest])]);
-    this.inkLead = null;
+    void span;
+    // destinos desenhados já no início (a folha que vira os mostra), escritos ao assentar
+    this.updateVisibility([...new Set([...this.visiblePages(), ...dest])], true);
     const lo = Math.min(from, t) - 1;
     const hi = Math.max(from, t);
     const range = [];

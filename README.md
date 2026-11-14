@@ -4,7 +4,7 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**, em português e inglês.
 
-**Versão 4.1.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
+**Versão 4.2.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
 
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
@@ -44,6 +44,7 @@ O site segue o **aparelho de quem visita**: tema claro → edição clássica, t
 - **Celular da mesa**: abre num app de música com a faixa da edição, um texto sobre ela e a gravura de Doré da *Divina Comédia* como capa; pausar, voltar ao começo, arrastar a faixa, volume, som das páginas e trocar de edição.
 - **Zoom**: no computador, botões **− 100% +** no topo, teclas `+` `−` `0` ou Ctrl + roda/pinça do trackpad; no celular, pinça. Aproximado, arraste para passear pela página.
 - **Idioma**: interruptor **PT ⇄ EN** no topo — o livro inteiro (páginas, objetos, celular, botões) muda de idioma.
+- **Trilha desde o primeiro instante**: se o navegador já libera o som, a abertura começa tocando; se não (regra dos navegadores: som só depois de um toque), o monograma pede “toque para abrir o livro ♪” e esse toque liga a música e a cena juntas.
 - **Reiniciar a abertura** (a música recomeça junto) a qualquer momento; **M·A** fecha o livro na capa.
 - **Celular**: uma página por vez com os objetos na mesa em volta; deslize para virar; o botão **“2 páginas”** mostra as duas (com o celular em pé, o livro deita na tela — é só virar o aparelho); abas do livro para os capítulos; **barra no rodapé** com tema, música, som das páginas, 360° e abertura.
 
@@ -51,7 +52,8 @@ O site segue o **aparelho de quem visita**: tema claro → edição clássica, t
 
 - Sem salto de layout ao carregar (CLS 0): o palco só aparece depois de medido; imagens com `width`/`height`.
 - Primeira pintura sem depender de JavaScript nem de fontes externas (monograma em fonte do sistema); fontes do Google carregadas sem bloquear.
-- Virar páginas sem recalcular o estilo de centenas de palavras a cada quadro; animações escondidas paradas; fumaça animada na GPU.
+- Virar páginas sem recalcular o estilo de centenas de palavras a cada quadro; a página que chega é escrita só depois que a folha assenta (nada é pintado no meio da virada); sombra projetada e curva da folha só movem camadas na GPU.
+- Nenhum filtro refeito pela GPU a cada quadro: sem desfoque no clarão da troca de cena nem no feixe de luz do fundo; sombras dos objetos fora das camadas animadas.
 - Imagens e trilha com cache de um ano (`public/.htaccess`); trilhas em MP3 mono de 80 kbps; gravuras do outro tema e o diário do GitHub só carregam quando necessários.
 
 ## Detalhes

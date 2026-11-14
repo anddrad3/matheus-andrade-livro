@@ -1386,10 +1386,11 @@ bindControls();
 laidOut = `${window.innerWidth}x${window.innerHeight}`;
 updateUI();
 
+const loaderEl = $('#loader');
 const ready = document.fonts?.ready ?? Promise.resolve();
 Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout(r, 3000))]).then(() => {
-  document.body.classList.add('is-ready');
   if (reduced) {
+    document.body.classList.add('is-ready');
     gsap.set(camera, { opacity: 1 });
     gsap.set(book.edges, { opacity: 0 });
     book.d = book.dOpen;
@@ -1403,9 +1404,36 @@ Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout
     updateUI();
     return;
   }
-  enter();
-  if (returnPage != null) skipIntro();
+  startWithMusic();
 });
+
+/**
+ * Os navegadores só deixam tocar som depois de um toque/clique/tecla na página.
+ * Se o som já está liberado (o Chrome libera para quem já visitou), a abertura
+ * começa direto com a trilha. Senão, o monograma pede um toque — e esse mesmo
+ * toque liga a música e dá a partida na cena, para as duas começarem juntas.
+ */
+async function startWithMusic() {
+  const go = () => {
+    loaderEl.classList.remove('is-gate');
+    document.body.classList.add('is-ready');
+    enter();
+    if (returnPage != null) skipIntro();
+  };
+  let ok = music.muted;
+  if (!ok) ok = await Promise.race([music.autoplay, new Promise((r) => setTimeout(() => r(false), 700))]);
+  if (ok) return go();
+  loaderEl.classList.add('is-gate');
+  loaderEl.setAttribute('aria-hidden', 'false');
+  loaderEl.setAttribute('role', 'button');
+  const start = (e) => {
+    if (e.type === 'keydown' && e.key === 'Tab') return;
+    e.stopPropagation(); // a mesma tecla não deve também pular a abertura
+    ['pointerup', 'keydown'].forEach((t) => window.removeEventListener(t, start, true));
+    go();
+  };
+  ['pointerup', 'keydown'].forEach((t) => window.addEventListener(t, start, true));
+}
 
 // Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas páginas
 document.addEventListener('dragstart', (e) => {
