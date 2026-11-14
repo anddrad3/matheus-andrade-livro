@@ -3,22 +3,28 @@ import './styles/base.css';
 import './styles/book.css';
 import './styles/pages.css';
 import './styles/ui.css';
+import './styles/extras.css';
 import { installTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
-import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel } from './pages.js';
+import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS } from './pages.js';
 import { Book } from './book.js';
+import { createSound } from './sound.js';
+import { loadDiary } from './diary.js';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s) => document.querySelector(s);
 
 installTextures();
+const sound = createSound();
 startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
 const book = new Book({
   el: $('#book'),
   pages: buildPages(),
+  tabs: TABS,
   reduced,
   onChange: updateUI,
+  onFlip: (count) => sound.flip(count),
 });
 
 const ui = {
@@ -84,6 +90,8 @@ function open() {
   if (opened || openTl) return;
   document.body.classList.remove('can-open');
   document.body.classList.add('is-opening');
+  sound.unlock();
+  sound.open();
   floatTween?.kill();
   enterTl?.kill();
 
@@ -146,6 +154,16 @@ function bindControls() {
   ui.next.addEventListener('click', () => book.next());
   ui.prev.addEventListener('click', () => book.prev());
   ui.skip.addEventListener('click', skipIntro);
+  const soundBtn = document.querySelector('#sound');
+  const syncSound = () => {
+    soundBtn.setAttribute('aria-pressed', String(sound.enabled));
+    soundBtn.classList.toggle('is-off', !sound.enabled);
+  };
+  soundBtn.addEventListener('click', () => {
+    sound.toggle();
+    syncSound();
+  });
+  syncSound();
 
   document.addEventListener('click', (e) => {
     const goto = e.target.closest('[data-goto]');
@@ -183,7 +201,7 @@ function bindControls() {
     if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); book.next(); }
     if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); book.prev(); }
     if (e.key === 'Home') { e.preventDefault(); book.goToPage(4); }
-    if (e.key === 'End') { e.preventDefault(); book.goToPage(16); }
+    if (e.key === 'End') { e.preventDefault(); book.goToPage(18); }
   });
 
   // roda do mouse folheia (com trava)
@@ -265,6 +283,7 @@ window.addEventListener('pointermove', (e) => {
 
 bindControls();
 updateUI();
+loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]'));
 
 const ready = document.fonts?.ready ?? Promise.resolve();
 Promise.race([ready, new Promise((r) => setTimeout(r, 2500))]).then(() => {

@@ -181,3 +181,58 @@ export function roman(n) {
   for (const [v, s] of map) while (n >= v) { out += s; n -= v; }
   return out;
 }
+
+/* ───────────── traços à mão (marginália) ───────────── */
+
+/** Seta rabiscada à mão; `dir` controla para onde aponta */
+export function handArrow(dir = 'left', cls = '') {
+  const paths = {
+    left: '<path d="M96 10c-18 2-44 8-62 20S8 52 6 54"/><path d="M6 54c6-1 13 0 18 2M6 54c1-6 4-12 7-16"/>',
+    right: '<path d="M4 10c18 2 44 8 62 20s26 22 28 24"/><path d="M94 54c-6-1-13 0-18 2M94 54c-1-6-4-12-7-16"/>',
+    down: '<path d="M10 4c6 14 10 30 30 44"/><path d="M40 48c-7 0-13-1-18-4M40 48c-2-6-2-12 0-17"/>',
+    up: '<path d="M10 56c6-14 14-30 34-44"/><path d="M44 12c-7 1-13 3-17 6M44 12c-1 6-1 12 1 17"/>',
+  };
+  return `<svg class="hand-arrow ${cls}" viewBox="0 0 100 60" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths[dir]}</svg>`;
+}
+
+/** Círculo rabiscado (para envolver algo) */
+export const handCircle = `<svg class="hand-circle" viewBox="0 0 200 80" preserveAspectRatio="none" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path pathLength="1" d="M150 8C110 0 40 4 16 22S12 70 70 74s120-4 124-34S150 4 96 6"/></svg>`;
+
+/** Sublinhado rabiscado */
+export const handUnderline = `<svg class="hand-underline" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path pathLength="1" d="M3 9c40-6 90-7 130-4s50 3 64-1"/></svg>`;
+
+/** Ilustração em traço: celular com o aviso de Shorts bloqueado */
+export function phonePlate() {
+  return `<svg class="phone-plate" viewBox="0 0 320 200" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <g class="ph-hatch" stroke-width=".6" opacity=".35">
+      ${Array.from({ length: 26 }, (_, i) => `<path d="M${10 + i * 12} 196l40-40"/>`).join('')}
+    </g>
+    <rect x="112" y="14" width="96" height="176" rx="16" fill="var(--paper)" stroke-width="1.6"/>
+    <rect x="119" y="30" width="82" height="146" rx="5" stroke-width="1"/>
+    <path d="M150 22h20" stroke-width="1.6"/>
+    <g class="ph-feed" stroke-width=".9" opacity=".55">
+      <rect x="125" y="38" width="70" height="40" rx="3"/>
+      <path d="M125 86h52M125 92h38"/>
+      <rect x="125" y="102" width="70" height="40" rx="3"/>
+      <path d="M125 150h46M125 156h30"/>
+    </g>
+    <g class="ph-play" stroke-width="1.4">
+      <rect x="146" y="50" width="28" height="18" rx="5"/>
+      <path d="M157 55v8l7-4z" fill="currentColor"/>
+      <path d="M140 44l40 30" class="ph-strike" stroke-width="2.2"/>
+    </g>
+    <g class="ph-toast">
+      <rect x="124" y="150" width="72" height="18" rx="9" fill="var(--ink)" stroke="none"/>
+      <text x="160" y="162.5" text-anchor="middle" class="ph-toast-text">Shorts bloqueado</text>
+    </g>
+    <g stroke-width="1.1" opacity=".8">
+      <path d="M60 60c10-8 24-10 34-4"/><path d="M94 56l-6-4M94 56l-5 6"/>
+      <text x="22" y="54" class="ph-label">voltar ↩</text>
+      <path d="M232 120c14 6 30 4 42-6"/><circle cx="282" cy="104" r="12"/><path d="M276 104l4 4 8-9"/>
+      <text x="240" y="150" class="ph-label">banco ok</text>
+    </g>
+  </svg>`;
+}
+
+/** Fita adesiva (washi) */
+export const tape = (cls = '') => `<span class="tape ${cls}" aria-hidden="true"></span>`;

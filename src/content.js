@@ -1,45 +1,49 @@
 /**
  * ─────────────────────────────────────────────────────────────
  *  CONTEÚDO DO LIVRO
- *  Edite tudo aqui. Os textos abaixo são placeholders.
+ *  Fonte: perfil github.com/anddrad3, README do perfil e
+ *  READMEs dos repositórios. Edite tudo aqui.
  * ─────────────────────────────────────────────────────────────
  */
 
+export const github = 'anddrad3';
+
 export const author = {
   name: 'Matheus Andrade',
+  fullName: 'Matheus da Silva Andrade',
   first: 'Matheus',
   last: 'Andrade',
   monogram: 'MA',
-  role: 'Desenvolvedor Front-end',
-  subtitle: 'Uma obra sobre interfaces, movimento e o ofício de construir para a web',
-  city: 'São Paulo',
+  role: 'Desenvolvedor Full Stack',
+  roleShort: ['Full', 'Stack'],
+  subtitle: 'Uma obra sobre código, educação e pesquisa acadêmica',
+  city: 'Franca, SP',
   year: 2026,
   edition: 'Primeira edição',
   epigraph: {
-    text: 'Os detalhes não são detalhes. Eles fazem o design.',
-    source: 'Charles Eames',
+    text: 'Ensinar não é transferir conhecimento, mas criar as possibilidades para a sua própria produção ou a sua construção.',
+    source: 'Paulo Freire, Pedagogia da Autonomia',
   },
+  blurb: 'Desenvolvedor full stack, professor e pesquisador. Um livro sobre o encontro entre tecnologia, educação e pesquisa acadêmica.',
 };
 
 export const prologue = {
   title: 'Prólogo',
   heading: 'Quem escreve estas páginas',
-  epigraph: {
-    text: 'Toda interface é uma história contada em pixels — e toda história merece ser bem contada.',
-    source: 'Nota do autor',
-  },
+  epigraph: { text: 'Conhece-te a ti mesmo.', source: 'Inscrição do Templo de Apolo, Delfos' },
   intro: 'Antes dos capítulos, uma apresentação.',
   paragraphs: [
-    'Sou desenvolvedor front-end e passo os dias no ponto exato onde o design encontra o código. Gosto de transformar ideias estáticas em experiências que respiram: interfaces rápidas, acessíveis e com movimento que tem propósito.',
-    'Trabalho há mais de seis anos construindo produtos digitais para startups, agências e marcas que se importam com o acabamento. Acredito que performance é estética, que acessibilidade é respeito e que um bom sistema de componentes é uma forma de gentileza com quem vem depois.',
+    'Me chamo Matheus da Silva Andrade, tenho 23 anos e sou natural de Franca, São Paulo. Sou desenvolvedor full stack, servidor público e professor — e trabalho no ponto onde código, educação e pesquisa se encontram.',
+    'Sou Técnico em Informática pela ETEC Dr. Júlio Cardoso (Centro Paula Souza), concluinte de Licenciatura em Filosofia e graduando do terceiro ano em História pela UNESP e em Pedagogia. Desenvolvo projetos front-end, back-end e full stack.',
   ],
-  quote: 'Construo para a web como quem encaderna um livro: cada costura importa, mesmo as que ninguém vê.',
+  quote: 'Uso o código para modular, documentar e versionar projetos que integram tecnologia, educação e pesquisa acadêmica.',
   facts: [
-    ['Base', 'São Paulo, Brasil'],
-    ['Ofício', '6+ anos'],
-    ['Idiomas', 'Português, Inglês'],
-    ['Agora', 'Aberto a projetos'],
+    ['Natural de', 'Franca, SP'],
+    ['Idade', '23 anos'],
+    ['Ofício', 'Full Stack'],
+    ['Agora', 'Aberto a freelas'],
   ],
+  note: 'professor + dev = este livro',
 };
 
 export const arsenal = {
@@ -49,130 +53,156 @@ export const arsenal = {
     text: 'Dê-me seis horas para derrubar uma árvore e passarei as quatro primeiras afiando o machado.',
     source: 'Atribuído a Abraham Lincoln',
   },
-  intro:
-    'Um artesão é tão bom quanto as ferramentas que domina — e tão sábio quanto as que escolhe não usar.',
+  intro: 'Um artesão é tão bom quanto as ferramentas que domina — e tão sábio quanto as que escolhe não usar.',
   principles: [
-    ['Performance', 'é a primeira impressão.'],
-    ['Acessibilidade', 'não é opcional.'],
-    ['Movimento', 'deve explicar, não distrair.'],
+    ['Privacidade', 'os dados ficam com quem os produz.'],
+    ['Honestidade', 'nada de dados ou fontes inventados.'],
+    ['Acessibilidade', 'temas, contraste e movimento reduzido.'],
   ],
+  principlesNote: 'princípios que se repetem nos meus projetos',
   groups: [
-    { name: 'Linguagens', items: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'GLSL'] },
-    { name: 'Interfaces', items: ['React', 'Next.js', 'Vue', 'Astro', 'Tailwind'] },
-    { name: 'Movimento & 3D', items: ['GSAP', 'Three.js', 'R3F', 'Framer Motion', 'WebGL'] },
-    { name: 'Ofício', items: ['Figma', 'Storybook', 'Vitest', 'Playwright', 'Git'] },
-    { name: 'Infra', items: ['Node.js', 'Vercel', 'Supabase', 'GraphQL', 'CI/CD'] },
+    { name: 'Linguagens', items: ['JavaScript', 'TypeScript', 'Python', 'PHP', 'Kotlin', 'HTML', 'CSS', 'SQL'] },
+    { name: 'Interfaces', items: ['React', 'Next.js', 'Tailwind', 'Bootstrap', 'SASS', 'jQuery'] },
+    { name: 'Back-end & dados', items: ['Node.js', 'Laravel', 'PostgreSQL', 'SQLite', 'APIs REST'] },
+    { name: 'Mapas & IA', items: ['Leaflet', 'OpenStreetMap', 'Gemini API'] },
+    { name: 'Ofício', items: ['Git', 'GitHub', 'Docker', 'Linux', 'Vite'] },
   ],
+  note: '+ Kotlin para Android!',
 };
 
 export const works = {
   title: 'Obras',
-  heading: 'Trabalhos selecionados',
-  epigraph: {
-    text: 'Feito é melhor que perfeito — mas bem-feito é melhor que feito.',
-    source: 'Provérbio de oficina',
-  },
-  intro: 'Três obras escolhidas entre muitas. Cada uma ensinou algo que as outras não poderiam.',
-  minor: [
-    ['Kit de Ícones Linha Fina', 'https://github.com/'],
-    ['Biblioteca de Easings', 'https://github.com/'],
-    ['Tipógrafo — gerador de escalas', 'https://github.com/'],
-  ],
+  heading: 'Projetos selecionados',
+  epigraph: { text: 'A simplicidade é o último grau de sofisticação.', source: 'Atribuído a Leonardo da Vinci' },
+  intro: 'Cinco obras entre pesquisa, docência e vida cotidiana — todas abertas no GitHub.',
   items: [
     {
-      title: 'Atlas',
-      kicker: 'Plataforma de dados geoespaciais',
-      year: '2025',
-      role: 'Front-end líder',
+      id: 'amerindia',
+      title: 'Ameríndia',
+      kicker: 'Territórios, histórias e vozes',
+      tag: 'Iniciação Científica · PIBIC',
       description:
-        'Mapa interativo em WebGL que renderiza milhões de pontos em tempo real. Reescrevi a camada de visualização, reduzindo o tempo de carregamento em 63% e tornando a navegação fluida até em dispositivos modestos.',
-      stack: ['React', 'TypeScript', 'Three.js', 'Web Workers'],
-      link: 'https://github.com/',
-      seed: { a: 5, b: 3, loops: 28, r: 0.62 },
+        'Plataforma editorial sobre povos e terras indígenas: mapa interativo com polígonos oficiais da Funai, board em mapa mental, linha do tempo de recortes documentados e um acervo filtrável por período, região, povo e autoria.',
+      stack: ['PHP 8.4', 'SQLite', 'Leaflet', 'JavaScript'],
+      site: 'https://amerindia.alwaysdata.net/',
+      repo: 'https://github.com/anddrad3/Amerindia',
+      plate: { kind: 'photo', src: 'plates/amerindia.jpg', pos: '30% 40%', mount: 'corners' },
+      note: 'PIBIC voluntário ✦',
     },
     {
-      title: 'Maré',
-      kicker: 'E-commerce de moda autoral',
-      year: '2024',
-      role: 'Desenvolvimento & motion',
+      id: 'voz',
+      title: 'Voz do Professor',
+      kicker: 'Informação, direitos e valorização docente',
+      tag: 'Pesquisa de mestrado',
       description:
-        'Loja headless com transições de página cinematográficas e um catálogo que se comporta como uma revista. Conversão 28% maior após o relançamento, com nota 98 de performance no Lighthouse.',
-      stack: ['Next.js', 'GSAP', 'Shopify', 'Tailwind'],
-      link: 'https://github.com/',
-      seed: { a: 7, b: 4, loops: 34, r: 0.55 },
+        'Notícias, vagas, concursos e direitos para professores, com temas claro e escuro e um Radar de Escolas com 184.719 estabelecimentos pesquisáveis por cidade, CEP ou localização. Sem contas e sem coleta de dados dos visitantes.',
+      stack: ['JavaScript', 'Node.js', 'Python', 'SQLite', 'Docker', 'Gemini'],
+      site: 'https://amerindia.alwaysdata.net/voz-do-professor/',
+      repo: 'https://github.com/anddrad3/voz-do-professor',
+      plate: { kind: 'photo', src: 'plates/voz-do-professor.jpg', pos: '0% 0%', mount: 'tape' },
+      note: '→ base do meu mestrado',
     },
     {
-      title: 'Lume',
-      kicker: 'Design system multi-marca',
-      year: '2023',
-      role: 'Arquitetura de componentes',
+      id: 'mlg',
+      title: 'MLG',
+      kicker: 'my life graphs',
+      tag: 'Organização pessoal',
       description:
-        'Sistema de design com 80+ componentes acessíveis, tokens multi-tema e documentação viva. Adotado por quatro produtos e seis times, cortou pela metade o tempo de entrega de novas telas.',
-      stack: ['Vue', 'Storybook', 'Style Dictionary', 'Vitest'],
-      link: 'https://github.com/',
-      seed: { a: 9, b: 2, loops: 40, r: 0.7 },
+        'Organização pessoal e financeira com os dados no próprio navegador: entradas, despesas, parcelas, calendário, cofre, gráficos, importação de planilhas e um sandbox para simular cenários — além de um assistente por texto e voz com Gemini.',
+      stack: ['JavaScript', 'Node.js', 'Gemini API', 'SheetJS'],
+      site: 'https://matityahu.alwaysdata.net/',
+      repo: 'https://github.com/anddrad3/MLG',
+      plate: { kind: 'photo', src: 'plates/mlg.jpg', pos: '50% 30%', mount: 'corners' },
+      note: 'seus dados não saem daqui',
+    },
+    {
+      id: 'bloqueia',
+      title: 'BloqueiaShorts',
+      kicker: 'Menos rolagem, mais vida',
+      tag: 'App Android · código aberto',
+      description:
+        'App Android gratuito que bloqueia os Shorts do YouTube sem modo desenvolvedor e sem atrapalhar apps de banco. Observa só o YouTube, não lê o que você digita, não coleta nada e nem usa internet.',
+      stack: ['Kotlin', 'Android', 'Accessibility Service'],
+      site: 'https://github.com/anddrad3/BloqueiaShorts/releases/latest',
+      siteLabel: 'Baixar o app',
+      repo: 'https://github.com/anddrad3/BloqueiaShorts',
+      plate: { kind: 'phone' },
+      note: 'o v2 respeita seu banco :)',
+    },
+    {
+      id: 'cnpj',
+      title: 'CNPJ Escolas',
+      kicker: 'Dados públicos, com cuidado',
+      tag: 'Extrator · Receita Federal',
+      description:
+        'Extrai estabelecimentos de ensino ativos da base pública de CNPJ da Receita Federal para o Radar do Voz do Professor. Só biblioteca padrão do Python, leitura direta dos ZIPs, relatório com SHA-256 e regras de privacidade alinhadas à LGPD.',
+      stack: ['Python', 'SQLite', 'Dados abertos'],
+      repo: 'https://github.com/anddrad3/cnpj-escolas',
+      plate: { kind: 'data', number: '184.719', label: 'estabelecimentos de ensino', sub: 'extraídos da base pública de CNPJ' },
+      note: 'nenhum nome inventado!',
     },
   ],
 };
 
-export const journey = {
-  title: 'Jornada',
-  heading: 'Linha do tempo',
-  epigraph: {
-    text: 'O caminho se faz ao caminhar.',
-    source: 'Antonio Machado',
-  },
-  intro: 'Os lugares por onde passei e o que cada um deixou na minha forma de trabalhar.',
+export const formation = {
+  title: 'Formação',
+  heading: 'Formação e ofício',
+  epigraph: { text: 'Ninguém se banha duas vezes no mesmo rio.', source: 'Heráclito de Éfeso' },
+  intro: 'Uma trajetória entre a sala de aula, a universidade e o terminal.',
   items: [
-    {
-      period: '2024 — hoje',
-      role: 'Front-end Sênior',
-      place: 'Estúdio Norte',
-      text: 'Lidero a camada de interface de produtos com foco em motion e 3D para marcas globais.',
-    },
-    {
-      period: '2022 — 2024',
-      role: 'Front-end Pleno',
-      place: 'Fintech Aurora',
-      text: 'Construí o design system e a nova experiência web do app, usada por 2 milhões de pessoas.',
-    },
-    {
-      period: '2020 — 2022',
-      role: 'Desenvolvedor Front-end',
-      place: 'Agência Prisma',
-      text: 'Sites institucionais e campanhas interativas premiadas para clientes de varejo e cultura.',
-    },
-    {
-      period: '2019',
-      role: 'Primeira linha de código',
-      place: 'Autodidata',
-      text: 'Um tutorial de HTML, uma madrugada inteira e a certeza de que era isso.',
-    },
+    { when: 'Próximo capítulo', what: 'Mestrado', where: 'Voz do Professor como pesquisa', future: true },
+    { when: 'Hoje', what: 'Dev Full Stack', where: 'Servidor público e professor' },
+    { when: 'Pesquisa', what: 'Iniciação Científica (PIBIC)', where: 'Projeto Ameríndia' },
+    { when: '3º ano', what: 'História — Lic. e Bach.', where: 'UNESP' },
+    { when: 'Em curso', what: 'Pedagogia — Licenciatura', where: 'Unopar Anhanguera' },
+    { when: 'Concluinte', what: 'Filosofia — Licenciatura', where: 'Unopar Anhanguera' },
+    { when: 'Origem', what: 'Técnico em Informática', where: 'ETEC Dr. Júlio Cardoso' },
   ],
+  note: 'humanas + exatas',
 };
 
 export const epilogue = {
   title: 'Epílogo',
   heading: 'Correspondência',
-  epigraph: {
-    text: 'Toda boa história merece uma continuação.',
-    source: 'Anônimo',
-  },
-  intro:
-    'Se chegou até aqui, talvez tenhamos algo a construir juntos. Escreva — respondo toda carta com o mesmo cuidado com que escrevo código.',
-  email: 'contato@matheusandrade.dev',
-  availability: 'Disponível para projetos freelance e posições remotas a partir de janeiro.',
+  epigraph: { text: 'A vida só é possível reinventada.', source: 'Cecília Meireles' },
+  intro: 'Se chegou até aqui, talvez tenhamos algo a construir juntos. Escreva — toda carta recebe resposta.',
+  email: 'matheusilvaandradecontato@gmail.com',
+  availability: 'Aberto a oportunidades freelance e a projetos que unam tecnologia e educação.',
   links: [
-    ['GitHub', 'https://github.com/'],
-    ['LinkedIn', 'https://linkedin.com/'],
-    ['Instagram', 'https://instagram.com/'],
-    ['Currículo (PDF)', '#'],
+    ['GitHub', 'https://github.com/anddrad3'],
+    ['LinkedIn', 'https://www.linkedin.com/in/matheus-da-silva-andrade-93a011368/'],
+    ['Currículo Lattes', 'http://lattes.cnpq.br/2995910024222315'],
+    ['Voz do Professor', 'https://amerindia.alwaysdata.net/voz-do-professor/'],
+  ],
+};
+
+export const diary = {
+  title: 'Diário de bordo',
+  intro: 'Este livro ainda está sendo escrito. As últimas linhas, direto do GitHub:',
+  // Usado se a API do GitHub estiver indisponível
+  fallback: [
+    { repo: 'BloqueiaShorts', date: '2026-11-14', message: 'Versão 2.0: bloqueia só YouTube Shorts, sem quebrar apps de banco' },
+    { repo: 'MLG', date: '2026-11-07', message: 'Use available Gemini Flash model for new deployments' },
+    { repo: 'Amerindia', date: '2026-11-06', message: 'Preserve PDF bytes across Git checkouts' },
+    { repo: 'voz-do-professor', date: '2026-11-05', message: 'fix: exibir importação do Radar no horário de Brasília' },
+    { repo: 'cnpj-escolas', date: '2026-11-05', message: 'feat: extrator 2.0 com nomes de estabelecimentos e situação ativa auditável' },
   ],
 };
 
 export const colophon = {
   text: [
-    'Este volume foi composto em Cormorant Garamond e EB Garamond, impresso em HTML, CSS e JavaScript, e encadernado com GSAP.',
-    'Nenhum framework foi ferido durante sua produção.',
+    'Este volume foi composto em Cormorant Garamond e EB Garamond, anotado à mão em Caveat, impresso em HTML, CSS e JavaScript e encadernado com GSAP.',
+    'Nenhuma imagem de textura foi usada: couro, papel, madeira e mármore são filtros SVG gerados por código.',
   ],
 };
+
+/** Índice remissivo — números são os fólios (páginas) do livro */
+export const index = [
+  ['Acessibilidade', [4, 9]], ['Ameríndia', [6, 12]], ['Android', [9]], ['APIs REST', [4]],
+  ['CNPJ', [10]], ['Docker', [4, 7]], ['ETEC', [2, 12]], ['Filosofia', [2, 12]],
+  ['Franca', [2]], ['Gemini', [7, 8]], ['História', [2, 12]], ['Kotlin', [4, 9]],
+  ['Laravel', [4]], ['Leaflet', [6]], ['LGPD', [10]], ['Mestrado', [7, 12]],
+  ['MLG', [8]], ['Node.js', [7, 8]], ['Paulo Freire', ['ii']], ['Pedagogia', [2, 12]],
+  ['PHP', [4, 6]], ['PIBIC', [6, 12]], ['Privacidade', [8, 9, 10]], ['Python', [4, 10]],
+  ['React', [4]], ['SQLite', [6, 10]], ['UNESP', [2, 12]], ['Voz do Professor', [7, 10]],
+];

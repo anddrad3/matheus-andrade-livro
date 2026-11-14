@@ -9,9 +9,10 @@ import gsap from 'gsap';
  *  - Mobile: uma página por vez; o livro desliza para mostrar o lado ativo.
  */
 export class Book {
-  constructor({ el, pages, onChange, reduced }) {
+  constructor({ el, pages, tabs = [], onChange, onFlip, reduced }) {
     this.el = el;
     this.onChange = onChange;
+    this.onFlip = onFlip;
     this.reduced = reduced;
     this.N = pages.length / 2;
     this.s = 0;
@@ -28,13 +29,18 @@ export class Book {
       leaf.className = 'leaf';
       if (k === 0 || k === this.N - 1) leaf.classList.add('is-board');
       leaf.dataset.leaf = k;
-      leaf.innerHTML = `<div class="face front">${pages[2 * k]}</div><div class="face back">${pages[2 * k + 1]}</div>`;
+      const tabHtml = tabs
+        .filter((t) => t.leaf === k)
+        .map((t) => `<button class="tab" type="button" data-goto="${t.page}" style="--pos:${t.pos};--tab-c:${t.color}" tabindex="-1" aria-label="Ir para ${t.label}"><span>${t.tab}</span></button>`)
+        .join('');
+      leaf.innerHTML = `<div class="face front">${pages[2 * k]}${tabHtml}</div><div class="face back">${pages[2 * k + 1]}${tabHtml}</div>`;
       frag.appendChild(leaf);
       this.leaves.push(leaf);
     }
     el.querySelector('.leaves').appendChild(frag);
     this.pageEls = [...el.querySelectorAll('.page')].sort((a, b) => a.dataset.page - b.dataset.page);
     this.shadow = el.querySelector('.book-shadow');
+    this.cast = el.querySelector('.cast');
     this.edges = el.querySelector('.edges');
 
     this.layout();
@@ -65,6 +71,7 @@ export class Book {
     root.setProperty('--pw', `${this.pw}px`);
     root.setProperty('--ph', `${this.ph}px`);
     root.setProperty('--fs', `${(this.pw / (desktop ? 30 : 27.5)).toFixed(3)}px`);
+    root.setProperty('--T', `${((this.N - 1) * 2.4).toFixed(1)}px`);
     document.documentElement.dataset.mode = this.mode;
     // No mobile, nunca fique num lado que não existe
     if (this.s === 0) this.side = 'right';
@@ -136,6 +143,27 @@ export class Book {
     });
   }
 
+  /**
+   * Sombra que a folha em movimento projeta sobre a página de baixo.
+   * `deg` = ângulo da folha (0 = deitada à direita, 180 = deitada à esquerda).
+   */
+  castShadow(deg) {
+    if (!this.cast) return;
+    if (deg == null) {
+      this.cast.style.opacity = 0;
+      return;
+    }
+    const rad = (deg * Math.PI) / 180;
+    const right = deg < 90;
+    // borda projetada da folha, em % de meia-página medida a partir da lombada
+    const edge = Math.abs(Math.cos(rad)) * 100;
+    const strength = Math.sin(rad);
+    this.cast.style.opacity = 1;
+    this.cast.style.setProperty('--edge', `${edge.toFixed(2)}%`);
+    this.cast.style.setProperty('--k', (strength * 0.55).toFixed(3));
+    this.cast.dataset.side = right ? 'right' : 'left';
+  }
+
   /* ─────────── navegação ─────────── */
 
   canNext() {
@@ -182,6 +210,7 @@ export class Book {
     this.s = t;
     this.side = side;
     this.onChange?.(this);
+    if (count) this.onFlip?.(count, t > from ? 1 : -1);
 
     if (this.reduced) {
       this.applyStatic();
@@ -221,7 +250,9 @@ export class Book {
             onUpdate: () => {
               const r = gsap.getProperty(leaf, 'rotationY');
               leaf.style.setProperty('--lift', Math.sin((-r / 180) * Math.PI).toFixed(3));
+              if (j === 0) this.castShadow(-r);
             },
+            onComplete: j === moving.length - 1 ? () => this.castShadow(null) : undefined,
           },
           at,
         );

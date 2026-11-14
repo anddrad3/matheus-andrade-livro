@@ -1,25 +1,32 @@
 # Matheus Andrade — o livro
 
-Portfólio de desenvolvedor front-end em forma de **livro de edição de luxo**.
+Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**.
 
-Ao entrar, um volume encadernado em couro surge sobre a mesa sob um facho de luz; ao toque, a capa se abre em 3D, a folha de rosto aparece e a página vira para o **sumário**. Cada capítulo é uma seção do portfólio.
+🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
+
+Ao entrar, um volume encadernado em couro repousa sobre uma mesa de madeira sob a luz da luminária; ao toque, a capa se abre em 3D, a folha de rosto aparece e a página vira para o **sumário**.
 
 ## Capítulos
 
 | | Capítulo | Conteúdo |
 |---|---|---|
-| § | Prólogo | Sobre — com capitular, citação e ficha catalográfica |
-| I | Arsenal | Stack e princípios, como um índice remissivo |
-| II | Obras | Projetos, cada um com uma prancha em guilloché gerada por código |
-| III | Jornada | Linha do tempo profissional |
-| § | Epílogo | Contato em forma de carta, com assinatura e selo de cera |
-| — | Colofão | Os créditos tipográficos do volume |
+| § | Prólogo | Quem escreve: bio, formação e ficha catalográfica |
+| I | Arsenal | Linguagens, interfaces, back-end, mapas & IA, ofício |
+| II | Obras | Ameríndia, Voz do Professor, MLG, BloqueiaShorts e CNPJ Escolas |
+| III | Formação | Da ETEC à UNESP, PIBIC e o próximo capítulo: o mestrado |
+| § | Epílogo | Carta de contato, assinatura a pena e o **diário de bordo** com commits ao vivo do GitHub |
+| — | Colofão · Índice remissivo | Créditos tipográficos e um índice clicável |
 
 ## Detalhes
 
+- **Abas de dicionário** na lateral do miolo, que acompanham as folhas ao virar.
+- **Pranchas fotográficas** dos projetos (com cantoneiras e fita), desenho em traço e prancha de dados.
+- **Marginália**: anotações à mão em tinta azul que se escrevem quando a página abre.
+- **Som de papel** sintetizado com Web Audio (com botão para desligar) e **sombra projetada** pela folha que vira.
+- **Diário de bordo** que busca os commits mais recentes na API pública do GitHub.
 - **Livro 3D de verdade**: 10 folhas com frente e verso, profundidade em Z, sombras dinâmicas enquanto a folha vira, bordas do bloco de páginas, pastas maiores que o miolo e marcador de fita.
 - **Folhear rápido**: clicar num capítulo do sumário folheia as páginas intermediárias em sequência.
-- **Zero imagens**: couro, papel, guardas marmorizadas e grão de filme são filtros SVG procedurais; rosetas, cantoneiras, florões, selo e código de barras são vetores gerados em JS.
+- **Texturas procedurais**: couro, papel, madeira, guardas marmorizadas e grão de filme são filtros SVG procedurais; rosetas, cantoneiras, florões, selo e código de barras são vetores gerados em JS.
 - **Ouro em folha** com brilho que acompanha o cursor; poeira dançando na luz em canvas.
 - **Navegação**: setas do teclado, roda do mouse, arrastar no toque, cantos da página, botões, links diretos por hash (`#obras`, `#epilogo`…).
 - **Responsivo**: no celular o livro mostra uma página por vez e desliza entre elas.
@@ -38,9 +45,10 @@ npm run dev
 
 ## Publicação
 
-Cada push na branch `main` publica no **GitHub Pages** via GitHub Actions (`.github/workflows/deploy.yml`).
+- **GitHub Pages:** cada push na `main` publica via GitHub Actions (`.github/workflows/deploy.yml`).
+- **alwaysdata:** `npm run deploy` faz o build e envia por SSH (`scripts/deploy-alwaysdata.mjs`).
 
 ## Stack
 
 Vite · JavaScript puro · GSAP · CSS 3D transforms · SVG procedural · Canvas 2D
-Tipografia: Cormorant Garamond, EB Garamond e Pinyon Script.
+Tipografia: Cormorant Garamond, EB Garamond, Pinyon Script e Caveat.
