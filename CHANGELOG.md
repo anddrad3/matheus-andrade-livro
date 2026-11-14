@@ -2,6 +2,13 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.3.0] — 2026-11-14
+### Alterado
+- **Roda do mouse = zoom**: no computador a roda aproxima e afasta o livro em torno do cursor (antes folheava). Com o livro fechado, rolar para baixo ainda abre.
+- **Virar com um clique**: clicar na página vira — direita avança, esquerda volta (a folha levanta pelo canto mais perto do clique). No celular, um toque avança; no terço esquerdo, volta. Links, abas, fotos e botões continuam funcionando normalmente; arrastar continua virando também.
+### Removido
+- Botões de zoom (− 100% +) do topo.
+
 ## [4.2.0] — 2026-11-14
 ### Alterado
 - **Música desde o início**: se o navegador libera som automático, a abertura já começa tocando; se bloqueia (regra de todos os navegadores: som só depois de um gesto na página), o monograma da entrada pede “toque para abrir o livro ♪” — e esse toque liga a trilha e dá a partida na cena ao mesmo tempo, em vez de a cena rodar muda.

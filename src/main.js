@@ -393,7 +393,6 @@ function renderPZ(animate) {
   const z = zoomed();
   document.body.classList.toggle('is-zoomed', z);
   zoomBtn.hidden = !z || book.mode === 'desktop';
-  if (zoomVal) zoomVal.textContent = `${Math.round(pz.s * 100)}%`;
   const vars = { scale: pz.s, x: pz.x, y: pz.y };
   if (animate) gsap.to(rig, { ...vars, duration: 0.5, ease: 'power3.out', overwrite: 'auto' });
   else {
@@ -485,21 +484,16 @@ function zoomBy(dir) {
   const r = vrect(rig);
   zoomAt({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, s, true);
 }
-const zoomVal = $('#zoomctl .zc-val');
-$('#zoomctl').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-zoom]');
-  if (!b) return;
-  const d = Number(b.dataset.zoom);
-  if (d === 0) resetPZ();
-  else zoomBy(d);
-});
-
-// Ctrl + roda do mouse (ou pinça do trackpad, que o navegador entrega assim)
+// roda do mouse (e pinça do trackpad) aproxima/afasta em torno do cursor
 window.addEventListener('wheel', (e) => {
-  if (!e.ctrlKey || !opened || openTl || spin.active) return;
+  if (!opened || openTl || spin.active) return;
+  if (modalOpen() || e.target.closest?.('#phone-modal, #obj-modal, #ui')) return;
   e.preventDefault();
-  const s = Math.max(1, Math.min(4, pz.s * Math.exp(-e.deltaY * 0.004)));
-  if (s <= 1.02) return resetPZ();
+  // linhas (Firefox) ou páginas → pixels; pinça do trackpad chega como Ctrl + roda, mais fina
+  const unit = e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1;
+  const dy = Math.max(-240, Math.min(240, e.deltaY * unit));
+  const s = Math.max(1, Math.min(4, pz.s * Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0022))));
+  if (s <= 1.02) return pz.s > 1 && resetPZ();
   zoomAt(vpt(e.clientX, e.clientY), s, false);
 }, { passive: false });
 
@@ -1135,6 +1129,21 @@ function bindControls() {
       book.next();
       return;
     }
+    // clicar na página vira: página da direita avança, da esquerda volta
+    // (no celular com uma página só: toque no terço esquerdo volta, no resto avança)
+    // (o lado sai da posição do clique em relação à lombada: no 3D o alvo pode ser a folha inteira)
+    const pg = opened && !e.defaultPrevented && !spin.active && !pageDragged && e.target.closest('.leaf');
+    if (pg && !e.target.closest('a, button, input, textarea, label, [data-goto], [data-copy], [data-diary], .plate, .tab')) {
+      const x = vpt(e.clientX, e.clientY).x;
+      let fwd;
+      if (book.s === book.N) fwd = false;
+      else if (!book.spread) fwd = x > vw() * 0.33;
+      else fwd = x > spineX().x;
+      const r = vrect(rig);
+      book.nextTilt = vpt(e.clientX, e.clientY).y < r.top + r.height / 2 ? -0.5 : 0.5; // levanta pelo canto mais perto
+      fwd ? book.next() : book.prev();
+      return;
+    }
     const copy = e.target.closest('[data-copy]');
     if (copy) {
       navigator.clipboard?.writeText(copy.dataset.copy).then(() => {
@@ -1167,24 +1176,9 @@ function bindControls() {
     if (e.key === 'End') { e.preventDefault(); book.goToPage(18); }
   });
 
-  // roda do mouse folheia (com trava)
-  let acc = 0;
-  let lock = 0;
+  // livro fechado (abertura): rolar a roda para baixo abre; aberto, a roda é zoom
   window.addEventListener('wheel', (e) => {
-    if (e.ctrlKey) return; // Ctrl + roda = aproximar (tratado na pinça)
-    if (modalOpen() || e.target.closest?.('#phone-modal, #obj-modal')) return;
-    if (!opened) {
-      if (e.deltaY > 10) open();
-      return;
-    }
-    const now = performance.now();
-    if (now < lock) return;
-    acc += Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-    if (Math.abs(acc) > 70) {
-      acc > 0 ? book.next() : book.prev();
-      acc = 0;
-      lock = now + 900;
-    }
+    if (!opened && !modalOpen() && e.deltaY > 10) open();
   }, { passive: true });
 
   // gesto de arrastar no toque
@@ -1345,9 +1339,6 @@ function translateStatic() {
     ['#lie-exit', '↺ one page'],
     ['#lie-hint', '<span class="lh-phone"></span>turn your phone to read both pages', null, true],
     ['#read-hint', 'swipe to turn · “2 pages” shows both · pinch to zoom'],
-    ['#zoomctl [data-zoom="-1"]', null, { 'aria-label': 'Zoom out' }],
-    ['#zoomctl [data-zoom="0"]', null, { 'aria-label': 'Original size' }],
-    ['#zoomctl [data-zoom="1"]', null, { 'aria-label': 'Zoom in' }],
     ['#desk-props', null, { 'aria-label': 'Desk objects' }],
     ['.dp-glasses', null, { 'aria-label': 'Work glasses' }],
     ['.dp-ring', null, { 'aria-label': 'Coffee ring or candle' }],

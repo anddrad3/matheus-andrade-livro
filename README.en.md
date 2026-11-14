@@ -4,7 +4,7 @@
 
 Portfolio of **Matheus da Silva Andrade** — full stack developer, teacher and researcher — shaped as a **deluxe-edition book**, in Portuguese and English.
 
-**Version 4.2.0** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
+**Version 4.3.0** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
 
 🔗 **Live:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
@@ -36,13 +36,13 @@ The site follows the **visitor’s device**: light theme → classic edition, da
 
 ## Interactions
 
-- **Turning pages**: the leaf is **malleable** — grab it anywhere, lifting from the bottom or the top, and it bends like paper; you can also swipe on a phone, use the arrow keys, the mouse wheel, the tabs or the contents page.
+- **Turning pages**: **click the page** (right goes forward, left goes back; on a phone, tap — the left third goes back) or drag it from anywhere: the leaf is **malleable**, lifted from the bottom or the top, and bends like paper. Also: arrow keys, the tabs or the contents page.
 - **Pages written before your eyes**: text appears word by word and pictures are drawn each time a page opens.
 - **Visit the work** (or click the photo): the camera dives into the website plate and the site opens in a new tab.
 - **360° mode**: on desktop, drag outside the book to rotate it and, facing you, drag the page to turn it; on a phone, drag anywhere (including over the book). “Back to the book”, Esc or double click to leave.
 - **Desk objects**: click and the object opens in a card you can rotate 360° (with smooth inertia), with 3 lines per object and per theme.
 - **Desk phone**: opens a music app showing the edition’s track, a note about it and a Doré engraving from the *Divine Comedy* as cover art; pause, restart, scrub, volume, page sounds and switching editions.
-- **Zoom**: on desktop, the **− 100% +** buttons at the top, the `+` `−` `0` keys or Ctrl + wheel / trackpad pinch; on a phone, pinch. When zoomed in, drag to move around the page.
+- **Zoom**: on desktop, the **mouse wheel** zooms in and out around the cursor (also trackpad pinch and the `+` `−` `0` keys); on a phone, pinch. When zoomed in, drag to move around the page.
 - **Language**: the **PT ⇄ EN** switch at the top — the whole book (pages, objects, phone, buttons) changes language.
 - **Soundtrack from the first moment**: if the browser already allows sound, the opening starts playing; if not (browser rule: sound only after a tap), the monogram asks “tap to open the book ♪” and that tap starts the music and the scene together.
 - **Replay the opening** (the music restarts with it) at any time; **M·A** closes the book on its cover.

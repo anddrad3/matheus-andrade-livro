@@ -4,7 +4,7 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**, em português e inglês.
 
-**Versão 4.2.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
+**Versão 4.3.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
 
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
@@ -36,13 +36,13 @@ O site segue o **aparelho de quem visita**: tema claro → edição clássica, t
 
 ## Interações
 
-- **Folhear**: a folha é **maleável** — arraste de qualquer ponto, levantando por baixo ou por cima, e ela curva como papel; também deslize o dedo no celular, use setas, roda do mouse, abas ou o sumário.
+- **Folhear**: **clique na página** (direita avança, esquerda volta; no celular, toque — o terço esquerdo volta) ou arraste de qualquer ponto: a folha é **maleável**, levantada por baixo ou por cima, e curva como papel. Também: setas do teclado, abas ou o sumário.
 - **Páginas escritas diante do leitor**: o texto surge palavra a palavra e as imagens são desenhadas a cada página aberta.
 - **Visitar a obra** (ou clicar na foto): a câmera mergulha na prancha do site e o site abre em nova aba.
 - **Modo 360°**: no computador, arraste fora do livro para girá-lo e, de frente, arraste a página para folhear; no celular, arraste em qualquer lugar (inclusive sobre o livro). "Voltar ao livro", Esc ou duplo clique para sair.
 - **Objetos da mesa**: clique e o objeto abre num card, girável em 360° (com inércia suave), com 3 falas por objeto e por tema.
 - **Celular da mesa**: abre num app de música com a faixa da edição, um texto sobre ela e a gravura de Doré da *Divina Comédia* como capa; pausar, voltar ao começo, arrastar a faixa, volume, som das páginas e trocar de edição.
-- **Zoom**: no computador, botões **− 100% +** no topo, teclas `+` `−` `0` ou Ctrl + roda/pinça do trackpad; no celular, pinça. Aproximado, arraste para passear pela página.
+- **Zoom**: no computador, a **roda do mouse** aproxima e afasta em torno do cursor (também pinça do trackpad e teclas `+` `−` `0`); no celular, pinça. Aproximado, arraste para passear pela página.
 - **Idioma**: interruptor **PT ⇄ EN** no topo — o livro inteiro (páginas, objetos, celular, botões) muda de idioma.
 - **Trilha desde o primeiro instante**: se o navegador já libera o som, a abertura começa tocando; se não (regra dos navegadores: som só depois de um toque), o monograma pede “toque para abrir o livro ♪” e esse toque liga a música e a cena juntas.
 - **Reiniciar a abertura** (a música recomeça junto) a qualquer momento; **M·A** fecha o livro na capa.
