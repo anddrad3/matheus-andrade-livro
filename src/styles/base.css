@@ -116,22 +116,26 @@ a {
   pointer-events: none;
 }
 
+/* refletor: um círculo de tamanho fixo movido por transform (sem repintar a tela) */
 #spot {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 76vmax;
+  height: 76vmax;
+  margin: -38vmax 0 0 -38vmax;
   pointer-events: none;
-  background: radial-gradient(circle 38vmax at var(--sx, 50%) var(--sy, 40%), rgba(255, 210, 150, 0.075), transparent 70%);
-  mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255, 210, 150, 0.06), transparent 70%);
+  will-change: transform;
 }
 
 .grain {
   position: fixed;
-  inset: -50%;
+  inset: 0;
   pointer-events: none;
   background-image: var(--tex-grain);
-  opacity: 0.07;
+  opacity: 0.06;
   z-index: 50;
-  animation: grain 1.2s steps(6) infinite;
 }
 
 @keyframes grain {

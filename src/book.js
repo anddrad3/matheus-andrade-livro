@@ -133,6 +133,16 @@ export class Book {
     return [side === 'left' ? 2 * s - 1 : 2 * s];
   }
 
+  /**
+   * Só as folhas à vista (as duas do espelho) e as que estão em movimento
+   * são desenhadas; as outras ficam ocultas — exceto as abas, que aparecem
+   * na lateral do miolo.
+   */
+  cull(extra = []) {
+    const keep = new Set([this.s - 1, this.s, ...extra]);
+    this.leaves.forEach((leaf, k) => leaf.classList.toggle('is-culled', !keep.has(k)));
+  }
+
   updateVisibility(pages = this.visiblePages()) {
     const set = new Set(pages);
     this.pageEls.forEach((el, p) => {
@@ -141,6 +151,7 @@ export class Book {
       el.inert = !on;
       el.setAttribute('aria-hidden', on ? 'false' : 'true');
     });
+    this.cull();
   }
 
   /**
@@ -206,11 +217,16 @@ export class Book {
     const dest = this.visiblePages(t, side);
     // Revela os destinos já no início, para a página surgir enquanto vira
     this.updateVisibility([...new Set([...this.visiblePages(), ...dest])]);
+    const lo = Math.min(from, t) - 1;
+    const hi = Math.max(from, t);
+    const range = [];
+    for (let k = lo; k <= hi; k++) range.push(k);
 
     this.s = t;
     this.side = side;
     this.onChange?.(this);
     if (count) this.onFlip?.(count, t > from ? 1 : -1);
+    this.cull(range);
 
     if (this.reduced) {
       this.applyStatic();

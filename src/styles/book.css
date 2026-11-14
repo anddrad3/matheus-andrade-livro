@@ -643,3 +643,17 @@
 .board .foil-stroke {
   color: #c9a24f;
 }
+
+/* folhas fora de vista não são desenhadas (as abas continuam) */
+.leaf.is-culled {
+  visibility: hidden;
+}
+
+.leaf.is-culled .tab {
+  visibility: visible;
+}
+
+/* girando em 360° o livro é visto de todos os lados: desenha tudo */
+.is-spin .leaf.is-culled {
+  visibility: visible;
+}

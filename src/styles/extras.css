@@ -24,9 +24,9 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 55% 50% at 50% 44%, rgba(255, 190, 110, 0.09), transparent 70%);
+  background: radial-gradient(ellipse 55% 50% at 50% 44%, rgba(255, 190, 110, 0.07), transparent 70%);
   animation: lamp 5.5s ease-in-out infinite;
-  mix-blend-mode: screen;
+  will-change: opacity;
 }
 
 @keyframes lamp {
@@ -63,16 +63,25 @@
   inset: 0;
   z-index: 4;
   pointer-events: none;
-  background: linear-gradient(105deg, transparent 38%, rgba(255, 236, 190, 0.13) 48%, rgba(255, 246, 220, 0.22) 50%, rgba(255, 236, 190, 0.13) 52%, transparent 62%);
-  background-size: 300% 100%;
-  background-position: 120% 0;
-  mix-blend-mode: screen;
+  overflow: hidden;
+}
+
+/* faixa de luz movida só por transform: o compositor anima sem repintar a capa */
+.cover-glint::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(105deg, transparent 10%, rgba(255, 236, 190, 0.1) 40%, rgba(255, 246, 220, 0.17) 50%, rgba(255, 236, 190, 0.1) 60%, transparent 90%);
+  transform: translateX(-110%);
   animation: glint 7s ease-in-out 2.4s infinite;
 }
 
 @keyframes glint {
-  0% { background-position: 120% 0; }
-  28%, 100% { background-position: -40% 0; }
+  0% { transform: translateX(-110%); }
+  28%, 100% { transform: translateX(190%); }
 }
 
 /* ─────────────────────────────────────────────
@@ -892,8 +901,7 @@ a.d-repo:hover {
   width: calc(var(--pw) * 7);
   height: calc(var(--pw) * 6);
   margin: calc(var(--pw) * -3.2) 0 0 calc(var(--pw) * -3.4);
-  background: radial-gradient(closest-side, rgba(255, 200, 125, 0.24), rgba(255, 170, 90, 0.07) 55%, transparent);
-  mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255, 200, 125, 0.16), rgba(255, 170, 90, 0.05) 55%, transparent);
 }
 
 .prop {

@@ -79,12 +79,48 @@ const grain = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">
   <rect width="100%" height="100%" filter="url(#g)"/>
 </svg>`;
 
+const TEXTURES = {
+  '--tex-paper': [paper, 300, 300],
+  '--tex-mottle': [mottle, 600, 600],
+  '--tex-leather': [leather, 400, 400],
+  '--tex-marble': [marble, 700, 900],
+  '--tex-grain': [grain, 220, 220],
+  '--tex-wood': [wood, 1200, 600],
+};
+
+/**
+ * Os filtros SVG são lindos, mas caros: o navegador os recalcula sempre que
+ * a cena 3D muda de escala. Aqui cada textura é renderizada UMA vez num
+ * canvas e vira um PNG (blob) — o navegador passa a só copiar pixels.
+ * Se algo falhar (ex.: canvas bloqueado), fica o SVG original.
+ */
+function rasterize(svg, w, h) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        c.toBlob((blob) => resolve(blob ? `url("${URL.createObjectURL(blob)}")` : null), 'image/png');
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.replace(/\s+/g, ' '))}`;
+  });
+}
+
+/** instala as texturas; a promessa resolve quando todas viraram bitmap */
 export function installTextures() {
   const root = document.documentElement.style;
-  root.setProperty('--tex-paper', uri(paper));
-  root.setProperty('--tex-mottle', uri(mottle));
-  root.setProperty('--tex-leather', uri(leather));
-  root.setProperty('--tex-marble', uri(marble));
-  root.setProperty('--tex-grain', uri(grain));
-  root.setProperty('--tex-wood', uri(wood));
+  return Promise.all(
+    Object.entries(TEXTURES).map(async ([name, [svg, w, h]]) => {
+      const bitmap = await rasterize(svg, w, h);
+      root.setProperty(name, bitmap ?? uri(svg));
+    }),
+  );
 }

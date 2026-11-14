@@ -15,7 +15,7 @@ import { createSpin } from './spin.js';
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s) => document.querySelector(s);
 
-installTextures();
+const texturesReady = installTextures();
 const sound = createSound();
 startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
@@ -124,6 +124,7 @@ function open() {
   if (opened || openTl) return;
   document.body.classList.remove('can-open');
   document.body.classList.add('is-opening');
+  book.cull([0, 1]);
   sound.unlock();
   sound.open();
   floatTween?.kill();
@@ -342,11 +343,25 @@ function enableParallax() {
   }, { passive: true });
 }
 
-// brilho do ouro acompanha o cursor (capa e contracapa)
+// brilho do ouro acompanha o cursor — só nas capas, só quando estão à vista,
+// no máximo uma vez por quadro (variável no :root recalcularia a página inteira)
+const boards = [book.leaves[0], book.leaves[book.N - 1]];
+let mxQueued = false;
+let mxEvent = null;
 window.addEventListener('pointermove', (e) => {
-  const root = document.documentElement.style;
-  root.setProperty('--mx', (e.clientX / window.innerWidth).toFixed(3));
-  root.setProperty('--my', (e.clientY / window.innerHeight).toFixed(3));
+  mxEvent = e;
+  if (mxQueued) return;
+  mxQueued = true;
+  requestAnimationFrame(() => {
+    mxQueued = false;
+    if (opened && book.s > 0 && book.s < book.N) return;
+    const mx = (mxEvent.clientX / window.innerWidth).toFixed(2);
+    const my = (mxEvent.clientY / window.innerHeight).toFixed(2);
+    boards.forEach((b) => {
+      b.style.setProperty('--mx', mx);
+      b.style.setProperty('--my', my);
+    });
+  });
 }, { passive: true });
 
 /* ───────────── início ───────────── */
@@ -356,7 +371,7 @@ updateUI();
 loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]'));
 
 const ready = document.fonts?.ready ?? Promise.resolve();
-Promise.race([ready, new Promise((r) => setTimeout(r, 2500))]).then(() => {
+Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout(r, 3000))]).then(() => {
   document.body.classList.add('is-ready');
   if (reduced) {
     gsap.set(camera, { opacity: 1 });
