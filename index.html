@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Matheus Andrade — Desenvolvedor Front-end</title>
+    <meta name="description" content="Portfólio de Matheus Andrade, desenvolvedor front-end. Uma obra em capítulos sobre interfaces, movimento e o ofício de construir para a web." />
+    <meta name="theme-color" content="#0b0807" />
+    <meta property="og:title" content="Matheus Andrade — Desenvolvedor Front-end" />
+    <meta property="og:description" content="Uma obra em capítulos sobre interfaces, movimento e o ofício de construir para a web." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%231d1410'/%3E%3Crect x='5' y='5' width='54' height='54' rx='6' fill='none' stroke='%23c9a45c' stroke-width='1.5'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='28' fill='%23e8c97a'%3EMA%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="backdrop" aria-hidden="true"></div>
+    <canvas id="dust" aria-hidden="true"></canvas>
+    <div id="spot" aria-hidden="true"></div>
+
+    <main id="stage" aria-label="Livro: Matheus Andrade, Desenvolvedor Front-end">
+      <div id="rig">
+        <div id="float">
+          <div id="camera">
+            <div id="book">
+              <div class="book-shadow" aria-hidden="true"></div>
+              <div class="edges" aria-hidden="true">
+                <div class="edge edge-spine"><span>Matheus Andrade</span></div>
+                <div class="edge edge-fore"></div>
+                <div class="edge edge-top"></div>
+                <div class="edge edge-bottom"></div>
+              </div>
+              <div class="leaves"></div>
+              <a class="ribbon" href="#sumario" data-goto="4" aria-label="Marcador: voltar ao sumário"><span></span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="ui">
+      <header class="ui-top">
+        <a class="ui-mark" href="#sumario" data-goto="4" aria-label="Sumário">
+          <span class="ui-mono">M<i>·</i>A</span>
+        </a>
+        <nav class="ui-links" aria-label="Atalhos">
+          <a href="#sumario" data-goto="4" data-nav="sumario">Sumário</a>
+          <a href="#obras" data-goto="9" data-nav="obras">Obras</a>
+          <a href="#epilogo" data-goto="15" data-nav="epilogo">Contato</a>
+        </nav>
+      </header>
+      <footer class="ui-bottom">
+        <button id="prev" class="ui-arrow" type="button" aria-label="Página anterior">
+          <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M40 6H2M7 1L2 6l5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+          <span>anterior</span>
+        </button>
+        <div class="ui-folio">
+          <span id="folio-chapter">Sumário</span>
+          <span id="folio-num"></span>
+          <span class="ui-progress"><span id="progress-bar"></span></span>
+        </div>
+        <button id="next" class="ui-arrow" type="button" aria-label="Próxima página">
+          <span>próxima</span>
+          <svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6h38M33 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+        </button>
+      </footer>
+    </div>
+
+    <button id="prompt" type="button">
+      <span class="prompt-line"></span>
+      <span class="prompt-text">Toque para abrir</span>
+      <span class="prompt-line"></span>
+    </button>
+    <button id="skip" type="button">Pular abertura <kbd>Esc</kbd></button>
+
+    <div id="loader" aria-hidden="true">
+      <span class="loader-orn">❦</span>
+      <span class="loader-text">Encadernando o volume</span>
+    </div>
+
+    <div class="grain" aria-hidden="true"></div>
+    <div id="live" class="sr-only" aria-live="polite"></div>
+
+    <noscript>
+      <p style="color:#e8dcc0;font-family:Georgia,serif;text-align:center;padding:3rem">Este livro precisa de JavaScript para ser folheado.</p>
+    </noscript>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

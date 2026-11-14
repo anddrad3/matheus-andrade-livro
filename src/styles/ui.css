@@ -1,0 +1,292 @@
+/* ─────────────────────────────────────────────
+   Interface ao redor do livro
+   ───────────────────────────────────────────── */
+#ui {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease 0.6s;
+}
+
+.is-open #ui {
+  opacity: 1;
+}
+
+.is-open #ui > * {
+  pointer-events: auto;
+}
+
+.ui-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: max(1.4rem, env(safe-area-inset-top)) clamp(1rem, 3vw, 2.6rem) 0;
+}
+
+.ui-mark {
+  text-decoration: none;
+  display: grid;
+  place-items: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  border: 1px solid rgba(192, 154, 82, 0.45);
+  outline: 1px solid rgba(192, 154, 82, 0.2);
+  outline-offset: 3px;
+  transition: border-color 0.4s, outline-color 0.4s;
+}
+
+.ui-mark:hover {
+  border-color: var(--gold);
+  outline-color: rgba(192, 154, 82, 0.5);
+}
+
+.ui-mono {
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.ui-mono i {
+  font-style: normal;
+  opacity: 0.6;
+  margin: 0 0.05em;
+}
+
+.ui-links {
+  display: flex;
+  gap: clamp(1rem, 2.4vw, 2.2rem);
+}
+
+.ui-links a {
+  position: relative;
+  text-decoration: none;
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(233, 220, 194, 0.6);
+  padding: 0.4rem 0;
+  transition: color 0.4s;
+}
+
+.ui-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0.32em;
+  bottom: 0;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.ui-links a:hover,
+.ui-links a.is-active {
+  color: var(--cream);
+}
+
+.ui-links a:hover::after,
+.ui-links a.is-active::after {
+  transform: scaleX(1);
+}
+
+.ui-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: max(1.2rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: clamp(1.2rem, 4vw, 3rem);
+  white-space: nowrap;
+}
+
+.ui-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.02rem;
+  color: rgba(233, 220, 194, 0.7);
+  padding: 0.6rem 0.2rem;
+  transition: color 0.4s, gap 0.6s var(--ease-out), opacity 0.4s;
+}
+
+.ui-arrow svg {
+  width: 2.4rem;
+  height: 0.8rem;
+}
+
+.ui-arrow:hover:not(:disabled) {
+  color: var(--gold-hi);
+  gap: 1rem;
+}
+
+.ui-arrow:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.ui-folio {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  min-width: 9rem;
+}
+
+#folio-chapter {
+  font-size: 0.66rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(233, 220, 194, 0.55);
+  padding-left: 0.34em;
+}
+
+#folio-num {
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--gold);
+  min-height: 1.3em;
+  font-variant-numeric: oldstyle-nums;
+}
+
+.ui-progress {
+  width: 100%;
+  height: 1px;
+  background: rgba(233, 220, 194, 0.12);
+  overflow: hidden;
+}
+
+#progress-bar {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1s var(--ease-out);
+}
+
+[data-mode='mobile'] .ui-arrow span {
+  display: none;
+}
+
+[data-mode='mobile'] .ui-links a:first-child {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────
+   Convite para abrir / pular abertura
+   ───────────────────────────────────────────── */
+#prompt {
+  position: fixed;
+  left: 50%;
+  bottom: max(2.4rem, calc(env(safe-area-inset-bottom) + 1.2rem));
+  transform: translate(-50%, 0.6rem);
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease, transform 1.2s var(--ease-out);
+}
+
+.can-open #prompt {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.prompt-text {
+  white-space: nowrap;
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: rgba(244, 220, 150, 0.85);
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+.prompt-line {
+  width: 3rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(192, 154, 82, 0.7));
+}
+
+.prompt-line:last-child {
+  transform: scaleX(-1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .prompt-text::after {
+    content: ' — ou pressione Enter';
+    font-size: 0.85em;
+    opacity: 0.55;
+  }
+}
+
+#skip {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2.4rem);
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  z-index: 11;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(233, 220, 194, 0.4);
+  padding: 0.5rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: color 0.4s, opacity 0.8s;
+}
+
+#skip:hover {
+  color: var(--cream);
+}
+
+#skip kbd {
+  font-family: inherit;
+  font-size: 0.9em;
+  letter-spacing: 0.1em;
+  border: 1px solid currentColor;
+  padding: 0.1rem 0.35rem;
+  border-radius: 2px;
+}
+
+.is-open #skip {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body:not(.is-ready) #skip {
+  opacity: 0;
+}
+
+[data-mode='mobile'] #skip kbd {
+  display: none;
+}
+
+[data-mode='mobile'] #skip {
+  top: max(1.4rem, env(safe-area-inset-top));
+  bottom: auto;
+}
+
+[data-mode='mobile'] .prompt-text::after {
+  content: none;
+}
+
+/* cursor indica que o livro pode ser aberto */
+.can-open #stage {
+  cursor: pointer;
+}

@@ -1,0 +1,18 @@
+{
+  "name": "matheus-andrade-livro",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Portfólio de dev em forma de livro — abertura 3D, páginas que viram e capítulos.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "gsap": "^3.15.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}
