@@ -4,14 +4,14 @@
    corte preto no miolo, aberturas de capítulo em páginas negras
    e uma mesa de ébano iluminada pela lua e por uma vela.
    ───────────────────────────────────────────── */
-:root {
+:root[data-theme="dark"] {
   --blood: #9b0d12;
   --blood-hi: #d11c24;
   --silver: #c3c6cc;
 }
 
 /* ─────────── cenário ─────────── */
-#backdrop {
+:root[data-theme="dark"] #backdrop {
   background:
     radial-gradient(ellipse 60% 55% at 50% 42%, rgba(170, 185, 225, 0.1), rgba(150, 165, 210, 0.03) 45%, transparent 70%),
     radial-gradient(ellipse 80% 40% at 50% 112%, rgba(155, 13, 18, 0.22), transparent 70%),
@@ -21,11 +21,11 @@
   background-size: 100% 100%, 100% 100%, 100% 100%, 1200px 600px, auto;
 }
 
-#backdrop::before {
+:root[data-theme="dark"] #backdrop::before {
   background: radial-gradient(ellipse 50% 45% at 50% 40%, rgba(190, 205, 240, 0.06), transparent 70%);
 }
 
-.desk-wood {
+:root[data-theme="dark"] .desk-wood {
   background:
     radial-gradient(ellipse calc(var(--pw) * 1.6) calc(var(--pw) * 1.3) at calc(50% - var(--pw) * 1.45) calc(50% - var(--ph) * 0.05), rgba(255, 120, 40, 0.16), transparent),
     radial-gradient(circle calc(var(--pw) * 3.4) at 50% 50%, rgba(0, 0, 0, 0.15) 25%, rgba(0, 0, 0, 0.65) 58%, rgba(0, 0, 0, 0.95) 85%, #000 100%),
@@ -34,12 +34,12 @@
   background-size: 100% 100%, 100% 100%, 1200px 600px, auto;
 }
 
-.desk-light {
+:root[data-theme="dark"] .desk-light {
   background: radial-gradient(closest-side, rgba(190, 205, 240, 0.12), rgba(150, 165, 210, 0.04) 55%, transparent);
 }
 
 /* vela (vista de cima) no lugar da marca de café */
-.prop-ring {
+:root[data-theme="dark"] .prop-ring {
   width: calc(var(--pw) * 0.24);
   height: calc(var(--pw) * 0.24);
   margin-left: calc(var(--pw) * -1.22);
@@ -54,7 +54,7 @@
 }
 
 /* gotas de cera vermelha escorridas na mesa */
-.prop-ring::after {
+:root[data-theme="dark"] .prop-ring::after {
   content: '';
   position: absolute;
   inset: -22%;
@@ -64,18 +64,18 @@
     radial-gradient(circle at 78% 84%, rgba(130, 8, 12, 0.7) 0 2.5%, transparent 3.5%);
 }
 
-.prop-note {
+:root[data-theme="dark"] .prop-note {
   background: var(--tex-paper), #18181a;
   color: #d11c24;
   box-shadow: -0.3em 0.6em 1em rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(195, 198, 204, 0.25);
 }
 
-.cine-place,
-.ct-pre {
+:root[data-theme="dark"] .cine-place,
+:root[data-theme="dark"] .ct-pre {
   font-family: var(--caps);
 }
 
-.ct-name {
+:root[data-theme="dark"] .ct-name {
   font-family: var(--gothic);
   font-style: normal;
   font-weight: 400;
@@ -84,50 +84,48 @@
 }
 
 /* ─────────── capa ─────────── */
-.cover-skull {
-  width: 82%;
-  margin-bottom: 1.1em;
+/* caveira gravada (Albrecht Dürer, 1503) estampada em prata */
+:root[data-theme="dark"] .cover-skull {
+  width: 64%;
+  aspect-ratio: 560 / 570;
+  margin: -0.4em 0 0.6em;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.85)) drop-shadow(0 0 10px rgba(200, 210, 230, 0.08));
 }
 
-.back-skull {
-  width: 44%;
-  margin-bottom: 1.4em;
+:root[data-theme="dark"] .back-skull {
+  width: 34%;
+  aspect-ratio: 560 / 570;
+  margin-bottom: 1.2em;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.85));
 }
 
-.winged-skull .ws-wing path {
-  fill: currentColor;
-  stroke: #050505;
-  stroke-width: 1;
-  stroke-opacity: 0.7;
+:root[data-theme="dark"] .cover-skull i,
+:root[data-theme="dark"] .back-skull i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    calc(115deg + var(--mx) * 30deg),
+    #4f525a 0%,
+    #c9ccd2 calc(18% + var(--mx) * 15%),
+    #ffffff calc(34% + var(--mx) * 20%),
+    #9ea2a9 calc(52% + var(--mx) * 15%),
+    #e4e7ec 80%,
+    #5a5d64 100%
+  );
+  -webkit-mask: url('../assets/caveira-durer.png') center / contain no-repeat;
+  mask: url('../assets/caveira-durer.png') center / contain no-repeat;
 }
 
-.winged-skull .ws-wing .ws-rachis {
-  fill: none;
-  stroke: #050505;
-  stroke-width: 0.7;
-  stroke-opacity: 0.55;
+:root[data-theme="dark"] .cover-motto {
+  margin: 1.1em 0 0;
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.05em;
+  letter-spacing: 0.08em;
 }
 
-.winged-skull .ws-skull {
-  fill: currentColor;
-}
-
-.winged-skull .ws-teeth,
-.winged-skull .ws-crack {
-  fill: none;
-  stroke: #0a0a0b;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-
-.winged-skull .ws-band {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.2;
-  opacity: 0.7;
-}
-
-.cover-title {
+:root[data-theme="dark"] .cover-title {
   font-family: var(--gothic);
   font-weight: 400;
   text-transform: none;
@@ -137,11 +135,11 @@
   padding-left: 0;
 }
 
-.cover-kicker {
+:root[data-theme="dark"] .cover-kicker {
   font-family: var(--caps);
 }
 
-.cover-role {
+:root[data-theme="dark"] .cover-role {
   font-family: var(--caps);
   font-style: normal;
   font-size: 0.74em;
@@ -151,7 +149,7 @@
   padding-left: 0.22em;
 }
 
-.cover-edition {
+:root[data-theme="dark"] .cover-edition {
   margin: 1.6em 0 0;
   font-family: var(--caps);
   font-size: 0.7em;
@@ -161,12 +159,12 @@
   opacity: 0.85;
 }
 
-.cover-rule {
+:root[data-theme="dark"] .cover-rule {
   margin: 0.8em 0 0.9em;
 }
 
 /* prata cromada no lugar do ouro */
-.foil {
+:root[data-theme="dark"] .foil {
   background: linear-gradient(
     calc(110deg + var(--mx) * 30deg),
     #4a4d54 0%,
@@ -182,9 +180,9 @@
 }
 
 /* ─────────── corte preto do miolo (como nas edições de colecionador) ─────────── */
-.edge-fore,
-.edge-top,
-.edge-bottom {
+:root[data-theme="dark"] .edge-fore,
+:root[data-theme="dark"] .edge-top,
+:root[data-theme="dark"] .edge-bottom {
   background:
     linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent 30%, rgba(0, 0, 0, 0.4) 100%),
     repeating-linear-gradient(to right, #0b0b0c 0 1px, #19191c 1px 2px, #0e0e10 2px 3px),
@@ -192,8 +190,8 @@
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
 }
 
-.edge-top,
-.edge-bottom {
+:root[data-theme="dark"] .edge-top,
+:root[data-theme="dark"] .edge-bottom {
   background:
     linear-gradient(to right, rgba(255, 255, 255, 0.08), transparent 40%, rgba(0, 0, 0, 0.4)),
     repeating-linear-gradient(to bottom, #0b0b0c 0 1px, #19191c 1px 2px, #0e0e10 2px 3px),
@@ -201,21 +199,21 @@
 }
 
 /* ─────────── páginas ─────────── */
-.opener-title,
-.tp-title em {
+:root[data-theme="dark"] .opener-title,
+:root[data-theme="dark"] .tp-title em {
   font-family: var(--gothic);
   font-style: normal;
   font-weight: 400;
 }
 
-.opener-label,
-.running-head,
-.tp-author {
+:root[data-theme="dark"] .opener-label,
+:root[data-theme="dark"] .running-head,
+:root[data-theme="dark"] .tp-author {
   font-family: var(--caps);
 }
 
 /* aberturas de capítulo em página negra */
-.paper.is-opener {
+:root[data-theme="dark"] .paper.is-opener {
   --ink: #e9e6e0;
   --ink-soft: #bdbab4;
   --ink-faint: #8d8a85;
@@ -229,149 +227,73 @@
   color: var(--ink);
 }
 
-.paper.is-opener .paper-shade {
+:root[data-theme="dark"] .paper.is-opener .paper-shade {
   background:
     linear-gradient(to left, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.25) 3%, transparent 10%),
     linear-gradient(to right, rgba(195, 198, 204, 0.06), transparent 2.5%);
 }
 
-.paper.is-opener .opener-numeral {
+:root[data-theme="dark"] .paper.is-opener .opener-numeral {
   text-shadow: 0 0 18px rgba(209, 28, 36, 0.35);
 }
 
 /* abas: tinta prata */
-.tab span {
+:root[data-theme="dark"] .tab span {
   color: #e4e7ec;
 }
 
 /* cantos de página na cor do papel osso */
-.curl-next::before,
-.curl-prev::before {
+:root[data-theme="dark"] .curl-next::before,
+:root[data-theme="dark"] .curl-prev::before {
   filter: saturate(0);
 }
 
-.winged-skull .ws-cov path {
-  stroke-opacity: 0.85;
-}
 
-/* ─────────── blocos de páginas (modo 360°) ─────────── */
-@property --tl {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
 
-@property --tr {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-
-:root {
-  transition: --tl 0.7s ease, --tr 0.7s ease;
-}
-
-.blocks {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  pointer-events: none;
-  visibility: hidden;
-  transition: visibility 0s linear 0.7s;
-}
-
-.is-thick .blocks {
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.block {
-  position: absolute;
-  top: 0;
-  width: var(--pw);
-  height: var(--ph);
-  transform-style: preserve-3d;
-}
-
-.block-l { left: 0; }
-.block-r { left: var(--pw); }
-
-.bs {
-  position: absolute;
-  display: block;
+/* blocos do 360° com corte preto */
+:root[data-theme="dark"] .bs {
   background:
     linear-gradient(rgba(255, 255, 255, 0.07), transparent 40%, rgba(0, 0, 0, 0.45)),
     repeating-linear-gradient(to right, #0b0b0c 0 1px, #1b1b1e 1px 2px, #0e0e10 2px 3px),
     #0c0c0d;
 }
 
-.bs-top,
-.bs-bottom {
+:root[data-theme="dark"] .bs-top,
+:root[data-theme="dark"] .bs-bottom {
   background:
     linear-gradient(to right, rgba(255, 255, 255, 0.07), transparent 40%, rgba(0, 0, 0, 0.45)),
     repeating-linear-gradient(to bottom, #0b0b0c 0 1px, #1b1b1e 1px 2px, #0e0e10 2px 3px),
     #0c0c0d;
 }
 
-.block-r .bs-fore {
-  left: 100%;
-  top: 0;
-  width: var(--tr);
-  height: 100%;
-  transform-origin: 0 50%;
-  transform: rotateY(-90deg);
-}
-
-.block-l .bs-fore {
-  right: 100%;
-  top: 0;
-  width: var(--tl);
-  height: 100%;
-  transform-origin: 100% 50%;
-  transform: rotateY(90deg);
-}
-
-.bs-top {
-  left: 0;
-  bottom: 100%;
-  width: 100%;
-  transform-origin: 50% 100%;
-  transform: rotateX(-90deg);
-}
-
-.bs-bottom {
-  left: 0;
-  top: 100%;
-  width: 100%;
-  transform-origin: 50% 0;
-  transform: rotateX(90deg);
-}
-
-.block-l .bs-top,
-.block-l .bs-bottom { height: var(--tl); }
-.block-r .bs-top,
-.block-r .bs-bottom { height: var(--tr); }
-
-/* botão 360° desligado: ícone riscado */
-.ui-spin {
-  position: relative;
-}
-
-.ui-spin.is-off {
+:root[data-theme="dark"] .ui-spin.is-off {
   color: rgba(216, 214, 210, 0.4);
 }
 
-.ui-spin.is-off .spin-ico {
-  opacity: 0.45;
+:root[data-theme="dark"] .ui-spin.is-off::after {
+  background: var(--blood-hi);
 }
 
-.ui-spin.is-off::after {
-  content: '';
-  position: absolute;
-  left: -0.1rem;
-  top: 50%;
-  width: 1.4rem;
-  height: 1.5px;
-  background: var(--blood-hi);
-  transform: rotate(-35deg);
+/* objetos da mesa em prata e preto */
+:root[data-theme="dark"] .prop-glasses [stroke="#b8924c"] {
+  stroke: #a3a7ae;
+}
+
+:root[data-theme="dark"] .prop-glasses g {
+  fill: rgba(225, 228, 235, 0.07);
+}
+
+:root[data-theme="dark"] #pen-g stop:nth-child(1) { stop-color: #2a2a2e; }
+:root[data-theme="dark"] #pen-g stop:nth-child(2) { stop-color: #0e0e10; }
+:root[data-theme="dark"] #pen-g stop:nth-child(3) { stop-color: #030303; }
+:root[data-theme="dark"] #pen-au stop:nth-child(1) { stop-color: #f0f2f5; }
+:root[data-theme="dark"] #pen-au stop:nth-child(2) { stop-color: #8e9299; }
+:root[data-theme="dark"] #pen-au stop:nth-child(3) { stop-color: #3d4046; }
+
+:root[data-theme="dark"] .prop-pen [stroke="#5a3d10"] {
+  stroke: #2d2f34;
+}
+
+:root[data-theme="dark"] .prop-note path {
+  stroke: #d11c24;
 }

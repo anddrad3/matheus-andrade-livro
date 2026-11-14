@@ -87,11 +87,11 @@
 }
 
 .face.front::after {
-  background: linear-gradient(to right, rgba(10, 10, 12, 0.42), rgba(10, 10, 12, 0.12) 35%, rgba(240, 242, 248, 0.08) 75%, rgba(10, 10, 12, 0.1));
+  background: linear-gradient(to right, rgba(30, 18, 8, 0.42), rgba(30, 18, 8, 0.12) 35%, rgba(255, 245, 225, 0.08) 75%, rgba(30, 18, 8, 0.1));
 }
 
 .face.back::after {
-  background: linear-gradient(to left, rgba(10, 10, 12, 0.42), rgba(10, 10, 12, 0.12) 35%, rgba(240, 242, 248, 0.08) 75%, rgba(10, 10, 12, 0.1));
+  background: linear-gradient(to left, rgba(30, 18, 8, 0.42), rgba(30, 18, 8, 0.12) 35%, rgba(255, 245, 225, 0.08) 75%, rgba(30, 18, 8, 0.1));
 }
 
 .leaf.is-board .face::after {
@@ -113,7 +113,7 @@
   background-image:
     var(--tex-paper),
     var(--tex-mottle),
-    radial-gradient(ellipse 120% 90% at 50% 45%, #efece5 0%, var(--paper) 55%, var(--paper-2) 100%);
+    radial-gradient(ellipse 120% 90% at 50% 45%, #f6eedd 0%, var(--paper) 55%, var(--paper-2) 100%);
   background-size: 300px 300px, 600px 600px, 100% 100%;
   color: var(--ink);
 }
@@ -128,21 +128,21 @@
 /* calha (perto da lombada) e borda externa */
 .paper.right .paper-shade {
   background:
-    linear-gradient(to right, rgba(20, 18, 18, 0.34) 0%, rgba(20, 18, 18, 0.12) 2.2%, rgba(20, 18, 18, 0.04) 6%, transparent 11%),
-    linear-gradient(to left, rgba(20, 18, 18, 0.1), transparent 2.5%),
-    linear-gradient(to bottom, rgba(20, 18, 18, 0.05), transparent 3%, transparent 97%, rgba(20, 18, 18, 0.07));
+    linear-gradient(to right, rgba(60, 38, 18, 0.34) 0%, rgba(60, 38, 18, 0.12) 2.2%, rgba(60, 38, 18, 0.04) 6%, transparent 11%),
+    linear-gradient(to left, rgba(60, 38, 18, 0.1), transparent 2.5%),
+    linear-gradient(to bottom, rgba(60, 38, 18, 0.05), transparent 3%, transparent 97%, rgba(60, 38, 18, 0.07));
 }
 
 .paper.left .paper-shade {
   background:
-    linear-gradient(to left, rgba(20, 18, 18, 0.34) 0%, rgba(20, 18, 18, 0.12) 2.2%, rgba(20, 18, 18, 0.04) 6%, transparent 11%),
-    linear-gradient(to right, rgba(20, 18, 18, 0.1), transparent 2.5%),
-    linear-gradient(to bottom, rgba(20, 18, 18, 0.05), transparent 3%, transparent 97%, rgba(20, 18, 18, 0.07));
+    linear-gradient(to left, rgba(60, 38, 18, 0.34) 0%, rgba(60, 38, 18, 0.12) 2.2%, rgba(60, 38, 18, 0.04) 6%, transparent 11%),
+    linear-gradient(to right, rgba(60, 38, 18, 0.1), transparent 2.5%),
+    linear-gradient(to bottom, rgba(60, 38, 18, 0.05), transparent 3%, transparent 97%, rgba(60, 38, 18, 0.07));
 }
 
 /* espessura do bloco de páginas nas bordas externas */
 .leaf:not(.is-board) .face.front .paper {
-  box-shadow: inset -1px 0 0 rgba(70, 68, 66, 0.25);
+  box-shadow: inset -1px 0 0 rgba(120, 95, 65, 0.25);
 }
 
 /* ─────────────────────────────────────────────
@@ -167,8 +167,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 90% 70% at calc(30% + var(--mx) * 40%) calc(20% + var(--my) * 30%), rgba(90, 92, 104, 0.32), transparent 70%),
-    radial-gradient(ellipse 140% 100% at 50% 50%, var(--leather-hi), var(--leather) 60%, #050505 100%);
+    radial-gradient(ellipse 90% 70% at calc(30% + var(--mx) * 40%) calc(20% + var(--my) * 30%), rgba(120, 78, 50, 0.32), transparent 70%),
+    radial-gradient(ellipse 140% 100% at 50% 50%, var(--leather-hi), var(--leather) 60%, #120b08 100%);
 }
 
 .leather::before {
@@ -187,7 +187,7 @@
   position: absolute;
   inset: 0;
   box-shadow:
-    inset 0 0 0 1px rgba(215, 222, 240, 0.05),
+    inset 0 0 0 1px rgba(255, 220, 170, 0.05),
     inset 0 0 calc(var(--pw) * 0.08) rgba(0, 0, 0, 0.55),
     inset 0 0 calc(var(--pw) * 0.012) rgba(0, 0, 0, 0.6);
 }
@@ -201,7 +201,7 @@
   left: 0;
   width: 7%;
   z-index: 3;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.15) 40%, rgba(215, 222, 240, 0.06) 55%, rgba(0, 0, 0, 0.25) 70%, transparent);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.15) 40%, rgba(255, 220, 170, 0.06) 55%, rgba(0, 0, 0, 0.25) 70%, transparent);
   pointer-events: none;
 }
 
@@ -215,32 +215,32 @@
 .foil {
   background: linear-gradient(
     calc(110deg + var(--mx) * 30deg),
-    #4a4d54 0%,
-    #c3c6cc calc(15% + var(--mx) * 20%),
-    #ffffff calc(30% + var(--mx) * 25%),
-    #a6aab1 calc(45% + var(--mx) * 25%),
-    #5a5d64 70%,
-    #d0d3d9 90%,
-    #55585f 100%
+    #7a5a26 0%,
+    #c9a24f calc(15% + var(--mx) * 20%),
+    #fbe7a6 calc(30% + var(--mx) * 25%),
+    #c39a48 calc(45% + var(--mx) * 25%),
+    #8c6a2e 70%,
+    #d7b465 90%,
+    #8a682c 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.65)) drop-shadow(0 -0.5px 0 rgba(226, 232, 244, 0.18));
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.65)) drop-shadow(0 -0.5px 0 rgba(255, 230, 170, 0.18));
 }
 
 .foil-stroke {
-  color: #c3c6cc;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.7)) drop-shadow(0 0 6px rgba(210, 216, 230, 0.12));
+  color: #c9a24f;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.7)) drop-shadow(0 0 6px rgba(240, 200, 120, 0.12));
 }
 
 .cover-frame {
   position: absolute;
   inset: 5.5% 6% 5.5% 10%;
-  border: 1.5px solid rgba(195, 198, 204, 0.85);
+  border: 1.5px solid rgba(201, 162, 79, 0.85);
   box-shadow:
     inset 0 0 0 4px transparent,
-    inset 0 0 0 5px rgba(195, 198, 204, 0.55),
+    inset 0 0 0 5px rgba(201, 162, 79, 0.55),
     0 1px 0 rgba(0, 0, 0, 0.6);
   z-index: 2;
 }
@@ -253,7 +253,7 @@
   position: absolute;
   width: 15%;
   aspect-ratio: 1;
-  color: #c3c6cc;
+  color: #c9a24f;
   filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.7));
 }
 
@@ -327,7 +327,7 @@
   background: linear-gradient(
     calc(120deg + var(--mx) * 20deg),
     transparent 30%,
-    rgba(226, 232, 244, 0.05) calc(40% + var(--mx) * 20%),
+    rgba(255, 235, 200, 0.05) calc(40% + var(--mx) * 20%),
     transparent calc(55% + var(--mx) * 20%)
   );
   mix-blend-mode: screen;
@@ -375,7 +375,7 @@
 .barcode {
   align-self: flex-end;
   margin-top: 2em;
-  background: #e6e3dc;
+  background: #efe6d2;
   padding: 0.55em 0.7em 0.35em;
   width: 36%;
   display: grid;
@@ -426,8 +426,8 @@
   inset: 0;
   background:
     linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent 9%),
-    linear-gradient(rgba(14, 14, 16, 0.28), rgba(14, 14, 16, 0.28)),
-    radial-gradient(ellipse at 40% 40%, rgba(236, 240, 248, 0.06), rgba(0, 0, 0, 0.25));
+    linear-gradient(rgba(28, 16, 8, 0.28), rgba(28, 16, 8, 0.28)),
+    radial-gradient(ellipse at 40% 40%, rgba(255, 240, 210, 0.06), rgba(0, 0, 0, 0.25));
 }
 
 .endboard.right .marble::after {
@@ -492,9 +492,9 @@
   height: var(--ph);
   transform: translateZ(calc(var(--T) / 2)) rotateY(90deg);
   background:
-    repeating-linear-gradient(to right, #d8d6d2 0 1px, #bdb6a9 1px 2px, #e6e2d9 2px 3px),
-    #d9d3c8;
-  box-shadow: inset 0 0 6px rgba(50, 50, 55, 0.45);
+    repeating-linear-gradient(to right, #e9dcc2 0 1px, #cdbb9b 1px 2px, #efe4cd 2px 3px),
+    #e6d8bd;
+  box-shadow: inset 0 0 6px rgba(80, 55, 30, 0.45);
 }
 
 .edge-top,
@@ -503,9 +503,9 @@
   width: var(--pw);
   height: var(--T);
   background:
-    repeating-linear-gradient(to bottom, #d8d6d2 0 1px, #bdb6a9 1px 2px, #e6e2d9 2px 3px),
-    #d9d3c8;
-  box-shadow: inset 0 0 6px rgba(50, 50, 55, 0.45);
+    repeating-linear-gradient(to bottom, #e9dcc2 0 1px, #cdbb9b 1px 2px, #efe4cd 2px 3px),
+    #e6d8bd;
+  box-shadow: inset 0 0 6px rgba(80, 55, 30, 0.45);
 }
 
 .edge-top {
@@ -525,8 +525,8 @@
   height: calc(var(--ph) + var(--ov) * 2);
   transform: translateZ(calc(var(--T) / 2)) rotateY(-90deg);
   background:
-    repeating-linear-gradient(to bottom, transparent 0 14%, rgba(195, 198, 204, 0.8) 14% 14.4%, transparent 14.4% 15.2%, rgba(195, 198, 204, 0.8) 15.2% 15.6%, transparent 15.6% 84.4%, rgba(195, 198, 204, 0.8) 84.4% 84.8%, transparent 84.8% 85.6%, rgba(195, 198, 204, 0.8) 85.6% 86%, transparent 86%),
-    linear-gradient(to right, #050505, var(--leather-hi) 45%, #050505);
+    repeating-linear-gradient(to bottom, transparent 0 14%, rgba(201, 162, 79, 0.8) 14% 14.4%, transparent 14.4% 15.2%, rgba(201, 162, 79, 0.8) 15.2% 15.6%, transparent 15.6% 84.4%, rgba(201, 162, 79, 0.8) 84.4% 84.8%, transparent 84.8% 85.6%, rgba(201, 162, 79, 0.8) 85.6% 86%, transparent 86%),
+    linear-gradient(to right, #120b08, var(--leather-hi) 45%, #120b08);
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -539,7 +539,7 @@
   font-size: calc(var(--T) * 0.42);
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #c3c6cc;
+  color: #c9a24f;
   white-space: nowrap;
 }
 
@@ -619,19 +619,19 @@
   width: 0;
   height: 0;
   transition: width 0.45s var(--ease-out), height 0.45s var(--ease-out);
-  box-shadow: -3px -3px 8px rgba(12, 12, 14, 0.25);
+  box-shadow: -3px -3px 8px rgba(40, 25, 10, 0.25);
 }
 
 .curl-next::before {
   right: 0;
-  background: linear-gradient(135deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
-  box-shadow: -4px -4px 8px -2px rgba(12, 12, 14, 0.3);
+  background: linear-gradient(135deg, #d6c4a0 0%, #f4ecdb 32%, #e4d5b6 50%, #ddcdae 50%);
+  box-shadow: -4px -4px 8px -2px rgba(40, 25, 10, 0.3);
 }
 
 .curl-prev::before {
   left: 0;
-  background: linear-gradient(-135deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
-  box-shadow: 4px -4px 8px -2px rgba(12, 12, 14, 0.3);
+  background: linear-gradient(-135deg, #d6c4a0 0%, #f4ecdb 32%, #e4d5b6 50%, #ddcdae 50%);
+  box-shadow: 4px -4px 8px -2px rgba(40, 25, 10, 0.3);
 }
 
 .is-open .is-visible .curl:hover::before {
@@ -641,7 +641,7 @@
 
 .foil-stroke.rule,
 .board .foil-stroke {
-  color: #c3c6cc;
+  color: #c9a24f;
 }
 
 /* folhas fora de vista não são desenhadas (as abas continuam) */
@@ -670,13 +670,13 @@
 }
 
 .curl-next.curl-top::before {
-  background: linear-gradient(45deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
-  box-shadow: -4px 4px 8px -2px rgba(12, 12, 14, 0.3);
+  background: linear-gradient(45deg, #d6c4a0 0%, #f4ecdb 32%, #e4d5b6 50%, #ddcdae 50%);
+  box-shadow: -4px 4px 8px -2px rgba(40, 25, 10, 0.3);
 }
 
 .curl-prev.curl-top::before {
-  background: linear-gradient(-45deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
-  box-shadow: 4px 4px 8px -2px rgba(12, 12, 14, 0.3);
+  background: linear-gradient(-45deg, #d6c4a0 0%, #f4ecdb 32%, #e4d5b6 50%, #ddcdae 50%);
+  box-shadow: 4px 4px 8px -2px rgba(40, 25, 10, 0.3);
 }
 
 /* o canto convida a pegar */

@@ -1,0 +1,123 @@
+/* Giro 360°: blocos de páginas (espessura) e estado do botão — valem nos dois temas. */
+/* ─────────── blocos de páginas (modo 360°) ─────────── */
+@property --tl {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --tr {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+:root {
+  transition: --tl 0.7s ease, --tr 0.7s ease;
+}
+
+.blocks {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.7s;
+}
+
+.is-thick .blocks {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.block {
+  position: absolute;
+  top: 0;
+  width: var(--pw);
+  height: var(--ph);
+  transform-style: preserve-3d;
+}
+
+.block-l { left: 0; }
+.block-r { left: var(--pw); }
+
+.bs {
+  position: absolute;
+  display: block;
+  /* corte dourado (tema clássico) */
+  background:
+    linear-gradient(rgba(255, 245, 210, 0.3), transparent 35%, rgba(60, 35, 5, 0.3)),
+    repeating-linear-gradient(to right, #e3bd62 0 1px, #a47a2a 1px 2px, #f6dc8e 2px 3px),
+    #c99a3e;
+}
+
+.bs-top,
+.bs-bottom {
+  background:
+    linear-gradient(to right, rgba(255, 245, 210, 0.3), transparent 40%, rgba(60, 35, 5, 0.3)),
+    repeating-linear-gradient(to bottom, #e3bd62 0 1px, #a47a2a 1px 2px, #f6dc8e 2px 3px),
+    #c99a3e;
+}
+
+.block-r .bs-fore {
+  left: 100%;
+  top: 0;
+  width: var(--tr);
+  height: 100%;
+  transform-origin: 0 50%;
+  transform: rotateY(-90deg);
+}
+
+.block-l .bs-fore {
+  right: 100%;
+  top: 0;
+  width: var(--tl);
+  height: 100%;
+  transform-origin: 100% 50%;
+  transform: rotateY(90deg);
+}
+
+.bs-top {
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  transform-origin: 50% 100%;
+  transform: rotateX(-90deg);
+}
+
+.bs-bottom {
+  left: 0;
+  top: 100%;
+  width: 100%;
+  transform-origin: 50% 0;
+  transform: rotateX(90deg);
+}
+
+.block-l .bs-top,
+.block-l .bs-bottom { height: var(--tl); }
+.block-r .bs-top,
+.block-r .bs-bottom { height: var(--tr); }
+
+/* botão 360° desligado: ícone riscado */
+.ui-spin {
+  position: relative;
+}
+
+.ui-spin.is-off {
+  color: rgba(233, 220, 194, 0.4);
+}
+
+.ui-spin.is-off .spin-ico {
+  opacity: 0.45;
+}
+
+.ui-spin.is-off::after {
+  content: '';
+  position: absolute;
+  left: -0.1rem;
+  top: 50%;
+  width: 1.4rem;
+  height: 1.5px;
+  background: #c0392b;
+  transform: rotate(-35deg);
+}

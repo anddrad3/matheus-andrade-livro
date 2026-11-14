@@ -1,0 +1,357 @@
+/* GERADO: diferenças do tema escuro (Edição Sombria) sobre o tema clássico. */
+
+/* ── base.css ── */
+:root[data-theme="dark"] {
+  --night: #050506;
+  --night-2: #0d0d0f;
+  --ink: #141414;
+  --ink-soft: #3d3b3a;
+  --ink-faint: #6f6b66;
+  --rubric: #9b0d12;
+  --paper: #e7e3da;
+  --paper-2: #d8d2c6;
+  --gold: #c3c6cc;
+  --gold-deep: #5c6068;
+  --gold-hi: #f3f5f8;
+  --leather: #0c0c0d;
+  --leather-hi: #1d1d20;
+  --cream: #d8d6d2;
+  --gothic: 'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', serif;
+  --caps: 'Cinzel', 'Trajan Pro', serif;
+}
+:root[data-theme="dark"] ::selection {
+  background: rgba(195, 198, 204, 0.35);
+}
+:root[data-theme="dark"] #backdrop {
+  background: radial-gradient(ellipse 70% 55% at 50% 42%, rgba(60, 60, 66, 0.32), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 0%, #241912 0%, #120c09 45%, var(--night) 80%);
+}
+:root[data-theme="dark"] #backdrop::after {
+  background: conic-gradient(from 180deg at 50% -8%, transparent 158deg, rgba(200, 208, 228, 0.07) 172deg, rgba(215, 222, 240, 0.1) 180deg, rgba(200, 208, 228, 0.07) 188deg, transparent 202deg);
+}
+:root[data-theme="dark"] #spot {
+  background: radial-gradient(closest-side, rgba(190, 200, 225, 0.06), transparent 70%);
+}
+:root[data-theme="dark"] .loader-text {
+  color: rgba(216, 214, 210, 0.6);
+}
+
+/* ── book.css ── */
+:root[data-theme="dark"] .face.front::after {
+  background: linear-gradient(to right, rgba(10, 10, 12, 0.42), rgba(10, 10, 12, 0.12) 35%, rgba(240, 242, 248, 0.08) 75%, rgba(10, 10, 12, 0.1));
+}
+:root[data-theme="dark"] .face.back::after {
+  background: linear-gradient(to left, rgba(10, 10, 12, 0.42), rgba(10, 10, 12, 0.12) 35%, rgba(240, 242, 248, 0.08) 75%, rgba(10, 10, 12, 0.1));
+}
+:root[data-theme="dark"] .paper {
+  background-image: var(--tex-paper),
+    var(--tex-mottle),
+    radial-gradient(ellipse 120% 90% at 50% 45%, #efece5 0%, var(--paper) 55%, var(--paper-2) 100%);
+}
+:root[data-theme="dark"] .paper.right .paper-shade {
+  background: linear-gradient(to right, rgba(20, 18, 18, 0.34) 0%, rgba(20, 18, 18, 0.12) 2.2%, rgba(20, 18, 18, 0.04) 6%, transparent 11%),
+    linear-gradient(to left, rgba(20, 18, 18, 0.1), transparent 2.5%),
+    linear-gradient(to bottom, rgba(20, 18, 18, 0.05), transparent 3%, transparent 97%, rgba(20, 18, 18, 0.07));
+}
+:root[data-theme="dark"] .paper.left .paper-shade {
+  background: linear-gradient(to left, rgba(20, 18, 18, 0.34) 0%, rgba(20, 18, 18, 0.12) 2.2%, rgba(20, 18, 18, 0.04) 6%, transparent 11%),
+    linear-gradient(to right, rgba(20, 18, 18, 0.1), transparent 2.5%),
+    linear-gradient(to bottom, rgba(20, 18, 18, 0.05), transparent 3%, transparent 97%, rgba(20, 18, 18, 0.07));
+}
+:root[data-theme="dark"] .leaf:not(.is-board) .face.front .paper {
+  box-shadow: inset -1px 0 0 rgba(70, 68, 66, 0.25);
+}
+:root[data-theme="dark"] .leather {
+  background: radial-gradient(ellipse 90% 70% at calc(30% + var(--mx) * 40%) calc(20% + var(--my) * 30%), rgba(90, 92, 104, 0.32), transparent 70%),
+    radial-gradient(ellipse 140% 100% at 50% 50%, var(--leather-hi), var(--leather) 60%, #050505 100%);
+}
+:root[data-theme="dark"] .leather::after {
+  box-shadow: inset 0 0 0 1px rgba(215, 222, 240, 0.05),
+    inset 0 0 calc(var(--pw) * 0.08) rgba(0, 0, 0, 0.55),
+    inset 0 0 calc(var(--pw) * 0.012) rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="dark"] .cover::before {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.15) 40%, rgba(215, 222, 240, 0.06) 55%, rgba(0, 0, 0, 0.25) 70%, transparent);
+}
+:root[data-theme="dark"] .foil {
+  background: linear-gradient(
+    calc(110deg + var(--mx) * 30deg),
+    #4a4d54 0%,
+    #c3c6cc calc(15% + var(--mx) * 20%),
+    #ffffff calc(30% + var(--mx) * 25%),
+    #a6aab1 calc(45% + var(--mx) * 25%),
+    #5a5d64 70%,
+    #d0d3d9 90%,
+    #55585f 100%
+  );
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.65)) drop-shadow(0 -0.5px 0 rgba(226, 232, 244, 0.18));
+}
+:root[data-theme="dark"] .foil-stroke {
+  color: #c3c6cc;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.7)) drop-shadow(0 0 6px rgba(210, 216, 230, 0.12));
+}
+:root[data-theme="dark"] .cover-frame {
+  border: 1.5px solid rgba(195, 198, 204, 0.85);
+  box-shadow: inset 0 0 0 4px transparent,
+    inset 0 0 0 5px rgba(195, 198, 204, 0.55),
+    0 1px 0 rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="dark"] .cover-frame .corner {
+  color: #c3c6cc;
+}
+:root[data-theme="dark"] .cover-sheen {
+  background: linear-gradient(
+    calc(120deg + var(--mx) * 20deg),
+    transparent 30%,
+    rgba(226, 232, 244, 0.05) calc(40% + var(--mx) * 20%),
+    transparent calc(55% + var(--mx) * 20%)
+  );
+}
+:root[data-theme="dark"] .barcode {
+  background: #e6e3dc;
+}
+:root[data-theme="dark"] .marble::after {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent 9%),
+    linear-gradient(rgba(14, 14, 16, 0.28), rgba(14, 14, 16, 0.28)),
+    radial-gradient(ellipse at 40% 40%, rgba(236, 240, 248, 0.06), rgba(0, 0, 0, 0.25));
+}
+:root[data-theme="dark"] .edge-fore {
+  background: repeating-linear-gradient(to right, #d8d6d2 0 1px, #bdb6a9 1px 2px, #e6e2d9 2px 3px),
+    #d9d3c8;
+  box-shadow: inset 0 0 6px rgba(50, 50, 55, 0.45);
+}
+:root[data-theme="dark"] .edge-top,
+:root[data-theme="dark"] .edge-bottom {
+  background: repeating-linear-gradient(to bottom, #d8d6d2 0 1px, #bdb6a9 1px 2px, #e6e2d9 2px 3px),
+    #d9d3c8;
+  box-shadow: inset 0 0 6px rgba(50, 50, 55, 0.45);
+}
+:root[data-theme="dark"] .edge-spine {
+  background: repeating-linear-gradient(to bottom, transparent 0 14%, rgba(195, 198, 204, 0.8) 14% 14.4%, transparent 14.4% 15.2%, rgba(195, 198, 204, 0.8) 15.2% 15.6%, transparent 15.6% 84.4%, rgba(195, 198, 204, 0.8) 84.4% 84.8%, transparent 84.8% 85.6%, rgba(195, 198, 204, 0.8) 85.6% 86%, transparent 86%),
+    linear-gradient(to right, #050505, var(--leather-hi) 45%, #050505);
+}
+:root[data-theme="dark"] .edge-spine span {
+  color: #c3c6cc;
+}
+:root[data-theme="dark"] .curl::before {
+  box-shadow: -3px -3px 8px rgba(12, 12, 14, 0.25);
+}
+:root[data-theme="dark"] .curl-next::before {
+  background: linear-gradient(135deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
+  box-shadow: -4px -4px 8px -2px rgba(12, 12, 14, 0.3);
+}
+:root[data-theme="dark"] .curl-prev::before {
+  background: linear-gradient(-135deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
+  box-shadow: 4px -4px 8px -2px rgba(12, 12, 14, 0.3);
+}
+:root[data-theme="dark"] .foil-stroke.rule,
+:root[data-theme="dark"] .board .foil-stroke {
+  color: #c3c6cc;
+}
+:root[data-theme="dark"] .curl-next.curl-top::before {
+  background: linear-gradient(45deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
+  box-shadow: -4px 4px 8px -2px rgba(12, 12, 14, 0.3);
+}
+:root[data-theme="dark"] .curl-prev.curl-top::before {
+  background: linear-gradient(-45deg, #c8c1b4 0%, #ece9e2 32%, #dcd7cd 50%, #d3cdc2 50%);
+  box-shadow: 4px 4px 8px -2px rgba(12, 12, 14, 0.3);
+}
+
+/* ── pages.css ── */
+:root[data-theme="dark"] .cover-medallion .medallion-mono {
+  color: #c9ccd2;
+}
+:root[data-theme="dark"] .frontis-plate {
+  border: 1px solid rgba(70, 72, 78, 0.55);
+  outline: 1px solid rgba(70, 72, 78, 0.3);
+  background: radial-gradient(ellipse at 50% 45%, rgba(246, 247, 250, 0.5), transparent 70%);
+}
+:root[data-theme="dark"] .toc a::after,
+:root[data-theme="dark"] .mini-toc a::after {
+  background: linear-gradient(to right, var(--gold), rgba(195, 198, 204, 0));
+}
+:root[data-theme="dark"] .principles {
+  border-top: 1px solid rgba(70, 72, 78, 0.3);
+}
+:root[data-theme="dark"] .mini-toc {
+  border-top: 1px solid rgba(70, 72, 78, 0.3);
+}
+:root[data-theme="dark"] .pull {
+  border-top: 1px solid rgba(70, 72, 78, 0.35);
+  border-bottom: 1px solid rgba(70, 72, 78, 0.35);
+}
+:root[data-theme="dark"] .catalog {
+  border: 1px solid rgba(60, 60, 64, 0.45);
+  background: rgba(246, 247, 250, 0.35);
+}
+:root[data-theme="dark"] .catalog-title {
+  border-bottom: 1px dashed rgba(60, 60, 64, 0.35);
+}
+:root[data-theme="dark"] .index-group {
+  border-bottom: 1px solid rgba(70, 72, 78, 0.22);
+}
+:root[data-theme="dark"] .index-group:first-of-type {
+  border-top: 1px solid rgba(70, 72, 78, 0.22);
+}
+:root[data-theme="dark"] .plate-inner {
+  border: 1px solid rgba(60, 60, 64, 0.5);
+  outline: 1px solid rgba(60, 60, 64, 0.25);
+  background: radial-gradient(ellipse at 50% 50%, rgba(248, 248, 250, 0.6), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(60, 60, 64, 0.05) 3px 4px);
+}
+:root[data-theme="dark"] .letter-email a:hover {
+  background-image: linear-gradient(rgba(195, 198, 204, 0.35), rgba(195, 198, 204, 0.35));
+}
+:root[data-theme="dark"] .copy {
+  border: 1px solid rgba(60, 60, 64, 0.35);
+}
+
+/* ── ui.css ── */
+:root[data-theme="dark"] .ui-mark {
+  border: 1px solid rgba(195, 198, 204, 0.45);
+  outline: 1px solid rgba(195, 198, 204, 0.2);
+}
+:root[data-theme="dark"] .ui-mark:hover {
+  outline-color: rgba(195, 198, 204, 0.5);
+}
+:root[data-theme="dark"] .ui-links a {
+  color: rgba(216, 214, 210, 0.6);
+}
+:root[data-theme="dark"] .ui-arrow {
+  color: rgba(216, 214, 210, 0.7);
+}
+:root[data-theme="dark"] #folio-chapter {
+  color: rgba(216, 214, 210, 0.55);
+}
+:root[data-theme="dark"] .ui-progress {
+  background: rgba(216, 214, 210, 0.12);
+}
+:root[data-theme="dark"] .prompt-text {
+  color: rgba(236, 238, 242, 0.85);
+}
+:root[data-theme="dark"] .prompt-line {
+  background: linear-gradient(to right, transparent, rgba(195, 198, 204, 0.7));
+}
+:root[data-theme="dark"] #skip {
+  color: rgba(216, 214, 210, 0.4);
+}
+
+/* ── extras.css ── */
+:root[data-theme="dark"] {
+  --hand: #8f0b10;
+}
+:root[data-theme="dark"] #backdrop {
+  background: radial-gradient(ellipse 62% 58% at 50% 46%, rgba(170, 185, 225, 0.15), rgba(150, 165, 210, 0.05) 45%, transparent 70%),
+    radial-gradient(ellipse 120% 100% at 50% 45%, rgba(2, 2, 3, 0.15) 20%, rgba(2, 2, 3, 0.8) 70%, #020202 100%),
+    var(--tex-wood),
+    #070708;
+}
+:root[data-theme="dark"] #backdrop::before {
+  background: radial-gradient(ellipse 55% 50% at 50% 44%, rgba(170, 185, 225, 0.07), transparent 70%);
+}
+:root[data-theme="dark"] .edge-fore {
+  background: linear-gradient(to bottom, rgba(232, 236, 244, 0.35), transparent 30%, rgba(30, 30, 34, 0.25) 100%),
+    repeating-linear-gradient(to right, #d9dce1 0 1px, #5d6168 1px 2px, #f0f2f5 2px 3px),
+    #a9adb4;
+  box-shadow: inset 0 0 6px rgba(30, 30, 34, 0.55);
+}
+:root[data-theme="dark"] .edge-top,
+:root[data-theme="dark"] .edge-bottom {
+  background: linear-gradient(to right, rgba(232, 236, 244, 0.3), transparent 40%, rgba(30, 30, 34, 0.3)),
+    repeating-linear-gradient(to bottom, #d9dce1 0 1px, #5d6168 1px 2px, #f0f2f5 2px 3px),
+    #a9adb4;
+  box-shadow: inset 0 0 6px rgba(30, 30, 34, 0.55);
+}
+:root[data-theme="dark"] .cover-glint::before {
+  background: linear-gradient(105deg, transparent 10%, rgba(225, 230, 242, 0.1) 40%, rgba(236, 240, 248, 0.17) 50%, rgba(225, 230, 242, 0.1) 60%, transparent 90%);
+}
+:root[data-theme="dark"] .cast-r {
+  background: linear-gradient(to right, transparent calc(var(--edge) - 0.5%), rgba(6, 6, 8, var(--k)) var(--edge), rgba(6, 6, 8, calc(var(--k) * 0.35)) calc(var(--edge) + 8%), transparent calc(var(--edge) + 30%));
+}
+:root[data-theme="dark"] .cast-l {
+  background: linear-gradient(to left, transparent calc(var(--edge) - 0.5%), rgba(6, 6, 8, var(--k)) var(--edge), rgba(6, 6, 8, calc(var(--k) * 0.35)) calc(var(--edge) + 8%), transparent calc(var(--edge) + 30%));
+}
+:root[data-theme="dark"] .tab {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.45), transparent 35%),
+    radial-gradient(circle at 70% 30%, rgba(215, 222, 240, 0.18), transparent 60%),
+    var(--tab-c, #5e080b);
+  box-shadow: inset 0 0 0 1px rgba(200, 208, 228, 0.12),
+    2px 2px 4px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="dark"] .tab span {
+  color: #dfe2e7;
+}
+:root[data-theme="dark"] .face.back .tab {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.45), transparent 35%),
+    radial-gradient(circle at 30% 30%, rgba(215, 222, 240, 0.18), transparent 60%),
+    var(--tab-c, #5e080b);
+}
+:root[data-theme="dark"] .plate.photo .photo-frame {
+  background: #f4f2ee;
+  box-shadow: 0 1px 1px rgba(40, 40, 44, 0.25),
+    0 0.5em 1.1em -0.5em rgba(28, 28, 32, 0.55);
+}
+:root[data-theme="dark"] .plate.photo .halftone {
+  background-image: radial-gradient(rgba(12, 12, 14, 0.5) 0.5px, transparent 0.9px);
+}
+:root[data-theme="dark"] .plate.photo:hover .photo-frame {
+  box-shadow: 0 1px 1px rgba(40, 40, 44, 0.25), 0 0.9em 1.6em -0.6em rgba(28, 28, 32, 0.6);
+}
+:root[data-theme="dark"] .pc {
+  background: linear-gradient(135deg, #1e1e22, #1d140f);
+}
+:root[data-theme="dark"] .tape {
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0 2px, transparent 2px 5px),
+    rgba(205, 208, 215, 0.72);
+  box-shadow: 0 1px 1.5px rgba(36, 36, 40, 0.2);
+}
+:root[data-theme="dark"] .plate.drawn .plate-inner {
+  background: radial-gradient(ellipse at 50% 50%, rgba(248, 248, 250, 0.6), transparent 70%);
+}
+:root[data-theme="dark"] .work-link.is-code {
+  border-bottom-color: rgba(70, 72, 78, 0.4);
+}
+:root[data-theme="dark"] .signature text {
+  fill: rgba(120, 10, 16, 0);
+  stroke: #7a0a0e;
+}
+:root[data-theme="dark"] .is-visible .signature text {
+  fill: rgba(120, 10, 16, 1);
+}
+:root[data-theme="dark"] .paper.is-diary .page-body::before {
+  background: rgba(190, 22, 30, 0.38);
+}
+:root[data-theme="dark"] .diary-list {
+  background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--lh) - 1px), rgba(150, 20, 26, 0.2) calc(var(--lh) - 1px) var(--lh));
+}
+:root[data-theme="dark"] .ix-list {
+  column-rule: 1px solid rgba(70, 72, 78, 0.2);
+}
+:root[data-theme="dark"] .ui-sound {
+  color: rgba(216, 214, 210, 0.6);
+}
+:root[data-theme="dark"] #spin-hint {
+  border: 1px solid rgba(195, 198, 204, 0.35);
+  background: rgba(6, 6, 7, 0.72);
+  color: rgba(216, 214, 210, 0.85);
+}
+:root[data-theme="dark"] .desk-wood {
+  background: radial-gradient(circle calc(var(--pw) * 3.4) at 50% 50%, rgba(2, 2, 3, 0.12) 25%, rgba(2, 2, 3, 0.6) 58%, rgba(2, 2, 3, 0.94) 85%, #020202 100%),
+    var(--tex-wood),
+    #0b0b0c;
+}
+:root[data-theme="dark"] .desk-light {
+  background: radial-gradient(closest-side, rgba(170, 185, 225, 0.16), rgba(150, 165, 210, 0.05) 55%, transparent);
+}
+:root[data-theme="dark"] .prop-ring {
+  background: radial-gradient(closest-side, transparent 80%, rgba(90, 8, 12, 0.45) 88%, rgba(90, 8, 12, 0.18) 93%, transparent 100%);
+}
+:root[data-theme="dark"] .prop-note {
+  background: var(--tex-paper), #e6e2d9;
+}
+:root[data-theme="dark"] .ct-pre {
+  color: rgba(216, 214, 210, 0.8);
+}
+:root[data-theme="dark"] .ct-name {
+  color: #eef0f3;
+}

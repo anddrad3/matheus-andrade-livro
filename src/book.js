@@ -33,7 +33,7 @@ export class Book {
       leaf.dataset.leaf = k;
       const tabHtml = tabs
         .filter((t) => t.leaf === k)
-        .map((t) => `<button class="tab" type="button" data-goto="${t.page}" style="--pos:${t.pos};--tab-c:${t.color}" tabindex="-1" aria-label="Ir para ${t.label}"><span>${t.tab}</span></button>`)
+        .map((t) => `<button class="tab" type="button" data-goto="${t.page}" style="--pos:${t.pos};--tab-l:${t.color};--tab-d:${t.colorDark || t.color}" tabindex="-1" aria-label="Ir para ${t.label}"><span>${t.tab}</span></button>`)
         .join('');
       leaf.innerHTML = `<div class="face front">${pages[2 * k]}${tabHtml}</div><div class="face back">${pages[2 * k + 1]}${tabHtml}</div>`;
       frag.appendChild(leaf);

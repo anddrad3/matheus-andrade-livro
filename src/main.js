@@ -4,8 +4,11 @@ import './styles/book.css';
 import './styles/pages.css';
 import './styles/ui.css';
 import './styles/extras.css';
+import './styles/spin3d.css';
+import './styles/theme.css';
+import './styles/theme-dark-auto.css';
 import './styles/sombria.css';
-import { installTextures } from './textures.js';
+import { installTextures, applyTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS } from './pages.js';
 import { Book } from './book.js';
@@ -16,7 +19,8 @@ import { createSpin } from './spin.js';
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s) => document.querySelector(s);
 
-const texturesReady = installTextures();
+const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+const texturesReady = installTextures(theme());
 const sound = createSound();
 startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
@@ -266,6 +270,47 @@ function endPageDrag(e) {
 }
 window.addEventListener('pointerup', endPageDrag);
 window.addEventListener('pointercancel', endPageDrag);
+
+/* ───────────── tema claro (clássico) × escuro (Edição Sombria) ───────────── */
+
+const THEME_COLOR = { light: '#0b0807', dark: '#050506' };
+let switching = false;
+async function setTheme(next, origin) {
+  if (switching || next === theme()) return;
+  switching = true;
+  const veil = $('#theme-veil');
+  if (origin) {
+    veil.style.setProperty('--vx', `${origin.x}px`);
+    veil.style.setProperty('--vy', `${origin.y}px`);
+  }
+  veil.classList.add('is-on');
+  // texturas do novo tema prontas antes de revelar
+  await Promise.all([applyTextures(next), new Promise((r) => setTimeout(r, 330))]);
+  document.documentElement.dataset.theme = next;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[next]);
+  try {
+    localStorage.setItem('livro.theme', next);
+  } catch {}
+  window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+  syncThemeButton();
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  veil.classList.remove('is-on');
+  sound.flip(1);
+  setTimeout(() => (switching = false), 350);
+}
+
+function syncThemeButton() {
+  const b = $('#theme');
+  const dark = theme() === 'dark';
+  b.setAttribute('aria-pressed', String(dark));
+  b.title = dark ? 'Edição Sombria — clique para a edição clássica' : 'Edição clássica — clique para a Edição Sombria';
+  b.querySelector('.theme-label').textContent = dark ? 'sombria' : 'clássica';
+}
+
+$('#theme').addEventListener('click', (e) => {
+  setTheme(theme() === 'dark' ? 'light' : 'dark', { x: e.clientX, y: e.clientY });
+});
+syncThemeButton();
 
 /* ───────────── interações ───────────── */
 

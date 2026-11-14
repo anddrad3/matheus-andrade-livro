@@ -10,17 +10,27 @@ export function startAmbient({ canvas, spot, reduced }) {
   let dpr = 1;
   const motes = [];
   const pointer = { x: 0.5, y: 0.4, tx: 0.5, ty: 0.4 };
-  // brilho desfocado pré-desenhado uma vez
+  // poeira dourada (clássico) ou cinza (sombrio); brilho desfocado pré-desenhado
+  const TINT = { light: ['255,214,150', '255,226,178'], dark: ['205,210,225', '215,218,228'] };
+  let dot = TINT.light[1];
   const sprite = document.createElement('canvas');
   sprite.width = sprite.height = 32;
-  {
+  function tint() {
+    const t = TINT[document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'];
+    dot = t[1];
     const sc = sprite.getContext('2d');
+    sc.clearRect(0, 0, 32, 32);
     const g = sc.createRadialGradient(16, 16, 0, 16, 16, 16);
-    g.addColorStop(0, 'rgba(205,210,225,0.5)');
-    g.addColorStop(1, 'rgba(205,210,225,0)');
+    g.addColorStop(0, `rgba(${t[0]},0.5)`);
+    g.addColorStop(1, `rgba(${t[0]},0)`);
     sc.fillStyle = g;
     sc.fillRect(0, 0, 32, 32);
   }
+  tint();
+  window.addEventListener('themechange', () => {
+    tint();
+    if (reduced) draw(0);
+  });
 
   function resize() {
     dpr = 1; // partículas são borrões de luz: resolução extra não aparece
@@ -71,7 +81,7 @@ export function startAmbient({ canvas, spot, reduced }) {
         ctx.drawImage(sprite, m.x - s / 2, m.y - s / 2, s, s);
         ctx.globalAlpha = 1;
       } else {
-        ctx.fillStyle = `rgba(215,218,228,${a})`;
+        ctx.fillStyle = `rgba(${dot},${a})`;
         ctx.beginPath();
         ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
         ctx.fill();

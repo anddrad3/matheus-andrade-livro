@@ -1,0 +1,70 @@
+/* ─────────────────────────────────────────────
+   Troca de tema: claro (edição clássica) × escuro (Edição Sombria)
+   ───────────────────────────────────────────── */
+.tab {
+  --tab-c: var(--tab-l);
+}
+
+:root[data-theme='dark'] .tab {
+  --tab-c: var(--tab-d);
+}
+
+.only-dark {
+  display: none !important;
+}
+
+:root[data-theme='dark'] .only-dark {
+  display: revert !important;
+}
+
+:root[data-theme='dark'] .cover-skull.only-dark,
+:root[data-theme='dark'] .back-skull.only-dark {
+  display: block !important;
+}
+
+:root[data-theme='dark'] .only-light {
+  display: none !important;
+}
+
+/* botão do tema: sol no claro, lua no escuro */
+.ui-theme .ico-moon {
+  display: none;
+}
+
+:root[data-theme='dark'] .ui-theme .ico-sun {
+  display: none;
+}
+
+:root[data-theme='dark'] .ui-theme .ico-moon {
+  display: block;
+}
+
+.ui-theme svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--gold);
+  transition: transform 0.8s var(--ease-out);
+}
+
+.ui-theme:hover svg {
+  transform: rotate(-30deg);
+}
+
+[data-mode='mobile'] .ui-theme .snd-label {
+  display: none;
+}
+
+/* véu da troca: esconde o instante em que tudo muda de cor */
+#theme-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--vx, 90%) var(--vy, 4%), #000 0%, #000 60%, #000 100%);
+  opacity: 0;
+  transition: opacity 0.32s ease;
+}
+
+#theme-veil.is-on {
+  opacity: 1;
+}

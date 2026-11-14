@@ -164,7 +164,7 @@
 .cover-medallion .medallion-mono {
   font-size: 1.9em;
   background: inherit;
-  color: #c9ccd2;
+  color: #d9b665;
   filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.7));
 }
 
@@ -282,10 +282,10 @@
   display: grid;
   place-items: center;
   padding: 10%;
-  border: 1px solid rgba(70, 72, 78, 0.55);
-  outline: 1px solid rgba(70, 72, 78, 0.3);
+  border: 1px solid rgba(125, 95, 42, 0.55);
+  outline: 1px solid rgba(125, 95, 42, 0.3);
   outline-offset: 0.35em;
-  background: radial-gradient(ellipse at 50% 45%, rgba(246, 247, 250, 0.5), transparent 70%);
+  background: radial-gradient(ellipse at 50% 45%, rgba(255, 250, 238, 0.5), transparent 70%);
 }
 
 .frontis-plate .corner {
@@ -470,7 +470,7 @@
   right: 0;
   bottom: 0.3em;
   height: 1px;
-  background: linear-gradient(to right, var(--gold), rgba(195, 198, 204, 0));
+  background: linear-gradient(to right, var(--gold), rgba(192, 154, 82, 0));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.7s var(--ease-out);
@@ -606,7 +606,7 @@
   padding: 1em 0 0;
   list-style: none;
   width: 100%;
-  border-top: 1px solid rgba(70, 72, 78, 0.3);
+  border-top: 1px solid rgba(125, 95, 42, 0.3);
   display: grid;
   gap: 0.35em;
   font-size: 0.92em;
@@ -627,7 +627,7 @@
   margin-top: auto;
   width: 100%;
   text-align: left;
-  border-top: 1px solid rgba(70, 72, 78, 0.3);
+  border-top: 1px solid rgba(125, 95, 42, 0.3);
   padding-top: 0.5em;
 }
 
@@ -736,8 +736,8 @@
 .pull {
   margin: 1.2em 0.6em 1.1em;
   padding: 0.9em 0 0.8em;
-  border-top: 1px solid rgba(70, 72, 78, 0.35);
-  border-bottom: 1px solid rgba(70, 72, 78, 0.35);
+  border-top: 1px solid rgba(125, 95, 42, 0.35);
+  border-bottom: 1px solid rgba(125, 95, 42, 0.35);
   position: relative;
 }
 
@@ -768,12 +768,12 @@
 .catalog {
   margin: auto 0 0;
   padding: 0.8em 1em 0.7em;
-  border: 1px solid rgba(60, 60, 64, 0.45);
+  border: 1px solid rgba(94, 76, 61, 0.45);
   font-size: 0.78em;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35em 1.2em;
-  background: rgba(246, 247, 250, 0.35);
+  background: rgba(255, 250, 240, 0.35);
 }
 
 .catalog-title {
@@ -782,7 +782,7 @@
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  border-bottom: 1px dashed rgba(60, 60, 64, 0.35);
+  border-bottom: 1px dashed rgba(94, 76, 61, 0.35);
   padding-bottom: 0.4em;
   margin-bottom: 0.2em;
 }
@@ -818,11 +818,11 @@
   grid-template-columns: 7.2em 1fr;
   gap: 0 1em;
   padding: 0.85em 0;
-  border-bottom: 1px solid rgba(70, 72, 78, 0.22);
+  border-bottom: 1px solid rgba(125, 95, 42, 0.22);
 }
 
 .index-group:first-of-type {
-  border-top: 1px solid rgba(70, 72, 78, 0.22);
+  border-top: 1px solid rgba(125, 95, 42, 0.22);
 }
 
 .index-group h4 {
@@ -888,12 +888,12 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  border: 1px solid rgba(60, 60, 64, 0.5);
-  outline: 1px solid rgba(60, 60, 64, 0.25);
+  border: 1px solid rgba(94, 76, 61, 0.5);
+  outline: 1px solid rgba(94, 76, 61, 0.25);
   outline-offset: 0.3em;
   background:
-    radial-gradient(ellipse at 50% 50%, rgba(248, 248, 250, 0.6), transparent 70%),
-    repeating-linear-gradient(0deg, transparent 0 3px, rgba(60, 60, 64, 0.05) 3px 4px);
+    radial-gradient(ellipse at 50% 50%, rgba(255, 252, 244, 0.6), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(94, 76, 61, 0.05) 3px 4px);
 }
 
 .plate-rose {
@@ -1123,7 +1123,7 @@
 
 .letter-email a:hover {
   background-size: 100% 0.35em;
-  background-image: linear-gradient(rgba(195, 198, 204, 0.35), rgba(195, 198, 204, 0.35));
+  background-image: linear-gradient(rgba(192, 154, 82, 0.35), rgba(192, 154, 82, 0.35));
 }
 
 .copy {
@@ -1132,7 +1132,7 @@
   text-transform: uppercase;
   color: var(--ink-faint);
   padding: 0.3em 0.6em;
-  border: 1px solid rgba(60, 60, 64, 0.35);
+  border: 1px solid rgba(94, 76, 61, 0.35);
   transition: color 0.3s, border-color 0.3s;
 }
 

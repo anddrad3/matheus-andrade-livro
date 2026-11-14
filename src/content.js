@@ -193,6 +193,7 @@ export const colophon = {
   text: [
     'Este volume foi composto em Cormorant Garamond e EB Garamond, anotado à mão em Caveat, impresso em HTML, CSS e JavaScript e encadernado com GSAP.',
     'Nenhuma imagem de textura foi usada: couro, papel, madeira e mármore são filtros SVG gerados por código.',
+    'A caveira da Edição Sombria vem do Brasão com Caveira de Albrecht Dürer (1503), em domínio público no Metropolitan Museum of Art.',
   ],
 };
 
