@@ -45,13 +45,14 @@
 
     <div id="ui">
       <header class="ui-top">
-        <a class="ui-mark" href="#sumario" data-goto="4" aria-label="Sumário">
+        <a class="ui-mark" href="./" data-home aria-label="Início: fechar o livro e voltar à capa" title="Voltar à capa">
           <span class="ui-mono">M<i>·</i>A</span>
         </a>
         <nav class="ui-links" aria-label="Atalhos">
           <a href="#sumario" data-goto="4" data-nav="sumario">Sumário</a>
           <a href="#obras" data-goto="9" data-nav="obras">Obras</a>
           <a href="#epilogo" data-goto="18" data-nav="epilogo">Contato</a>
+          <button id="spin" class="ui-sound ui-spin" type="button" aria-label="Girar o livro em 360 graus" aria-pressed="false" title="Arraste para girar"><svg class="spin-ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M18.6 14.9l2.4.3-.9 2.2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="6" width="6" height="12" rx=".6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>360°</span></button>
           <button id="sound" class="ui-sound" type="button" aria-label="Som das páginas" aria-pressed="true"><span class="snd-bars"><i></i><i></i><i></i><i></i></span><span class="snd-label">som</span></button>
         </nav>
       </header>
@@ -77,6 +78,7 @@
       <span class="prompt-text">Toque para abrir</span>
       <span class="prompt-line"></span>
     </button>
+    <div id="spin-hint" aria-hidden="true">arraste para girar · <span class="hint-fine"><kbd>Esc</kbd> ou duplo clique para voltar</span><span class="hint-touch">toque em <kbd>360°</kbd> para voltar</span></div>
     <button id="skip" type="button">Pular abertura <kbd>Esc</kbd></button>
 
     <div id="loader" aria-hidden="true">

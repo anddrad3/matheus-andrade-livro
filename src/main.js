@@ -10,6 +10,7 @@ import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TA
 import { Book } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
+import { createSpin } from './spin.js';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s) => document.querySelector(s);
@@ -148,6 +149,23 @@ function skipIntro() {
   openTl?.progress(1);
 }
 
+/* ───────────── girar 360° e voltar à capa ───────────── */
+
+const spin = createSpin({
+  float,
+  camera,
+  stage: $('#stage'),
+  button: $('#spin'),
+  hint: $('#spin-hint'),
+  canStart: () => opened && !openTl,
+});
+
+function goHome() {
+  if (!opened) return;
+  if (spin.rotated) spin.reset();
+  book.goTo(0).then(() => updateUI());
+}
+
 /* ───────────── interações ───────────── */
 
 function bindControls() {
@@ -166,6 +184,12 @@ function bindControls() {
   syncSound();
 
   document.addEventListener('click', (e) => {
+    const home = e.target.closest('[data-home]');
+    if (home) {
+      e.preventDefault();
+      goHome();
+      return;
+    }
     const goto = e.target.closest('[data-goto]');
     if (goto) {
       e.preventDefault();
@@ -176,6 +200,11 @@ function bindControls() {
     const curl = e.target.closest('[data-curl]');
     if (curl && opened) {
       curl.dataset.curl === 'next' ? book.next() : book.prev();
+      return;
+    }
+    // livro fechado na capa: um clique abre de novo
+    if (opened && book.s === 0 && e.target.closest('#stage')) {
+      book.next();
       return;
     }
     const copy = e.target.closest('[data-copy]');
@@ -198,6 +227,7 @@ function bindControls() {
       } else if (e.key === 'Escape') skipIntro();
       return;
     }
+    if (e.key === 'Escape' && spin.rotated) { spin.reset(); return; }
     if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); book.next(); }
     if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); book.prev(); }
     if (e.key === 'Home') { e.preventDefault(); book.goToPage(4); }
@@ -234,7 +264,7 @@ function bindControls() {
   window.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
-    if (performance.now() - tt > 700) return;
+    if (performance.now() - tt > 700 || spin.active) return;
     if (!opened) {
       if (Math.abs(dx) > 40 || dy < -40) open();
       return;
