@@ -201,6 +201,12 @@
   transition: opacity 1.2s ease, transform 1.2s var(--ease-out);
 }
 
+.is-opening #prompt,
+.is-open #prompt {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .can-open #prompt {
   opacity: 1;
   transform: translate(-50%, 0);

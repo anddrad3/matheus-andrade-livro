@@ -64,12 +64,15 @@ function setClosedPose() {
 }
 
 let floatTween;
+let enterTl = null;
 function enter() {
   setClosedPose();
   const tl = gsap.timeline({ delay: 0.25 });
+  enterTl = tl;
   tl.to(camera, { opacity: 1, duration: 1.2, ease: 'power1.out' }, 0)
     .to(camera, { rotationX: 34, rotationZ: -11, rotationY: 4, z: -260, y: 24, duration: 2.6, ease: 'expo.out' }, 0)
     .add(() => {
+      if (opened || openTl) return;
       floatTween = gsap.to(float, { y: -10, rotationZ: 0.8, rotationX: 2, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
       document.body.classList.add('can-open');
     }, 1.2);
@@ -82,6 +85,7 @@ function open() {
   document.body.classList.remove('can-open');
   document.body.classList.add('is-opening');
   floatTween?.kill();
+  enterTl?.kill();
 
   const tl = gsap.timeline({ onComplete: finish });
   openTl = tl;
