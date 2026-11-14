@@ -2,9 +2,21 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**.
 
+**Versão 3.2.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
+
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
-Ao entrar, um volume encadernado em couro repousa sobre uma mesa de madeira sob a luz da luminária; ao toque, a capa se abre em 3D, a folha de rosto aparece e a página vira para o **sumário**.
+Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculos, caneta-tinteiro, bilhete, café (ou vela), copo de whisky e um cigarro no cinzeiro — enquanto a trilha ao piano começa. Ao toque, a capa se abre em 3D e a página vira para o **sumário**.
+
+## Duas edições
+
+| | Clássica (tema claro) | Sombria (tema escuro, padrão) |
+|---|---|---|
+| Capa | Couro castanho, ouro em folha, medalhão guilloché | Couro negro, prata, caveira gravada de Dürer, *Nevermore* |
+| Miolo | Papel creme envelhecido, corte dourado | Papel osso, páginas negras de abertura, corte preto |
+| Mesa | Madeira quente, marca de café | Ébano, vela com cera vermelha |
+| Trilha | *Ária* de Bach ao piano | *Lacrimosa* de Mozart ao piano |
+| Objetos | Falas alegres, chamam o dono de **Matheus** | Falas macabras com humor, chamam o dono de **Andrade** |
 
 ## Capítulos
 
@@ -17,6 +29,16 @@ Ao entrar, um volume encadernado em couro repousa sobre uma mesa de madeira sob 
 | § | Epílogo | Carta de contato, assinatura a pena e o **diário de bordo** com commits ao vivo do GitHub |
 | — | Colofão · Índice remissivo | Créditos tipográficos e um índice clicável |
 
+## Interações
+
+- **Folhear**: arraste a página de qualquer ponto (a folha segue o ponteiro), deslize o dedo no celular, use setas, roda do mouse, abas ou o sumário.
+- **Visitar a obra**: a câmera mergulha na prancha do site até ela ocupar a tela e o site abre na mesma aba.
+- **Modo 360°**: gire o livro nas mãos (mouse ou dedo); "voltar ao livro", Esc ou duplo clique para sair.
+- **Objetos da mesa**: clique e cada um conta algo diferente (3 falas por objeto, por tema).
+- **Trilha**: deslizante de volume e mudo; **som de papel** separado.
+- **Reiniciar a abertura** a qualquer momento; **M·A** fecha o livro na capa.
+- **Celular**: menu inferior com capítulos, objetos e ajustes.
+
 ## Detalhes
 
 - **Abas de dicionário** na lateral do miolo, que acompanham as folhas ao virar.
@@ -26,7 +48,7 @@ Ao entrar, um volume encadernado em couro repousa sobre uma mesa de madeira sob 
 - **Diário de bordo** que busca os commits mais recentes na API pública do GitHub.
 - **Livro 3D de verdade**: 10 folhas com frente e verso, profundidade em Z, sombras dinâmicas enquanto a folha vira, bordas do bloco de páginas, pastas maiores que o miolo e marcador de fita.
 - **Folhear rápido**: clicar num capítulo do sumário folheia as páginas intermediárias em sequência.
-- **Texturas procedurais**: couro, papel, madeira, guardas marmorizadas e grão de filme são filtros SVG procedurais; rosetas, cantoneiras, florões, selo e código de barras são vetores gerados em JS.
+- **Texturas procedurais**: couro, papel, madeira, guardas marmorizadas e grão de filme nascem de filtros SVG (`src/textures.js`) e são pré-renderizados em WebP com `npm run textures`; rosetas, cantoneiras, florões, selo e código de barras são vetores gerados em JS.
 - **Ouro em folha** com brilho que acompanha o cursor; poeira dançando na luz em canvas.
 - **Navegação**: setas do teclado, roda do mouse, arrastar no toque, cantos da página, botões, links diretos por hash (`#obras`, `#epilogo`…).
 - **Responsivo**: no celular o livro mostra uma página por vez e desliza entre elas.
@@ -43,6 +65,12 @@ npm install
 npm run dev
 ```
 
+Mudou as cores de alguma textura em `src/textures.js`? Gere os WebP de novo (precisa do Edge ou Chrome instalado):
+
+```bash
+npm run textures
+```
+
 ## Publicação
 
 - **GitHub Pages:** cada push na `main` publica via GitHub Actions (`.github/workflows/deploy.yml`).
@@ -50,8 +78,8 @@ npm run dev
 
 ## Stack
 
-Vite · JavaScript puro · GSAP · CSS 3D transforms · SVG procedural · Canvas 2D
-Tipografia: Cormorant Garamond, EB Garamond, Pinyon Script e Caveat.
+Vite · JavaScript puro · GSAP · CSS 3D transforms · SVG procedural · Canvas 2D · Web Audio
+Tipografia: Cormorant Garamond, EB Garamond, Pinyon Script, Caveat, Pirata One e Cinzel.
 
 ## Créditos de mídia
 

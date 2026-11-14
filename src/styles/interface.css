@@ -637,3 +637,320 @@ body.is-open #desk-props {
 :root[data-theme='dark'] .portal-veil {
   background: radial-gradient(ellipse at 50% 50%, rgba(5, 5, 6, 0.75), #000 75%);
 }
+
+/* ─────────── modo 360°: botão de saída ─────────── */
+.spin-exit {
+  position: fixed;
+  left: 50%;
+  bottom: max(5.4rem, calc(env(safe-area-inset-bottom) + 4.6rem));
+  z-index: 12;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1.3rem;
+  border: 1px solid rgba(192, 154, 82, 0.6);
+  border-radius: 99px;
+  background: rgba(16, 11, 8, 0.82);
+  backdrop-filter: blur(6px);
+  color: #f4dc96;
+  font-size: 0.74rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: dp-in 0.5s var(--ease-out) both;
+}
+
+.spin-exit[hidden] {
+  display: none;
+}
+
+.spin-exit svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+:root[data-theme='dark'] .spin-exit {
+  border-color: rgba(195, 198, 204, 0.5);
+  background: rgba(8, 8, 9, 0.85);
+  color: #e4e7ec;
+}
+
+/* no modo 360° os objetos da mesa saem de cena (o livro gira livre) */
+body.is-spin #desk-props {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+body.is-spin #stage {
+  cursor: grab;
+}
+
+body.is-spin .dp {
+  pointer-events: none;
+}
+
+/* 360° desligado é o estado normal: sem risco no ícone */
+.ui-spin.is-off::after,
+:root[data-theme='dark'] .ui-spin.is-off::after {
+  display: none;
+}
+
+.ui-spin.is-off,
+:root[data-theme='dark'] .ui-spin.is-off {
+  color: rgba(233, 220, 194, 0.6);
+}
+
+.ui-spin.is-off .spin-ico {
+  opacity: 1;
+}
+
+/* ─────────── volume da trilha ─────────── */
+.vol-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.vol-pop {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  right: -0.6rem;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'title title title' 'mute range out';
+  align-items: center;
+  gap: 0.55rem 0.7rem;
+  width: 15.5rem;
+  padding: 0.85rem 1rem 0.9rem;
+  background: rgba(20, 14, 10, 0.94);
+  border: 1px solid rgba(192, 154, 82, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  animation: dp-in 0.3s var(--ease-out) both;
+}
+
+.vol-pop[hidden] {
+  display: none;
+}
+
+.vol-title {
+  grid-area: title;
+  font-size: 0.62rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.vol-mute {
+  grid-area: mute;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cream);
+  padding: 0.3rem 0.5rem;
+  border: 1px solid rgba(192, 154, 82, 0.35);
+}
+
+.vol-out {
+  grid-area: out;
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--gold-hi);
+  font-size: 0.85rem;
+}
+
+.vol-pop .vol-range {
+  grid-area: range;
+}
+
+.vol-range {
+  --v: 55%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.vol-range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(to right, var(--gold) var(--v), rgba(233, 220, 194, 0.18) var(--v));
+}
+
+.vol-range::-moz-range-track {
+  height: 3px;
+  background: linear-gradient(to right, var(--gold) var(--v), rgba(233, 220, 194, 0.18) var(--v));
+}
+
+.vol-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--gold-hi);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35);
+}
+
+.vol-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gold-hi);
+}
+
+.menu-vol {
+  display: grid;
+  grid-template-columns: 1.8rem auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.2rem;
+  color: var(--cream);
+  font-family: var(--serif);
+  font-size: 1.02rem;
+}
+
+.menu-vol .vol-range {
+  height: 34px;
+}
+
+.menu-vol .mt-state {
+  padding: 0.35rem 0.5rem;
+}
+
+.music-hint {
+  position: fixed;
+  left: 50%;
+  top: max(5rem, calc(env(safe-area-inset-top) + 4.4rem));
+  z-index: 13;
+  translate: -50% 0;
+  padding: 0.45rem 1rem;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-hi);
+  background: rgba(12, 8, 6, 0.7);
+  border: 1px solid rgba(192, 154, 82, 0.35);
+  backdrop-filter: blur(6px);
+  animation: dp-in 0.6s 1.2s var(--ease-out) both;
+}
+
+.music-hint[hidden] {
+  display: none;
+}
+
+:root[data-theme='dark'] .vol-pop,
+:root[data-theme='dark'] .music-hint {
+  background: rgba(8, 8, 9, 0.94);
+  border-color: rgba(195, 198, 204, 0.4);
+}
+
+:root[data-theme='dark'] .vol-out,
+:root[data-theme='dark'] .music-hint {
+  color: #e4e7ec;
+}
+
+:root[data-theme='dark'] .vol-mute {
+  border-color: rgba(195, 198, 204, 0.3);
+}
+
+:root[data-theme='dark'] .vol-range::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #d11c24 var(--v), rgba(216, 214, 210, 0.18) var(--v));
+}
+
+:root[data-theme='dark'] .vol-range::-moz-range-track {
+  background: linear-gradient(to right, #d11c24 var(--v), rgba(216, 214, 210, 0.18) var(--v));
+}
+
+:root[data-theme='dark'] .vol-range::-webkit-slider-thumb,
+:root[data-theme='dark'] .vol-range::-moz-range-thumb {
+  background: #eef0f3;
+}
+
+/* ─────────── copo de whisky e cigarro no cinzeiro ─────────── */
+/* mesa 3D da cutscene (medidas relativas ao livro) */
+.prop-whisky {
+  width: calc(var(--pw) * 0.36);
+  margin-left: calc(var(--pw) * -1.32);
+  margin-top: calc(var(--ph) * -0.14);
+  filter: drop-shadow(-4px 10px 8px rgba(0, 0, 0, 0.5));
+}
+
+.prop-ashtray {
+  width: calc(var(--pw) * 0.5);
+  margin-left: calc(var(--pw) * 0.66);
+  margin-top: calc(var(--ph) * 0.27);
+  rotate: 8deg;
+  filter: drop-shadow(-4px 10px 8px rgba(0, 0, 0, 0.55));
+}
+
+/* mesa depois da abertura */
+.dp-whisky {
+  --w: min(118px, calc(var(--m) * 0.5));
+  left: calc(var(--m) * 0.36);
+  top: 45vh;
+  width: var(--w);
+  filter: drop-shadow(-4px 10px 8px rgba(0, 0, 0, 0.5));
+  animation-delay: 0.7s;
+}
+
+.dp-ashtray {
+  --w: min(150px, calc(var(--m) * 0.64));
+  right: calc(var(--m) * 0.16);
+  top: 55vh;
+  width: var(--w);
+  rotate: 8deg;
+  filter: drop-shadow(-4px 10px 8px rgba(0, 0, 0, 0.55));
+  animation-delay: 0.85s;
+}
+
+/* fumaça: sobe, ondula e some (só transform/opacidade: barato) */
+.as-smoke path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: smoke 4.2s ease-in-out infinite;
+}
+
+.as-smoke path:nth-child(2) {
+  animation-delay: -2.1s;
+}
+
+@keyframes smoke {
+  0% { opacity: 0; transform: translateY(6px) scaleY(0.7); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-16px) scaleY(1.15) skewX(8deg); }
+}
+
+.as-ember {
+  animation: ember 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes ember {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.18); }
+}
+
+/* Edição Sombria: whisky puro (sem gelo), mais escuro */
+:root[data-theme='dark'] .prop-whisky rect,
+:root[data-theme='dark'] .dp-whisky rect {
+  display: none;
+}
+
+:root[data-theme='dark'] .wk-liquid {
+  filter: brightness(0.72) saturate(1.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .as-smoke path,
+  .as-ember {
+    animation: none;
+  }
+}

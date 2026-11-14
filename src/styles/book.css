@@ -690,3 +690,12 @@
   cursor: grabbing !important;
   user-select: none;
 }
+
+/* conteúdo das folhas fora de vista: sem estilo, layout nem pintura */
+.leaf.is-culled .page {
+  content-visibility: hidden;
+}
+
+.is-spin .leaf.is-board.is-culled .page {
+  content-visibility: visible;
+}

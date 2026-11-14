@@ -20,7 +20,16 @@ function gcd(a, b) {
  * Roseta guilloché — o padrão gravado de cédulas e relógios.
  * Combina hipotrocoides internas com uma faixa de ondas entrelaçadas.
  */
-export function guilloche({ a = 5, b = 3, loops = 30, r = 0.6 } = {}, opts = {}) {
+const rosetteCache = new Map();
+export function guilloche(seed = {}, opts = {}) {
+  const key = JSON.stringify([seed, opts]);
+  if (!rosetteCache.has(key)) rosetteCache.set(key, buildGuilloche(seed, opts));
+  return rosetteCache.get(key);
+}
+
+// resolução calibrada para o tamanho em que as rosetas aparecem (~80–220 px):
+// lisa a olho nu, com ~1/3 dos pontos de antes (menos SVG para montar e pintar)
+function buildGuilloche({ a = 5, b = 3, loops = 30, r = 0.6 } = {}, opts = {}) {
   const size = 400;
   const c = size / 2;
   const { band = true, rings = true, cls = '' } = opts;
@@ -32,7 +41,7 @@ export function guilloche({ a = 5, b = 3, loops = 30, r = 0.6 } = {}, opts = {})
   const q = b / g;
   const k = q / p;
   const turns = q;
-  const steps = 320 * turns;
+  const steps = 120 * turns;
   for (let layer = 0; layer < 6; layer++) {
     const l = 0.42 + layer * 0.09;
     const pts = [];
@@ -52,7 +61,7 @@ export function guilloche({ a = 5, b = 3, loops = 30, r = 0.6 } = {}, opts = {})
     for (let s = 0; s < strands; s++) {
       const phase = (s / strands) * (TAU / loops) * 2;
       const pts = [];
-      const n = loops * 16;
+      const n = loops * 7;
       for (let i = 0; i <= n; i++) {
         const t = (i / n) * TAU;
         const rad = c * (0.835 + 0.07 * Math.sin(loops * t + phase * loops * 0.5));

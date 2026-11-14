@@ -27,7 +27,7 @@ const $ = (s) => document.querySelector(s);
 const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
 const texturesReady = installTextures(theme());
 const sound = createSound();
-const music = createMusic({ getTheme: () => theme() });
+const music = createMusic({ getTheme: () => theme(), onChange: () => syncMusicUI() });
 startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
 const book = new Book({
@@ -219,6 +219,7 @@ const spin = createSpin({
   camera,
   stage: $('#stage'),
   button: $('#spin'),
+  exit: $('#spin-exit'),
   hint: $('#spin-hint'),
   canStart: () => opened && !openTl,
   onChange: (on) => book.setThick(on),
@@ -372,6 +373,9 @@ let talkTimer;
 propsEl.querySelector('.dp-glasses').innerHTML = $('.prop-glasses').innerHTML;
 propsEl.querySelector('.dp-pen').innerHTML = $('.prop-pen').innerHTML.replace(/pen-g\b/g, 'pen-g2').replace(/pen-au\b/g, 'pen-au2');
 propsEl.querySelector('.dp-note').innerHTML = $('.prop-note').innerHTML;
+const cloneIds = (html) => html.replace(/(id="|url\(#)([\w-]+)/g, '$1$2-2');
+propsEl.querySelector('.dp-whisky').innerHTML = cloneIds($('.prop-whisky').innerHTML);
+propsEl.querySelector('.dp-ashtray').innerHTML = cloneIds($('.prop-ashtray').innerHTML);
 
 function measureMargins() {
   const m = (window.innerWidth - 2 * book.pw) / 2;
@@ -443,7 +447,6 @@ function renderMenuProps() {
 function syncMenuStates() {
   const st = {
     theme: theme() === 'dark' ? 'sombria' : 'clássica',
-    music: music.enabled ? 'ligada' : 'desligada',
     sound: sound.enabled ? 'ligado' : 'desligado',
     spin: spin.enabled ? 'ligado' : 'desligado',
   };
@@ -529,19 +532,43 @@ document.addEventListener('pointerover', (e) => {
   if (a) portal.warm(a.href);
 });
 
-/* ───────────── trilha sonora ───────────── */
+/* ───────────── trilha sonora: volume ───────────── */
 
 const musicBtn = $('#music');
-function syncMusic() {
-  musicBtn.setAttribute('aria-pressed', String(music.enabled));
+const volPop = $('#vol-pop');
+const volRanges = [$('#vol'), $('#vol-m')];
+const volOut = $('#vol-out');
+const volMutes = [$('#vol-mute'), $('#vol-mute-m')];
+const musicHint = $('#music-hint');
+
+function syncMusicUI() {
+  const v = Math.round(music.volume * 100);
+  volRanges.forEach((r) => {
+    if (document.activeElement !== r) r.value = String(v);
+    r.style.setProperty('--v', `${music.muted ? 0 : v}%`);
+  });
+  volOut.textContent = music.muted ? '—' : String(v);
+  volMutes.forEach((b) => {
+    b.textContent = music.muted ? 'ligar' : 'mudo';
+    b.setAttribute('aria-pressed', String(music.muted));
+  });
   musicBtn.classList.toggle('is-off', !music.enabled);
-  musicBtn.title = music.enabled ? 'Trilha sonora ligada — clique para desligar' : 'Trilha sonora desligada — clique para ligar';
+  musicBtn.setAttribute('aria-pressed', String(music.enabled));
+  musicBtn.title = `Trilha sonora — volume ${music.muted ? 'mudo' : v}`;
+  musicHint.hidden = !(music.blocked && !music.muted);
 }
-musicBtn.addEventListener('click', () => {
-  music.toggle();
-  syncMusic();
+
+musicBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  volPop.hidden = !volPop.hidden;
 });
-syncMusic();
+volRanges.forEach((r) => r.addEventListener('input', () => music.setVolume(Number(r.value) / 100)));
+volMutes.forEach((b) => b.addEventListener('click', () => music.toggle()));
+document.addEventListener('pointerdown', (e) => {
+  if (!volPop.hidden && !e.target.closest('.vol-wrap')) volPop.hidden = true;
+});
+musicHint.addEventListener('click', () => (musicHint.hidden = true));
+syncMusicUI();
 
 /* ───────────── tema claro (clássico) × escuro (Edição Sombria) ───────────── */
 

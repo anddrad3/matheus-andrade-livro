@@ -6,8 +6,6 @@
  * só copia pixels, em vez de recalcular o filtro a cada quadro 3D.
  */
 
-const uri = (svg) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg.replace(/\s+/g, ' '))}")`;
-
 const P = {
   light: {
     paper: '0 0 0 0 .3  0 0 0 0 .22  0 0 0 0 .12  0 0 0 -.75 .44',
@@ -34,6 +32,11 @@ const P = {
     ],
   },
 };
+
+/** fontes SVG das texturas (usadas pelo gerador scripts/build-textures.mjs) */
+export function textureSVGs(theme) {
+  return svgs(P[theme]);
+}
 
 function svgs(p) {
   const ch = (i) => p.marble.map((c) => c[i]).join(' ');
@@ -102,51 +105,41 @@ function svgs(p) {
   };
 }
 
-function rasterize(svg, w, h) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.decoding = 'async';
-    img.onload = () => {
-      try {
-        const c = document.createElement('canvas');
-        c.width = w;
-        c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        c.toBlob((blob) => resolve(blob ? `url("${URL.createObjectURL(blob)}")` : null), 'image/png');
-      } catch {
-        resolve(null);
-      }
-    };
-    img.onerror = () => resolve(null);
-    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.replace(/\s+/g, ' '))}`;
-  });
-}
-
+const NAMES = ['paper', 'mottle', 'leather', 'marble', 'grain', 'wood'];
 const cache = {};
 
-/** prepara (uma vez) as texturas de um tema; devolve { '--tex-x': 'url(...)' } */
+/**
+ * Carrega as texturas prontas do tema (public/tex/*.webp, geradas por
+ * scripts/build-textures.mjs). A decodificação acontece fora da thread
+ * principal; resolve quando todas estão prontas para pintar.
+ */
 function prepare(theme) {
   if (!cache[theme]) {
-    cache[theme] = (async () => {
-      const entries = await Promise.all(
-        Object.entries(svgs(P[theme])).map(async ([name, [svg, w, h]]) => [name, (await rasterize(svg, w, h)) ?? uri(svg)]),
-      );
-      return Object.fromEntries(entries);
-    })();
+    cache[theme] = Promise.all(
+      NAMES.map(async (n) => {
+        // endereço absoluto: url() relativa dentro de variável CSS seria resolvida
+        // a partir da pasta do CSS (assets/), não da página
+        const url = new URL(`tex/${theme}-${n}.webp`, document.baseURI).href;
+        const img = new Image();
+        img.src = url;
+        try {
+          await img.decode();
+        } catch {}
+        return [`--tex-${n}`, `url("${url}")`];
+      }),
+    ).then(Object.fromEntries);
   }
   return cache[theme];
 }
 
-/** aplica as texturas do tema; resolve quando já estão na tela */
+/** aplica as texturas do tema; resolve quando já estão prontas */
 export async function applyTextures(theme) {
   const set = await prepare(theme);
   const root = document.documentElement.style;
   for (const [k, v] of Object.entries(set)) root.setProperty(k, v);
 }
 
-/** instala o tema atual e deixa o outro pronto em segundo plano */
+/** instala o tema atual; o outro só é baixado quando a pessoa trocar */
 export function installTextures(theme) {
-  const ready = applyTextures(theme);
-  ready.then(() => setTimeout(() => prepare(theme === 'dark' ? 'light' : 'dark'), 1500));
-  return ready;
+  return applyTextures(theme);
 }

@@ -31,6 +31,7 @@ export class Book {
       leaf.className = 'leaf';
       if (k === 0 || k === this.N - 1) leaf.classList.add('is-board');
       leaf.dataset.leaf = k;
+      if (k > 0) leaf.classList.add('is-culled'); // fora de vista desde o início: o navegador pula o conteúdo
       const tabHtml = tabs
         .filter((t) => t.leaf === k)
         .map((t) => `<button class="tab" type="button" data-goto="${t.page}" style="--pos:${t.pos};--tab-l:${t.color};--tab-d:${t.colorDark || t.color}" tabindex="-1" aria-label="Ir para ${t.label}"><span>${t.tab}</span></button>`)
@@ -39,13 +40,14 @@ export class Book {
       frag.appendChild(leaf);
       this.leaves.push(leaf);
     }
+    // medidas (variáveis CSS) antes de inserir as folhas: um único cálculo de estilo
+    this.layout();
     el.querySelector('.leaves').appendChild(frag);
     this.pageEls = [...el.querySelectorAll('.page')].sort((a, b) => a.dataset.page - b.dataset.page);
     this.shadow = el.querySelector('.book-shadow');
     this.cast = el.querySelector('.cast');
     this.edges = el.querySelector('.edges');
-
-    this.layout();
+    this.blocks = el.querySelector('.blocks');
     this.applyStatic();
   }
 
@@ -188,16 +190,19 @@ export class Book {
     this.leaves.forEach((leaf, k) => {
       gsap.to(leaf, { z: this.zFor(k, k < this.s), duration: 0.7, ease: 'power2.inOut' });
     });
-    document.documentElement.classList.toggle('is-thick', on);
+    this.el.classList.toggle('is-thick', on);
     this.updateBlocks();
   }
 
   /** espessura dos dois blocos de páginas (esquerdo e direito) */
   updateBlocks() {
-    const root = document.documentElement.style;
+    if (!this.blocks) return;
+    // no próprio bloco (e não no :root): a transição não recalcula a página inteira
+    const st = this.blocks.style;
     const t = (n) => (this.thick ? `${(Math.max(0, n) * this.d).toFixed(1)}px` : '0px');
-    root.setProperty('--tl', t(this.s - 1));
-    root.setProperty('--tr', t(this.N - 1 - this.s));
+    st.setProperty('--tl', t(this.s - 1));
+    st.setProperty('--tr', t(this.N - 1 - this.s));
+    this.blocks.classList.toggle('is-closed', this.s === 0 || this.s === this.N);
   }
 
   /* ─────────── virar com a mão (estilo iPad) ─────────── */

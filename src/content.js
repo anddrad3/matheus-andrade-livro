@@ -210,7 +210,8 @@ export const index = [
 
 /**
  * Objetos da mesa: o que cada um "diz" quando clicado.
- * Clássico = alegre; Sombria = realista e macabro, sem perder o humor.
+ * Clássico = alegre, trata o dono por "Matheus".
+ * Sombria = realista e macabro sem perder o humor, trata o dono por "Andrade".
  */
 export const deskTalk = {
   light: {
@@ -218,32 +219,48 @@ export const deskTalk = {
       name: 'Óculos de trabalho',
       lines: [
         'Os óculos de trabalho do Matheus. Sem eles, ele não diferencia um ponto e vírgula de uma vírgula — e o JavaScript, coitado, aceita os dois.',
-        'Grau leve, foco absurdo. Já acharam bugs que nem o compilador tinha visto.',
-        'Conselho do dono: limpe as lentes antes de culpar o CSS.',
+        'Grau leve, foco absurdo. Com eles, o Matheus já achou bugs que nem o compilador tinha visto.',
+        'Conselho do Matheus: limpe as lentes antes de culpar o CSS.',
       ],
     },
     pen: {
       name: 'Caneta-tinteiro',
       lines: [
-        'Corrige provas de dia e rabisca diagramas de banco de dados de noite. Multitarefa, como o dono.',
-        'Já assinou diplomas, contratos de freela e um bilhete pedindo mais café.',
-        'Escreve em azul-real. O vermelho fica reservado para os testes que falham.',
+        'Corrige provas de dia e rabisca diagramas de banco de dados de noite. Multitarefa, como o Matheus.',
+        'Já assinou diplomas, contratos de freela e um bilhete do Matheus pedindo mais café.',
+        'Escreve em azul-real. O vermelho o Matheus reserva para os testes que falham.',
       ],
     },
     note: {
       name: 'Bilhete “leia-me”',
       lines: [
-        'Todo bom projeto começa com um README. Este aqui só diz: “abra o livro”. Simples, direto e bem documentado.',
-        'Instruções: 1) leia; 2) sorria; 3) mande um e-mail. Nessa ordem.',
+        'Todo bom projeto começa com um README. Este, escrito pelo Matheus, só diz: “abra o livro”. Simples e bem documentado.',
+        'Instruções do Matheus: 1) leia; 2) sorria; 3) mande um e-mail. Nessa ordem.',
         'Se você leu até aqui, já está mais adiantado que 90% dos usuários de qualquer sistema.',
       ],
     },
     ring: {
       name: 'Marca de café',
       lines: [
-        'A marca da xícara das três da manhã. Combustível oficial de 87% dos commits deste perfil.',
+        'A marca da xícara das três da manhã. Combustível oficial de 87% dos commits do Matheus.',
         'Os outros 13% foram movidos a pão de queijo.',
         'Não é sujeira: é o carimbo de autenticidade de quem programa de madrugada.',
+      ],
+    },
+    whisky: {
+      name: 'Copo de whisky',
+      lines: [
+        'O whisky do fim do expediente. O Matheus só abre a garrafa quando o deploy passa de primeira — por isso ela dura anos.',
+        'Duas pedras de gelo e uma regra de ouro: nada de commit depois do segundo copo.',
+        'Envelhecido doze anos. O código legado da firma também, mas desce bem menos suave.',
+      ],
+    },
+    ashtray: {
+      name: 'Cigarro no cinzeiro',
+      lines: [
+        'O cigarro que o Matheus jura ser o último desde a versão 1.0.',
+        'A fumaça sobe em espiral, igualzinho à pilha de chamadas de uma recursão sem caso base.',
+        'O Ministério da Saúde adverte: fumar faz mal. Programar sem pausa também — levanta, Matheus, e vai beber água.',
       ],
     },
   },
@@ -251,33 +268,49 @@ export const deskTalk = {
     glasses: {
       name: 'Óculos de trabalho',
       lines: [
-        'Os óculos do Matheus. Sem eles, ele confunde a vela com o monitor — e esta mesa já pegou fogo duas vezes.',
+        'Os óculos do Andrade. Sem eles, ele confunde a vela com o monitor — e esta mesa já pegou fogo duas vezes.',
         'As lentes já viram coisas que nenhum stack trace deveria mostrar. Daí o leve tremor nas hastes.',
-        'Eram de um programador que encarou um código legado sem documentação. Os óculos voltaram. Ele não.',
+        'Antes do Andrade, eram de um programador que encarou um código legado sem documentação. Os óculos voltaram. Ele não.',
       ],
     },
     pen: {
       name: 'Caneta-tinteiro',
       lines: [
-        'A tinta é vermelha. Pelo menos é o que ele jura que é.',
+        'A tinta é vermelha. Pelo menos é o que o Andrade jura que é.',
         'Já assinou contratos, provas corrigidas e a certidão de óbito de três projetos em PHP 5.',
-        'Afiada o bastante para escrever. E para outras coisas, se o cliente pedir “só mais uma alteraçãozinha”.',
+        'Afiada o bastante para escrever. E para outras coisas, se o cliente pedir ao Andrade “só mais uma alteraçãozinha”.',
       ],
     },
     note: {
       name: 'Bilhete “leia-me”',
       lines: [
-        '“Leia-me”, diz o bilhete. Os últimos que ignoraram um README ainda estão em produção… gritando baixinho.',
-        'Escrito com a mesma tinta da caneta. Não pergunte de onde ela veio.',
+        '“Leia-me”, diz o bilhete do Andrade. Os últimos que ignoraram um README ainda estão em produção… gritando baixinho.',
+        'Escrito com a mesma tinta da caneta. Não pergunte ao Andrade de onde ela veio.',
         'Há mais uma linha no verso, borrada. Parece dizer “socorro, sexta-feira, deploy”.',
       ],
     },
     ring: {
       name: 'Vela',
       lines: [
-        'Iluminação oficial das sessões de debug. A cera escorre como os prazos: devagar, vermelha e sem volta.',
+        'Iluminação oficial das madrugadas de debug do Andrade. A cera escorre como os prazos: devagar, vermelha e sem volta.',
         'Acesa desde o último deploy de sexta-feira. Ninguém teve coragem de apagar.',
         'Não sopre. Da última vez que alguém soprou, o servidor caiu junto.',
+      ],
+    },
+    whisky: {
+      name: 'Copo de whisky',
+      lines: [
+        'Puro, sem gelo. O Andrade diz que o gelo dilui a dor dos bugs em produção.',
+        'O copo nunca fica vazio por muito tempo. Os prazos também não.',
+        'Esse âmbar já foi mais claro. Antes da migração do banco de dados.',
+      ],
+    },
+    ashtray: {
+      name: 'Cigarro no cinzeiro',
+      lines: [
+        'Queima devagar, feito servidor sem monitoramento. O Andrade só percebe quando já virou cinza.',
+        'O cinzeiro guarda as bitucas de cada madrugada de deploy. Ninguém nunca contou quantas são. Ninguém teria coragem.',
+        'A fumaça desenha rostos no escuro. O Andrade jura que um deles era o cliente pedindo “um ajuste rapidinho”.',
       ],
     },
   },

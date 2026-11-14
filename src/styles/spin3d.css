@@ -12,8 +12,9 @@
   initial-value: 0px;
 }
 
-:root {
-  transition: --tl 0.7s ease, --tr 0.7s ease;
+/* a transição vive no próprio bloco (filhos herdam) — nada de recalcular a página inteira */
+.blocks {
+  transition: --tl 0.7s ease, --tr 0.7s ease, visibility 0s linear 0.7s;
 }
 
 .blocks {
@@ -22,12 +23,11 @@
   transform-style: preserve-3d;
   pointer-events: none;
   visibility: hidden;
-  transition: visibility 0s linear 0.7s;
 }
 
 .is-thick .blocks {
   visibility: visible;
-  transition-delay: 0s;
+  transition: --tl 0.7s ease, --tr 0.7s ease, visibility 0s;
 }
 
 .block {
@@ -120,4 +120,50 @@
   height: 1.5px;
   background: #c0392b;
   transform: rotate(-35deg);
+}
+
+/* face da lombada de cada bloco: com o livro fechado, é a lombada de couro */
+.block-r .bs-spine {
+  left: 0;
+  top: 0;
+  width: var(--tr);
+  height: 100%;
+  transform-origin: 0 50%;
+  transform: rotateY(-90deg);
+}
+
+.block-l .bs-spine {
+  left: 100%;
+  top: 0;
+  width: var(--tl);
+  height: 100%;
+  transform-origin: 0 50%;
+  transform: rotateY(-90deg);
+}
+
+.bs-spine {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 14%, rgba(201, 162, 79, 0.85) 14% 14.5%, transparent 14.5% 15.3%, rgba(201, 162, 79, 0.85) 15.3% 15.8%, transparent 15.8% 84.2%, rgba(201, 162, 79, 0.85) 84.2% 84.7%, transparent 84.7% 85.5%, rgba(201, 162, 79, 0.85) 85.5% 86%, transparent 86%),
+    linear-gradient(to right, #120b08, var(--leather-hi) 45%, #120b08) !important;
+}
+
+:root[data-theme='dark'] .bs-spine {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 14%, rgba(195, 198, 204, 0.8) 14% 14.5%, transparent 14.5% 15.3%, rgba(195, 198, 204, 0.8) 15.3% 15.8%, transparent 15.8% 84.2%, rgba(195, 198, 204, 0.8) 84.2% 84.7%, transparent 84.7% 85.5%, rgba(195, 198, 204, 0.8) 85.5% 86%, transparent 86%),
+    linear-gradient(to right, #050505, #1d1d20 45%, #050505) !important;
+}
+
+/* livro aberto: o vão entre as metades mostra bordas de folhas, não lombada */
+.blocks:not(.is-closed) .bs-spine {
+  background:
+    linear-gradient(rgba(255, 245, 210, 0.3), transparent 35%, rgba(60, 35, 5, 0.3)),
+    repeating-linear-gradient(to right, #e3bd62 0 1px, #a47a2a 1px 2px, #f6dc8e 2px 3px),
+    #c99a3e !important;
+}
+
+:root[data-theme='dark'] .blocks:not(.is-closed) .bs-spine {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.07), transparent 40%, rgba(0, 0, 0, 0.45)),
+    repeating-linear-gradient(to right, #0b0b0c 0 1px, #1b1b1e 1px 2px, #0e0e10 2px 3px),
+    #0c0c0d !important;
 }
