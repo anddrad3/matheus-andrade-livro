@@ -139,7 +139,12 @@ export async function applyTextures(theme) {
   for (const [k, v] of Object.entries(set)) root.setProperty(k, v);
 }
 
-/** instala o tema atual; o outro só é baixado quando a pessoa trocar */
+/** instala o tema atual */
 export function installTextures(theme) {
   return applyTextures(theme);
+}
+
+/** baixa e decodifica as texturas de um tema sem aplicar (troca de tema instantânea) */
+export function preloadTextures(theme) {
+  return prepare(theme);
 }

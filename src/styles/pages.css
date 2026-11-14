@@ -1351,8 +1351,8 @@
 /* assinatura oficial (imagem do próprio Matheus), escrita da esquerda para a direita */
 .signature-real {
   width: 12em;
-  aspect-ratio: 1100 / 554;
-  margin: -0.6em 0 -0.4em -0.3em;
+  aspect-ratio: 1400 / 626;
+  margin: 0;
 }
 
 .signature-real i {
@@ -1378,4 +1378,88 @@
   .signature-real i {
     clip-path: none;
   }
+}
+
+/* ─────────── gravuras ─────────── */
+.engr {
+  margin: auto 0 0;
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  padding-bottom: 0.4em;
+}
+
+.engr-frame {
+  display: block;
+  min-height: 0;
+  padding: 0.3em;
+  border: 1px solid rgba(94, 76, 61, 0.45);
+  box-shadow: 0 0 0 3px transparent, 0 0 0 4px rgba(94, 76, 61, 0.22);
+}
+
+.engr img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: var(--engr-h, 11em);
+  object-fit: contain;
+  /* papel: a tinta da gravura assenta no papel creme */
+  mix-blend-mode: multiply;
+  filter: sepia(0.5) contrast(1.05) brightness(1.02);
+}
+
+.engr-opener {
+  --engr-h: 12.5em;
+}
+
+.engr-colophon {
+  --engr-h: 7.5em;
+  margin: 0.4em 0 0.6em;
+}
+
+.engr figcaption {
+  font-size: 0.56em;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  max-width: 24em;
+  text-align: center;
+}
+
+/* Sombria: prancha colada na página negra, com fio prateado */
+:root[data-theme='dark'] .engr img {
+  mix-blend-mode: normal;
+  filter: contrast(1.08) brightness(0.92);
+}
+
+:root[data-theme='dark'] .engr-frame {
+  border-color: rgba(195, 198, 204, 0.4);
+  box-shadow: 0 0 0 3px transparent, 0 0 0 4px rgba(195, 198, 204, 0.15), 0 8px 24px rgba(0, 0, 0, 0.6);
+  background: #e9e6df;
+}
+
+:root[data-theme='dark'] .paper:not(.is-opener) .engr img {
+  mix-blend-mode: multiply;
+  filter: contrast(1.05);
+}
+
+.engr,
+.engr-frame,
+.engr img {
+  flex-shrink: 0;
+}
+
+.engr-opener {
+  --engr-h: 7.8em;
+  margin-top: auto;
+  padding-top: 0.5em;
+  padding-bottom: 0;
+}
+
+.engr-colophon {
+  --engr-h: 4.6em;
+  margin: 0 0 0.5em;
 }

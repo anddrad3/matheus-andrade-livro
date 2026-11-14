@@ -10,13 +10,15 @@ import './styles/theme-dark-auto.css';
 import './styles/sombria.css';
 import './styles/interface.css';
 import './styles/texture.css';
-import { installTextures, applyTextures } from './textures.js';
+import './styles/objmodal.css';
+import { installTextures, applyTextures, preloadTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS, CHAPTERS } from './pages.js';
 import { deskTalk } from './content.js';
 import { createMusic } from './music.js';
 import { createPortal } from './portal.js';
 import { inkify } from './ink.js';
+import { createObjModal } from './objmodal.js';
 import { Book } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
@@ -166,6 +168,22 @@ function prepareOpen() {
   book.cull([0, 1, 2, book.N - 1]);
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 60));
   idle(() => [1, 2, 3, 4].forEach((p) => inkify(book.pageEls[p])));
+  warmAssets();
+}
+
+/** pré-carrega o que aparece depois: fotos dos projetos, imagens e o outro tema */
+let warmed = false;
+function warmAssets() {
+  if (warmed) return;
+  warmed = true;
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
+  idle(() => {
+    document.querySelectorAll('.leaves img').forEach((img) => img.decode?.().catch(() => {}));
+    preloadTextures(theme() === 'dark' ? 'light' : 'dark');
+    const other = theme() === 'dark' ? 'aria-bach-piano' : 'lacrimosa-piano';
+    const a = new Audio(`music/${other}.mp3`);
+    a.preload = 'auto';
+  });
 }
 const flash = $('#flash');
 
@@ -389,7 +407,9 @@ function thetaAt(clientX) {
 }
 
 document.addEventListener('pointerdown', (e) => {
-  if (!opened || openTl || e.button !== 0 || spin.rotated || spin.active) return;
+  if (!opened || openTl || e.button !== 0) return;
+  // no 360°: com o livro de frente, arrastar a página vira a página; girado, gira o livro
+  if ((spin.active || spin.rotated) && !(spin.active && spin.frontal && e.target.closest('.leaf'))) return;
   if (e.target.closest(NO_DRAG)) return;
   const mobile = book.mode === 'mobile';
   if (!e.target.closest('.leaf') && !(mobile && e.target.closest('#stage'))) return;
@@ -468,7 +488,7 @@ function endPageDrag(e) {
     return;
   }
   // toque simples numa página (celular): aproxima para ler / volta às duas páginas
-  if (!g.live && book.mode === 'mobile' && Math.hypot(dx, dy) < 8 && !g.target.closest('a, button, [data-goto], [data-copy], .plate, input')) {
+  if (!g.live && book.mode === 'mobile' && !spin.active && Math.hypot(dx, dy) < 8 && !g.target.closest('a, button, [data-goto], [data-copy], .plate, input')) {
     if (zoom) setZoom(null);
     else setZoom(g.x < spineX().x ? 'left' : 'right');
     return;
@@ -550,7 +570,15 @@ function measureMargins() {
   document.documentElement.classList.toggle('no-props', book.mode === 'mobile' || m < 96);
 }
 
-function talk(prop, anchor) {
+const objModal = createObjModal({ getTheme: () => theme(), talk: deskTalk, onOpen: () => sound.flip(1) });
+
+// clicar num objeto abre o card dele (girável em 360°)
+function talk(prop) {
+  hideTalk();
+  objModal.open(prop);
+}
+
+function talkBubble(prop, anchor) {
   const t = theme();
   const d = deskTalk[t][prop];
   const key = `${t}:${prop}`;
@@ -750,7 +778,7 @@ async function setTheme(next, origin) {
   }
   veil.classList.add('is-on');
   // texturas do novo tema prontas antes de revelar
-  await Promise.all([applyTextures(next), new Promise((r) => setTimeout(r, 330))]);
+  await Promise.all([applyTextures(next), new Promise((r) => setTimeout(r, 200))]);
   document.documentElement.dataset.theme = next;
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[next]);
   try {

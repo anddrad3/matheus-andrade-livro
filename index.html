@@ -138,7 +138,7 @@
       <i class="cine-bar cine-bottom"><span class="cine-place">Franca, São Paulo &nbsp;·&nbsp; MMXXVI</span></i>
       <div class="cine-title"><span class="ct-pre">um livro de</span><span class="ct-name">Matheus Andrade</span></div>
     </div>
-    <div id="spin-hint" aria-hidden="true">modo 360° · arraste para girar o livro</div>
+    <div id="spin-hint" aria-hidden="true">modo 360° · arraste fora do livro para girar · de frente, arraste a página para folhear</div>
     <button id="spin-exit" class="spin-exit" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4.5 12H15a5 5 0 0 1 0 10h-2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>voltar ao livro</button>
     <button id="skip" type="button">Pular abertura <kbd>Esc</kbd></button>
 
@@ -163,6 +163,17 @@
       <button class="dp dp-ashtray" type="button" data-prop="ashtray" aria-label="Cigarro no cinzeiro"></button>
       <button class="dp dp-lighter" type="button" data-prop="lighter" aria-label="Isqueiro"></button>
       <button class="dp dp-notepad" type="button" data-prop="notepad" aria-label="Bloco de notas"></button>
+    </div>
+    <div id="obj-modal" class="obj-modal" hidden>
+      <div class="om-scrim" data-om-close></div>
+      <div class="om-card" role="dialog" aria-modal="true" aria-labelledby="om-name">
+        <button class="om-x" type="button" data-om-close aria-label="Fechar">✕</button>
+        <div class="om-stage"><div class="om-obj"></div></div>
+        <p class="om-hint">arraste para girar 360°</p>
+        <p class="om-name" id="om-name"></p>
+        <p class="om-text"></p>
+        <button class="om-next" type="button">outra história ↻</button>
+      </div>
     </div>
     <div id="talk" class="talk" role="status" aria-live="polite" hidden>
       <p class="talk-name"></p>

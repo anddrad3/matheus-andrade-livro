@@ -676,20 +676,11 @@ body.is-open #desk-props {
   color: #e4e7ec;
 }
 
-/* no modo 360° os objetos da mesa saem de cena (o livro gira livre) */
-body.is-spin #desk-props {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s;
-}
 
 body.is-spin #stage {
   cursor: grab;
 }
 
-body.is-spin .dp {
-  pointer-events: none;
-}
 
 /* 360° desligado é o estado normal: sem risco no ícone */
 .ui-spin.is-off::after,
@@ -1184,4 +1175,10 @@ body.is-opening #desk-props {
 
 body.is-opening #desk-props .dp {
   animation-play-state: paused;
+}
+
+#spin-hint {
+  white-space: normal;
+  max-width: calc(100vw - 32px);
+  text-align: center;
 }

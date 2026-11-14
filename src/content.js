@@ -86,7 +86,7 @@ export const works = {
       stack: ['PHP 8.4', 'SQLite', 'Leaflet', 'JavaScript'],
       site: 'https://amerindia.alwaysdata.net/',
       repo: 'https://github.com/anddrad3/Amerindia',
-      plate: { kind: 'photo', src: 'plates/amerindia.jpg', pos: '30% 40%', mount: 'corners' },
+      plate: { kind: 'photo', src: 'plates/amerindia.webp', pos: '30% 40%', mount: 'corners' },
       note: 'PIBIC voluntário ✦',
     },
     {
@@ -99,7 +99,7 @@ export const works = {
       stack: ['JavaScript', 'Node.js', 'Python', 'SQLite', 'Docker', 'Gemini'],
       site: 'https://amerindia.alwaysdata.net/voz-do-professor/',
       repo: 'https://github.com/anddrad3/voz-do-professor',
-      plate: { kind: 'photo', src: 'plates/voz-do-professor.jpg', pos: '0% 0%', mount: 'tape' },
+      plate: { kind: 'photo', src: 'plates/voz-do-professor.webp', pos: '0% 0%', mount: 'tape' },
       note: '→ base do meu mestrado',
     },
     {
@@ -112,7 +112,7 @@ export const works = {
       stack: ['JavaScript', 'Node.js', 'Gemini API', 'SheetJS'],
       site: 'https://matityahu.alwaysdata.net/',
       repo: 'https://github.com/anddrad3/MLG',
-      plate: { kind: 'photo', src: 'plates/mlg.jpg', pos: '50% 30%', mount: 'corners' },
+      plate: { kind: 'photo', src: 'plates/mlg.webp', pos: '50% 30%', mount: 'corners' },
       note: 'seus dados não saem daqui',
     },
     {

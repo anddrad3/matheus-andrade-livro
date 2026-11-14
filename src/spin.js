@@ -82,7 +82,7 @@ export function createSpin({ float, camera, stage, button, exit, hint, canStart,
     if (!canStart()) return;
     setActive(true);
     // uma volta para mostrar que gira
-    tweenTo({ keyframes: [{ rx: 14, ry: ry - 200, duration: 1.3, ease: 'power2.inOut' }, { rx: 10, ry: ry - 330, duration: 1, ease: 'power2.out' }] }, {});
+    tweenTo({ keyframes: [{ rx: 14, ry: ry - 200, duration: 1.3, ease: 'power2.inOut' }, { rx: 6, ry: ry - 360, duration: 1, ease: 'power2.out' }] }, {});
   }
 
   button.addEventListener('click', () => (active ? reset() : enter()));
@@ -100,8 +100,10 @@ export function createSpin({ float, camera, stage, button, exit, hint, canStart,
     if (!drag || e.pointerId !== drag.id) return;
     const dx = e.clientX - drag.x;
     const dy = e.clientY - drag.y;
-    if (!moved && Math.hypot(dx, dy) < 5) return;
+    if (!moved && Math.hypot(dx, dy) < 6) return;
     if (!moved) {
+      // trava de eixo: gesto claramente horizontal só gira; claramente vertical só inclina
+      drag.lock = Math.abs(dx) > Math.abs(dy) * 2 ? 'y' : Math.abs(dy) > Math.abs(dx) * 2 ? 'x' : null;
       moved = true;
       document.body.classList.add('is-dragging');
       try {
@@ -110,8 +112,8 @@ export function createSpin({ float, camera, stage, button, exit, hint, canStart,
     }
     // atravessar a largura da tela ≈ uma volta completa
     const k = 360 / Math.max(320, Math.min(window.innerWidth, 1400));
-    const nrx = Math.max(-75, Math.min(75, drag.rx - dy * k));
-    const nry = drag.ry + dx * k;
+    const nrx = drag.lock === 'y' ? drag.rx : Math.max(-75, Math.min(75, drag.rx - dy * k * 0.7));
+    const nry = drag.lock === 'x' ? drag.ry : drag.ry + dx * k;
     const now = performance.now();
     const dt = Math.max(1, now - drag.t);
     drag.vx = ((nry - ry) / dt) * 16;
@@ -152,6 +154,11 @@ export function createSpin({ float, camera, stage, button, exit, hint, canStart,
     },
     get active() {
       return active;
+    },
+    /** livro praticamente de frente: dá para folhear mesmo no modo 360° */
+    get frontal() {
+      const y = ((ry % 360) + 540) % 360 - 180;
+      return Math.abs(rx) < 22 && Math.abs(y) < 22;
     },
     get rotated() {
       return active || Math.abs(rx) > 0.5 || Math.abs(ry % 360) > 0.5;

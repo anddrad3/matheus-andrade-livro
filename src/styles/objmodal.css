@@ -1,0 +1,187 @@
+/* ─────────── card do objeto da mesa (girável em 360°) ─────────── */
+.obj-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.obj-modal[hidden] {
+  display: none;
+}
+
+.om-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, rgba(10, 6, 4, 0.55), rgba(5, 3, 2, 0.88));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.om-card {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 1.2rem 1.4rem 1.3rem;
+  text-align: center;
+  color: #2b2019;
+  background: var(--tex-paper), #f3ead6;
+  background-size: 300px 300px, auto;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(125, 95, 42, 0.3),
+    inset 0 0 0 6px #f3ead6,
+    inset 0 0 0 7px rgba(125, 95, 42, 0.35);
+  transform: translateY(16px) scale(0.96);
+  opacity: 0;
+  transition: transform 0.4s var(--ease-out), opacity 0.3s;
+}
+
+.obj-modal.is-open .om-scrim {
+  opacity: 1;
+}
+
+.obj-modal.is-open .om-card {
+  transform: none;
+  opacity: 1;
+}
+
+.om-x {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  z-index: 2;
+  width: 2.2rem;
+  height: 2.2rem;
+  color: #8e2a1c;
+  font-size: 1rem;
+}
+
+.om-stage {
+  height: min(300px, 40vh);
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  background: radial-gradient(ellipse 60% 55% at 50% 55%, rgba(120, 78, 32, 0.12), transparent 70%);
+}
+
+.om-stage.is-grabbing {
+  cursor: grabbing;
+}
+
+.om-obj {
+  position: relative;
+  width: var(--omw);
+  max-width: 80%;
+  transform-style: preserve-3d;
+}
+
+.om-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.om-layer:first-child {
+  position: relative;
+}
+
+.om-layer.is-edge {
+  filter: brightness(0.45) saturate(0.8);
+}
+
+/* o clone do objeto, sem posição nem animação de mesa */
+.om-layer .dp {
+  position: relative;
+  inset: auto;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  margin: 0;
+  --w: var(--omw);
+  width: var(--omw) !important;
+  max-width: 100%;
+  rotate: 0deg !important;
+  scale: 1 !important;
+  translate: none;
+  animation: none !important;
+  filter: none !important;
+  pointer-events: none;
+}
+
+.om-layer .dp-ring {
+  aspect-ratio: 1;
+}
+
+.om-hint {
+  margin: 0.2rem 0 0.8rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8e2a1c;
+  opacity: 0.8;
+}
+
+.om-name {
+  margin: 0 0 0.45rem;
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.55rem;
+  color: #2b2019;
+}
+
+.om-text {
+  margin: 0 auto 1rem;
+  max-width: 30em;
+  min-height: 4.2em;
+  font-family: var(--serif-display);
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.om-next {
+  padding: 0.55rem 1.2rem;
+  border: 1px solid rgba(125, 95, 42, 0.5);
+  border-radius: 99px;
+  font-family: var(--hand-font);
+  font-size: 1.1rem;
+  color: #27478a;
+}
+
+:root[data-theme='dark'] .om-card {
+  color: #e6e3dc;
+  background: var(--tex-paper), #111113;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.8),
+    inset 0 0 0 1px rgba(195, 198, 204, 0.3),
+    inset 0 0 0 6px #111113,
+    inset 0 0 0 7px rgba(195, 198, 204, 0.25);
+}
+
+:root[data-theme='dark'] .om-name {
+  font-family: var(--gothic);
+  font-style: normal;
+  color: #eef0f3;
+}
+
+:root[data-theme='dark'] .om-hint,
+:root[data-theme='dark'] .om-x {
+  color: #d11c24;
+}
+
+:root[data-theme='dark'] .om-next {
+  color: #e4e7ec;
+  border-color: rgba(209, 28, 36, 0.55);
+}
+
+:root[data-theme='dark'] .om-stage {
+  background: radial-gradient(ellipse 60% 55% at 50% 55%, rgba(155, 13, 18, 0.12), transparent 70%);
+}

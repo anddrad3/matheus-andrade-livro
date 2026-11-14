@@ -2,6 +2,18 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [3.5.0] — 2026-11-14
+### Adicionado
+- **Gravuras de domínio público** nas aberturas de capítulo e no colofão, uma série por tema: Clássica — Dürer (*São Jerônimo no estudo*, *Melencolia I*), Flammarion e a oficina do impressor de Jost Amman (1568); Sombria — Gustave Doré, ilustrações de *O Corvo* de Poe (1884). Cada uma com crédito.
+- **Etiquetas "Capa" e "Fim"** nas abas laterais.
+- **Card dos objetos da mesa**: clicar abre o objeto grande, com espessura em 3D, girável em 360° (mouse ou dedo), com as falas e "outra história". Funciona também no modo 360° e pelo menu do celular.
+### Alterado
+- **Nova assinatura oficial**, inteira (verificado: nenhum traço encosta nas bordas nem é cortado pela página).
+- **Modo 360°**: com o livro de frente, arrastar a página folheia; arrastar fora do livro gira; o giro trava no eixo dominante do gesto. A volta de apresentação termina de frente.
+- Objetos da mesa ficam visíveis no modo 360°.
+### Desempenho
+- Fotos dos projetos em WebP (3× menores) e sem carregamento preguiçoso; fotos, gravuras, texturas e trilha do outro tema pré-carregadas enquanto o livro levita — imagens já prontas ao virar a página e troca clássico/sombrio imediata.
+
 ## [3.4.1] — 2026-11-14
 ### Corrigido
 - "FULL STACK" cortado na folha de rosto.

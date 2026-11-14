@@ -28,7 +28,12 @@ export const CHAPTERS = [
 ];
 
 /** Abas de dicionário: em qual folha cada capítulo começa */
-export const TABS = CHAPTERS.filter((c) => c.tab).map((c, i, all) => ({
+const TAB_LIST = [
+  { id: 'capa', label: 'Capa', page: 0, tab: 'Capa' },
+  ...CHAPTERS.filter((c) => c.tab),
+  { id: 'fim', label: 'Contracapa', page: 23, tab: 'Fim' },
+];
+export const TABS = TAB_LIST.map((c, i, all) => ({
   ...c,
   leaf: Math.floor(c.page / 2),
   pos: +(i / (all.length - 1)).toFixed(3),
@@ -82,7 +87,26 @@ function epigraph(e) {
   </blockquote>`;
 }
 
-function opener({ p, label, num, title, ep, intro, extra = '', notes = '' }) {
+/* Gravuras de domínio público, uma por tema (clássica: Dürer, Flammarion, Amman; sombria: Doré, O Corvo) */
+const ENGR = {
+  prologo: [['classica-prologo', 'Albrecht Dürer, São Jerônimo no estudo (1514)'], ['sombria-prologo', 'Gustave Doré, O Corvo (1884)']],
+  formacao: [['classica-formacao', 'Camille Flammarion, L’atmosphère (1888)'], ['sombria-formacao', 'Gustave Doré, O Corvo (1884)']],
+  epilogo: [['classica-arsenal', 'Albrecht Dürer, Melencolia I (1514)'], ['sombria-epilogo', 'Gustave Doré, O Corvo (1884)']],
+  colofao: [['classica-epilogo', 'Jost Amman, a oficina do impressor (1568)'], ['sombria-arsenal', 'Gustave Doré, “Nevermore” (1884)']],
+};
+
+function engraving(key, cls = '') {
+  const [[l, lc], [d, dc]] = ENGR[key];
+  return `<figure class="engr ${cls} reveal" style="--i:${revealIndex++}">
+    <span class="engr-frame">
+      <img class="only-light" src="engr/${l}.webp" alt="Gravura: ${esc(lc)}" decoding="async" />
+      <img class="only-dark" src="engr/${d}.webp" alt="Gravura: ${esc(dc)}" decoding="async" />
+    </span>
+    <figcaption><span class="only-light">${esc(lc)}</span><span class="only-dark">${esc(dc)}</span></figcaption>
+  </figure>`;
+}
+
+function opener({ p, label, num, title, ep, intro, extra = '', notes = '', engr = '' }) {
   return paper(
     p,
     'left',
@@ -93,7 +117,7 @@ function opener({ p, label, num, title, ep, intro, extra = '', notes = '' }) {
       ${rule('opener-rule reveal-rule')}
       ${epigraph(ep)}
       ${intro ? rv('p', 'opener-intro', esc(intro)) : ''}
-      ${extra || `<div class="opener-vignette reveal" style="--i:${revealIndex++}">${fleuron()}</div>`}
+      ${extra || (engr ? engraving(engr, 'engr-opener') : `<div class="opener-vignette reveal" style="--i:${revealIndex++}">${fleuron()}</div>`)}
     </div>`,
     { cls: 'is-opener', notes },
   );
@@ -280,7 +304,7 @@ function plateFor(item, i) {
   if (pl.kind === 'photo') {
     return `<figure class="plate photo mount-${pl.mount} reveal" style="--i:${revealIndex++}">
       <div class="photo-frame">
-        <img src="${pl.src}" alt="Captura de tela do site ${esc(item.title)}" loading="lazy" decoding="async" style="object-position:${pl.pos}" />
+        <img src="${pl.src}" alt="Captura de tela do site ${esc(item.title)}" decoding="async" fetchpriority="low" style="object-position:${pl.pos}" />
         <span class="halftone"></span>
         ${pl.mount === 'corners' ? '<i class="pc pc-tl"></i><i class="pc pc-tr"></i><i class="pc pc-bl"></i><i class="pc pc-br"></i>' : `${tape('t-l')}${tape('t-r')}`}
       </div>
@@ -425,10 +449,10 @@ function colophonPage() {
     'right',
     `<div class="colophon">
       ${rv('h3', 'colophon-title', 'Colofão')}
-      ${medallion(author.monogram, { a: 6, b: 5, loops: 30, r: 0.55 }, 'colophon-mark')}
       ${colophon.text.map((t) => rv('p', '', esc(t))).join('')}
       ${rv('p', 'colophon-date sc', `${esc(author.city)} · ${roman(author.year)}`)}
-      ${rv('p', 'fin', `${fleuron('fin-orn')}<span>Fim</span>`)}
+      ${engraving('colofao', 'engr-colophon')}
+      ${rv('p', 'fin', '<span>Fim</span>')}
     </div>`,
     { head: false, cls: 'is-colophon' },
   );
@@ -467,7 +491,7 @@ export function buildPages() {
     titlePage, // 2
     frontispiece, // 3
     contents, // 4
-    () => opener({ p: 5, label: prologue.title, title: prologue.title, ep: prologue.epigraph, intro: prologue.intro }),
+    () => opener({ p: 5, label: prologue.title, title: prologue.title, ep: prologue.epigraph, intro: prologue.intro, engr: 'prologo' }),
     prologueText, // 6
     () =>
       opener({
@@ -493,9 +517,9 @@ export function buildPages() {
     () => workPage(works.items[2], 2, 12, 'right'),
     () => workPage(works.items[3], 3, 13, 'left'),
     () => workPage(works.items[4], 4, 14, 'right'),
-    () => opener({ p: 15, num: 3, title: formation.title, ep: formation.epigraph, intro: formation.intro }),
+    () => opener({ p: 15, num: 3, title: formation.title, ep: formation.epigraph, intro: formation.intro, engr: 'formacao' }),
     formationText, // 16
-    () => opener({ p: 17, label: epilogue.title, title: epilogue.title, ep: epilogue.epigraph, intro: epilogue.intro }),
+    () => opener({ p: 17, label: epilogue.title, title: epilogue.title, ep: epilogue.epigraph, intro: epilogue.intro, engr: 'epilogo' }),
     contactText, // 18
     diaryPage, // 19
     colophonPage, // 20
