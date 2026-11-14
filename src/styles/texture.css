@@ -151,17 +151,32 @@
     conic-gradient(from 180deg at 50% -8%, transparent 160deg, rgba(200, 208, 228, 0.05) 172deg, rgba(215, 222, 240, 0.075) 180deg, rgba(200, 208, 228, 0.05) 188deg, transparent 200deg);
 }
 
-/* ─────────── marca e favicon: o dourado aprovado vale nos dois temas ─────────── */
+/* ─────────── marca M·A da Edição Sombria: prata, letra gótica, ponto de sangue ─────────── */
 :root[data-theme='dark'] .ui-mark {
-  border-color: rgba(192, 154, 82, 0.45);
-  outline-color: rgba(192, 154, 82, 0.2);
+  border-color: rgba(195, 198, 204, 0.55);
+  outline-color: rgba(195, 198, 204, 0.18);
+  background: radial-gradient(circle at 50% 40%, #1c1c1f, #070708 75%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.8), 0 0 18px rgba(155, 13, 18, 0.18);
 }
 
 :root[data-theme='dark'] .ui-mark:hover {
-  border-color: #c09a52;
-  outline-color: rgba(192, 154, 82, 0.5);
+  border-color: #e4e7ec;
+  outline-color: rgba(209, 28, 36, 0.45);
 }
 
 :root[data-theme='dark'] .ui-mono {
-  color: #c09a52;
+  font-family: var(--gothic);
+  font-style: normal;
+  font-size: 1.32rem;
+  letter-spacing: 0.04em;
+  background: linear-gradient(170deg, #ffffff 0%, #c9ccd2 45%, #7d828a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+:root[data-theme='dark'] .ui-mono i {
+  color: #d11c24;
+  -webkit-text-fill-color: #d11c24;
+  opacity: 1;
 }

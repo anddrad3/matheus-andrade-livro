@@ -49,6 +49,8 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
     root.classList.remove('is-on');
     gsap.set(rig, { clearProps: 'scale,transformOrigin' });
     if (hidden) hidden.style.visibility = '';
+    label.innerHTML = '<span></span><i></i><i></i><i></i>';
+    label.style.pointerEvents = '';
     hidden = null;
   }
 
@@ -107,19 +109,47 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
 
     const tl = gsap.timeline({
       onComplete: () => {
-        try {
-          sessionStorage.setItem('livro.visit', '1');
-        } catch {}
-        location.assign(url);
+        // abre numa NOVA aba (ainda dentro da janela de "gesto do usuário",
+        // por isso a animação dura ~1,2 s) e o livro volta ao lugar nesta
+        const w = window.open(url, '_blank');
+        if (w) {
+          try {
+            w.opener = null;
+          } catch {}
+          back(r);
+        } else {
+          // bloqueador de pop-ups: um clique direto sempre funciona
+          offer(url, r);
+        }
       },
     });
-    tl.to(rig, { scale: 1.32, duration: 1.5, ease: 'power2.in' }, 0)
-      .to(veil, { opacity: 1, duration: 1.1, ease: 'power1.inOut' }, 0.15)
+    tl.to(rig, { scale: 1.32, duration: 1.2, ease: 'power2.in' }, 0)
+      .to(veil, { opacity: 1, duration: 0.9, ease: 'power1.inOut' }, 0.1)
       // pequena "respiração" antes do mergulho, depois acelera e assenta
       .to(img, { left: r.left - 4, top: r.top - 4, width: r.width + 8, height: r.height + 8, duration: 0.28, ease: 'power2.out' }, 0)
-      .to(img, { left: 0, top: 0, width: vw, height: vh, borderRadius: 0, duration: 1.35, ease: 'expo.inOut' }, 0.22)
-      .to(label, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.25)
-      .to({}, { duration: 0.25 });
+      .to(img, { left: 0, top: 0, width: vw, height: vh, borderRadius: 0, duration: 1.0, ease: 'expo.inOut' }, 0.2)
+      .to(label, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.85);
+  }
+
+  /** desfaz o mergulho: a imagem volta para a prancha e o livro recua */
+  function back(r) {
+    const tl = gsap.timeline({ delay: 0.25, onComplete: () => (reset(), onReturn?.()) });
+    tl.to(label, { opacity: 0, duration: 0.25 }, 0)
+      .to(img, { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 3, duration: 0.9, ease: 'expo.inOut' }, 0)
+      .to(veil, { opacity: 0, duration: 0.7, ease: 'power1.inOut' }, 0.2)
+      .to(rig, { scale: 1, duration: 0.9, ease: 'power2.out' }, 0.1);
+  }
+
+  function offer(url, r) {
+    label.innerHTML = '';
+    const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener', textContent: 'abrir em nova aba →' });
+    a.className = 'portal-open';
+    a.addEventListener('click', () => back(r));
+    const x = Object.assign(document.createElement('button'), { type: 'button', textContent: 'voltar ao livro' });
+    x.className = 'portal-cancel';
+    x.addEventListener('click', () => back(r));
+    label.append(a, x);
+    label.style.pointerEvents = 'auto';
   }
 
   return { go, warm, reset };

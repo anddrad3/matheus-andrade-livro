@@ -2,6 +2,19 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [3.4.0] — 2026-11-14
+### Adicionado
+- **Nova abertura** no estilo "livro mágico": o livro levita sobre a mesa, dá uma volta completa no ar, a capa se abre de supetão enquanto a câmera mergulha na folha de rosto e uma estrela de luz faz a passagem para o livro aberto.
+- **Assinatura oficial** do Matheus na carta (imagem própria, engrossada, escrita da esquerda para a direita; azul-tinta no clássico, vermelho-sangue na Sombria).
+- **Celular: as duas páginas inteiras na tela** + **modo leitura**: toque numa página para aproximar; deslizar passa para a outra página e, no fim do espelho, vira a folha; "ver as duas páginas" volta.
+- Marca **M·A** e **ícone da aba** próprios da Edição Sombria (prata, letra gótica, ponto vermelho), trocando junto com o tema.
+### Alterado
+- Página **muito mais maleável** (curvatura ~2× maior, concentrada na borda, 10 faixas).
+- "Visitar a obra" e a foto do projeto abrem o site **em nova aba**; o livro desfaz o mergulho e continua onde estava.
+- Trilha: começa a tocar (muda) desde o primeiro instante e o som entra assim que o navegador permitir — sem aviso na tela.
+### Corrigido
+- Nome quebrado na folha de rosto ("THE DRA LL STA") e espaços extras em links, causados pela escrita palavra a palavra.
+
 ## [3.3.0] — 2026-11-14
 ### Adicionado
 - **Folha maleável**: ao virar, a página curva como papel de verdade (tira de faixas encadeadas); levantada por baixo ou por cima, o canto puxado vai à frente. Vale para arrastar, clicar nos cantos e usar as setas.

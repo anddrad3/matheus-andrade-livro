@@ -2,11 +2,11 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**.
 
-**Versão 3.3.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
+**Versão 3.4.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
 
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
-Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculos, caneta-tinteiro, bilhete, bloco de notas, café (ou vela), copo de whisky, isqueiro e um cigarro fumegando no cinzeiro — enquanto a trilha ao piano começa. Ao toque, a capa se abre em 3D e a página vira para o **sumário**.
+Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculos, caneta-tinteiro, bilhete, bloco de notas, café (ou vela), copo de whisky, isqueiro e um cigarro fumegando no cinzeiro — enquanto a trilha ao piano começa. Ao toque, o livro levita, dá uma volta completa no ar, a capa se abre e a câmera mergulha nas páginas até uma estrela de luz revelar o **sumário**.
 
 ## Duas edições
 
@@ -33,12 +33,12 @@ Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculo
 
 - **Folhear**: a folha é **maleável** — arraste de qualquer ponto, levantando por baixo ou por cima, e ela curva como papel; também deslize o dedo no celular, use setas, roda do mouse, abas ou o sumário.
 - **Páginas escritas diante do leitor**: o texto surge palavra a palavra e as imagens são desenhadas a cada página aberta.
-- **Visitar a obra** (ou clicar na foto): a câmera mergulha na prancha do site até ela ocupar a tela e o site abre na mesma aba.
+- **Visitar a obra** (ou clicar na foto): a câmera mergulha na prancha do site e o site abre em nova aba.
 - **Modo 360°**: gire o livro nas mãos (mouse ou dedo); "voltar ao livro", Esc ou duplo clique para sair.
 - **Objetos da mesa**: clique e cada um conta algo diferente (3 falas por objeto, por tema).
 - **Trilha**: deslizante de volume e mudo; **som de papel** separado.
 - **Reiniciar a abertura** a qualquer momento; **M·A** fecha o livro na capa.
-- **Celular**: menu inferior com capítulos, objetos e ajustes.
+- **Celular**: as duas páginas inteiras na tela; toque numa página para ler de perto (modo leitura) e deslize para seguir; menu inferior com capítulos, objetos e ajustes.
 
 ## Detalhes
 

@@ -98,7 +98,46 @@ export function createMusic({ getTheme, onChange }) {
     onChange?.({ volume, muted, playing, blocked });
   }
 
-  /** toca a faixa do tema (com fade cruzado se outra estiver tocando) */
+  /** pergunta ao navegador se pode tocar COM som, sem tocar na faixa que já corre muda */
+  function canAutoplay() {
+    // WAV silencioso de 10 ms: o navegador decide pelo "muted", não pelo conteúdo
+    const n = 441;
+    const buf = new ArrayBuffer(44 + n * 2);
+    const v = new DataView(buf);
+    const str = (o, t) => [...t].forEach((c, k) => v.setUint8(o + k, c.charCodeAt(0)));
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVEfmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 44100, true); v.setUint32(28, 88200, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, n * 2, true);
+    const probe = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })));
+    return probe.play().then(() => (probe.pause(), true)).catch(() => false);
+  }
+
+  /** liga o som da faixa atual (só quando permitido) com entrada suave */
+  function audible() {
+    if (muted || !current) return;
+    const t = current;
+    blocked = false;
+    t.level = 0;
+    render();
+    t.el.muted = false;
+    t.el.play().then(() => {
+      playing = true;
+      fade(t, 1, 250);
+      emit();
+    }).catch(() => {
+      blocked = true;
+      t.el.muted = true;
+      t.el.play().catch(() => {});
+      waitForGesture();
+    });
+  }
+
+  /**
+   * Toca a faixa do tema. Contra o bloqueio de som automático: a faixa corre
+   * MUDA desde o primeiro instante (sempre permitido); se o navegador permitir
+   * som, ele entra na hora; senão, entra no primeiro toque/clique/tecla.
+   */
   function play(theme = getTheme()) {
     if (muted) return;
     const next = track(theme);
@@ -107,18 +146,13 @@ export function createMusic({ getTheme, onChange }) {
       fade(prev, 0, 1400, () => prev.el.pause());
     }
     current = next;
-    const p = next.el.play();
-    if (p?.then) {
-      p.then(() => {
-        playing = true;
-        blocked = false;
-        fade(next, 1, 250);
-        emit();
-      }).catch(() => {
-        blocked = true;
-        emit();
-        waitForGesture();
-      });
+    if (blocked) {
+      next.el.muted = true;
+      next.level = 1;
+      render();
+      next.el.play().then(() => (playing = true)).catch(() => {});
+    } else {
+      audible();
     }
   }
 
@@ -137,22 +171,25 @@ export function createMusic({ getTheme, onChange }) {
         }
       }
       ctx?.resume?.();
-      play();
+      if (blocked) audible();
     };
     ['pointerdown', 'keydown', 'touchend', 'click'].forEach((ev) => window.addEventListener(ev, go, true));
   }
 
-  // no iOS o Web Audio também precisa de um gesto; a música espera por ele
-  if (!volumeWorks) {
-    track(getTheme());
-    blocked = true;
-    waitForGesture();
+  // começa mudo (já tocando desde o <head>) e descobre se pode ligar o som
+  blocked = true;
+  play();
+  if (volumeWorks && !muted) {
+    canAutoplay().then((ok) => {
+      if (ok) audible();
+      else waitForGesture();
+    });
   } else {
-    play();
+    waitForGesture(); // iOS: o Web Audio exige um gesto
   }
 
   window.addEventListener('themechange', (e) => {
-    if (!muted && !blocked) play(e.detail);
+    if (!muted) play(e.detail);
     else track(e.detail); // só pré-carrega
   });
 

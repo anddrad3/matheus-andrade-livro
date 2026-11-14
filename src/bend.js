@@ -25,7 +25,7 @@ export class Bend {
     const w = W / strips;
 
     // pesos crescentes: perto da lombada o papel quase não curva, na borda curva mais
-    const raw = Array.from({ length: strips }, (_, i) => (i === 0 ? 0 : Math.pow(i / (strips - 1), 1.4)));
+    const raw = Array.from({ length: strips }, (_, i) => (i === 0 ? 0 : Math.pow(i / (strips - 1), 1.9)));
     const sum = raw.reduce((a, b) => a + b, 0);
     this.weights = raw.map((x) => x / sum);
 
@@ -66,10 +66,11 @@ export class Bend {
 
   /** p ∈ [0, 1]: progresso da virada. A curva nasce, atinge o máximo no meio e se desfaz. */
   set(p) {
-    const k = Math.sin(Math.max(0, Math.min(1, p)) * Math.PI);
-    const total = 62 * k * -this.dir; // graus somados ao longo da folha (borda vai à frente)
+    // curva cheia logo no começo (papel fino levanta dobrando) e que só se desfaz no fim
+    const k = Math.pow(Math.sin(Math.max(0, Math.min(1, p)) * Math.PI), 0.65);
+    const total = 125 * k * -this.dir; // graus somados ao longo da folha (borda vai à frente)
     // canto levantado: cisalhamento progressivo (skewY preserva a borda presa à faixa anterior)
-    const skewTotal = 9 * this.tilt * k * this.dir;
+    const skewTotal = 17 * this.tilt * k * this.dir;
     let acc = 0;
     for (let i = 0; i < this.n; i++) {
       const deg = total * this.weights[i];
@@ -77,7 +78,7 @@ export class Bend {
       acc += Math.abs(deg);
       const s = this.strips[i];
       s.style.transform = i === 0 ? '' : `rotateY(${deg.toFixed(2)}deg) skewY(${sk.toFixed(2)}deg)`;
-      s.style.setProperty('--sh', (Math.min(1, acc / 70) * 0.5).toFixed(3));
+      s.style.setProperty('--sh', (Math.min(1, acc / 110) * 0.6).toFixed(3));
     }
   }
 

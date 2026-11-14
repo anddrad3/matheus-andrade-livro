@@ -387,9 +387,7 @@ function contactText() {
       ${rv('p', 'letter-note', esc(epilogue.availability))}
       <div class="letter-sign">
         <span class="sign-pre reveal" style="--i:${revealIndex++}">Com estima,</span>
-        <svg class="signature" viewBox="0 0 520 96" role="img" aria-label="${esc(author.name)}">
-          <text x="8" y="66">${esc(author.name)}</text>
-        </svg>
+        <div class="signature-real" role="img" aria-label="Assinatura de ${esc(author.fullName)}"><i></i></div>
       </div>
       <div class="letter-seal">${waxSeal(author.monogram)}</div>
     </article>`,

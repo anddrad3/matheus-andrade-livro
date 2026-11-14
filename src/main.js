@@ -58,7 +58,7 @@ function updateUI(b = book) {
   ui.folio.textContent = f.length ? f.join(' – ') : '';
   ui.chapter.textContent = chapterOf(p);
   ui.prev.disabled = !b.canPrev();
-  ui.next.disabled = !b.canNext() || (b.mode === 'mobile' && b.s === b.N);
+  ui.next.disabled = !b.canNext();
   ui.progress.style.transform = `scaleX(${(b.s / b.N).toFixed(3)})`;
   ui.live.textContent = pages.map(pageLabel).join(' e ');
   const hash = hashForPage(pages[pages.length - 1]);
@@ -105,6 +105,7 @@ function setClosedPose() {
 let floatTween;
 let enterTl = null;
 let autoOpen = null;
+let levitate = null;
 /** cutscene: a luz acende, a câmera desce da altura até o livro sobre a mesa */
 function enter() {
   setClosedPose();
@@ -131,7 +132,12 @@ function enter() {
     .to(cine.bars, { scaleY: 0, duration: 1.2, ease: 'power3.inOut' }, 5.5)
     .add(() => {
       if (opened || openTl) return;
-      floatTween = gsap.to(float, { y: -10, rotationZ: 0.8, rotationX: 2, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      // o livro levita sobre a mesa, girando de leve no ar (a mesa fica parada)
+      gsap.set(book.el, { transformOrigin: '75% 50%' });
+      levitate = gsap.timeline({ repeat: -1, yoyo: true })
+        .to(book.el, { z: 70, rotationZ: -4, rotationX: 4, duration: 2.2, ease: 'sine.inOut' })
+        .to(book.el, { z: 95, rotationZ: 3, rotationX: -2, duration: 2.2, ease: 'sine.inOut' });
+      gsap.to(book.shadow, { opacity: 0.45, duration: 1.2 });
       document.body.classList.add('can-open');
       // se a pessoa não interagir, o livro se abre sozinho
       autoOpen = gsap.delayedCall(3.2, () => !opened && !openTl && open());
@@ -140,53 +146,80 @@ function enter() {
 }
 
 let openTl = null;
+let skipping = false;
+const flash = $('#flash');
+
+/**
+ * Abertura no estilo "livro mágico":
+ *  1. o livro, levitando, dá uma volta completa no ar (lombada, contracapa, corte);
+ *  2. a capa se abre de supetão enquanto a câmera mergulha na folha de rosto;
+ *  3. uma estrela de luz toma a tela — e se dissolve revelando o livro aberto.
+ */
 function open() {
   if (opened || openTl) return;
   document.body.classList.remove('can-open');
   document.body.classList.add('is-opening');
   book.cull([0, 1]);
   sound.unlock();
-  sound.open();
+  sound.flip(5); // sopro de páginas enquanto gira
   floatTween?.kill();
+  levitate?.kill();
   enterTl?.kill();
   autoOpen?.kill();
 
   const tl = gsap.timeline({ onComplete: finish });
   openTl = tl;
+  const x1 = book.xFor(1, 'right');
 
-  tl.to(float, { y: 0, rotationZ: 0, rotationX: 0, duration: 1.6, ease: 'power2.inOut' }, 0)
-    .to(camera, { rotationX: 0, rotationZ: 0, rotationY: 0, z: 0, y: 0, opacity: 1, duration: 2.4, ease: 'power3.inOut' }, 0)
-    // a capa se abre
-    .to(cover, {
-      rotationY: -180,
-      duration: 2,
-      ease: 'power2.inOut',
-      onUpdate: () => cover.style.setProperty('--lift', Math.sin((-gsap.getProperty(cover, 'rotationY') / 180) * Math.PI).toFixed(3)),
-    }, 0.55)
-    .to(cover, { z: book.N * book.d + 10, duration: 0.9, ease: 'power1.out' }, 0.55)
-    .to(cover, { z: 0, duration: 1.1, ease: 'power1.in' }, 1.45)
-    .to(book.el, { x: book.xFor(1, 'right'), duration: 2, ease: 'power3.inOut' }, 0.55)
-    .to(book.shadow, { scaleX: 1, xPercent: 0, duration: 2, ease: 'power3.inOut' }, 0.55)
-    .to(book.edges, { opacity: 0, duration: 1.2, ease: 'power1.inOut' }, 1.2)
-    // encerra a cutscene: faixas, letreiros e a mesa 3D dão lugar ao fundo
-    .to(cine.veil, { opacity: 0, duration: 0.6 }, 0)
-    .to(cine.bars, { scaleY: 0, duration: 0.9, ease: 'power3.inOut' }, 0)
-    .to([cine.place, cine.pre, cine.name], { opacity: 0, duration: 0.5 }, 0)
-    .to(cine.light, { opacity: 1, duration: 0.5 }, 0)
-    .to(cine.desk, { opacity: 0, duration: 1.4, ease: 'power1.inOut' }, 1.0);
+  // encerra os elementos de cinema
+  tl.to(cine.veil, { opacity: 0, duration: 0.4 }, 0)
+    .to(cine.bars, { scaleY: 0, duration: 0.6, ease: 'power3.inOut' }, 0)
+    .to([cine.place, cine.pre, cine.name], { opacity: 0, duration: 0.3 }, 0)
+    .to(cine.light, { opacity: 1, duration: 0.4 }, 0)
+    .to(float, { y: 0, rotationZ: 0, rotationX: 0, duration: 0.8, ease: 'power2.out' }, 0);
 
-  // o bloco de páginas "assenta"
+  // 1 · a volta completa no ar (gira em torno do centro do livro fechado)
+  gsap.set(book.el, { transformOrigin: '75% 50%' });
+  tl.to(camera, { rotationX: 14, rotationZ: 0, rotationY: 0, z: -160, y: 0, duration: 1.0, ease: 'power2.inOut' }, 0)
+    .to(book.el, { rotationY: -360, rotationZ: 0, rotationX: 0, z: 150, duration: 1.1, ease: 'power2.inOut' }, 0)
+    .to(book.shadow, { opacity: 0.25, duration: 0.6 }, 0)
+    .add(() => {
+      gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }); // 360° = identidade
+      sound.open();
+    }, 1.1);
+
+  // 2 · a capa abre de supetão; o miolo assenta; o livro centraliza
+  tl.to(cover, {
+    rotationY: -180,
+    duration: 0.7,
+    ease: 'power3.out',
+    onUpdate: () => cover.style.setProperty('--lift', Math.sin((-gsap.getProperty(cover, 'rotationY') / 180) * Math.PI).toFixed(3)),
+  }, 1.1)
+    .to(book.el, { x: x1, duration: 0.7, ease: 'power3.out' }, 1.1)
+    .to(book.shadow, { scaleX: 1, xPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, 1.1)
+    .to(book.edges, { opacity: 0, duration: 0.5 }, 1.25);
   book.leaves.slice(1).forEach((leaf, i) => {
-    tl.to(leaf, { z: book.zFor(i + 1, false, book.dOpen), duration: 1.6, ease: 'power2.inOut' }, 0.9);
+    tl.to(leaf, { z: book.zFor(i + 1, false, book.dOpen), duration: 0.6, ease: 'power2.out' }, 1.15);
   });
   tl.add(() => {
     book.d = book.dOpen;
     book.s = 1;
     book.side = 'right';
     book.updateVisibility([1, 2, 3, 4]);
-  }, 2.55);
-  // pausa na folha de rosto, depois vira para o sumário (ou o capítulo do link)
-  tl.add(() => {}, 3.15);
+  }, 1.2);
+
+  // 3 · a câmera mergulha na página da direita até a estrela de luz tomar a tela
+  tl.add(() => {
+    const rr = rig.getBoundingClientRect();
+    gsap.set(rig, { transformOrigin: `${75}% ${45}%` });
+    void rr;
+  }, 1.2)
+    .to(camera, { rotationX: 0, z: 0, duration: 0.8, ease: 'power2.in' }, 1.2)
+    .to(book.el, { z: 0, duration: 0.8, ease: 'power2.in' }, 1.2)
+    .to(rig, { scale: 3, duration: 0.85, ease: 'power3.in' }, 1.25)
+    .fromTo(flash, { opacity: 0, scale: 0.3, rotation: -25 }, { opacity: 1, scale: 1.25, rotation: 0, duration: 0.65, ease: 'power1.in' }, 1.45)
+    .to(cine.desk, { opacity: 0, duration: 0.3 }, 1.8)
+    .add(() => {}, 2.12);
 }
 
 function finish() {
@@ -195,9 +228,22 @@ function finish() {
   book.d = book.dOpen;
   book.s = 1;
   book.side = 'right';
+  // corte escondido pela luz: câmera e livro voltam ao enquadramento de leitura
+  gsap.set(rig, { scale: 1, clearProps: 'transformOrigin' });
+  gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0, transformOrigin: '50% 50%' });
+  gsap.set(camera, { rotationX: 0, rotationY: 0, rotationZ: 0, z: 0, y: 0 });
+  if (skipping) gsap.set(flash, { opacity: 0 });
+  else gsap.to(flash, { opacity: 0, scale: 3.2, rotation: 18, duration: 0.9, ease: 'power2.out' });
+  skipping = false;
   document.body.classList.remove('is-opening');
   document.body.classList.add('is-open');
   measureMargins();
+  if (book.mode === 'mobile') {
+    const h = $('#read-hint');
+    h.hidden = false;
+    setTimeout(() => h.classList.add('is-gone'), 4200);
+    setTimeout(() => (h.hidden = true), 5000);
+  }
   const target = returnPage ?? pageForHash(window.location.hash) ?? 4;
   returnPage = null;
   book.goToPage(target).then(() => updateUI());
@@ -208,6 +254,8 @@ function finish() {
 function skipIntro() {
   if (opened) return;
   floatTween?.kill();
+  levitate?.kill();
+  skipping = true;
   if (!openTl) open();
   openTl?.progress(1);
 }
@@ -222,14 +270,65 @@ const spin = createSpin({
   exit: $('#spin-exit'),
   hint: $('#spin-hint'),
   canStart: () => opened && !openTl,
-  onChange: (on) => book.setThick(on),
+  onChange: (on) => {
+    if (on) setZoom(null);
+    book.setThick(on);
+  },
 });
 
 function goHome() {
   if (!opened) return;
+  setZoom(null);
   if (spin.rotated) spin.reset();
   book.goTo(0).then(() => updateUI());
 }
+
+/* ───────────── modo leitura (celular) ───────────── */
+
+// No celular o livro aberto aparece inteiro (as duas páginas). Um toque numa
+// página aproxima a câmera para ler; deslizar passa para a outra página e, no
+// fim do espelho, vira a folha. Tocar de novo (ou o botão) volta às duas páginas.
+let zoom = null; // null | 'left' | 'right'
+const zoomBtn = $('#zoom-out');
+
+function zoomFrame(side) {
+  if (!side) return { scale: 1, x: 0, y: 0 };
+  const ui = 150; // espaço da barra de cima e dos controles de baixo
+  const z = Math.min((window.innerWidth * 0.96) / book.pw, (window.innerHeight - ui) / book.ph);
+  // na capa/contracapa o livro fechado está deslocado; nas demais, centrado na lombada
+  const bx = gsap.getProperty(book.el, 'x');
+  const cx = side === 'left' ? -book.pw / 2 : book.pw / 2;
+  return { scale: z, x: -(cx + bx) * z, y: 12 };
+}
+
+function setZoom(side, instant = false) {
+  if (book.mode !== 'mobile' || !opened) side = null;
+  if (book.s === 0 || book.s === book.N) side = null; // capas: livro fechado, sempre inteiro
+  zoom = side;
+  document.body.classList.toggle('is-zoomed', !!side);
+  zoomBtn.hidden = !side;
+  const f = zoomFrame(side);
+  gsap.to(rig, { ...f, duration: instant ? 0 : 0.65, ease: 'power3.inOut', overwrite: 'auto' });
+}
+
+/** passo de leitura: dir 1 = avançar, −1 = voltar */
+function zoomStep(dir) {
+  if (dir > 0) {
+    if (zoom === 'left') return setZoom('right');
+    if (!book.canNext()) return;
+    book.nextTilt = 0.6;
+    book.next();
+    setTimeout(() => setZoom(book.s === book.N ? null : 'left'), 120);
+  } else {
+    if (zoom === 'right') return setZoom('left');
+    if (!book.canPrev()) return;
+    book.nextTilt = 0.6;
+    book.prev();
+    setTimeout(() => setZoom(book.s === 0 ? null : 'right'), 120);
+  }
+}
+
+zoomBtn.addEventListener('click', () => setZoom(null));
 
 /* ───────────── virar a página com a mão (estilo iPad) ───────────── */
 
@@ -266,7 +365,7 @@ document.addEventListener('pointerdown', (e) => {
   const mobile = book.mode === 'mobile';
   if (!e.target.closest('.leaf') && !(mobile && e.target.closest('#stage'))) return;
   e.__page = true; // o giro 360° não pega este gesto
-  pageDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, live: false, p: 0, t: 0, v: 0 };
+  pageDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, live: false, p: 0, t: 0, v: 0, target: e.target, lx: e.clientX, ly: e.clientY };
   pageDragged = false;
 }, true);
 
@@ -275,6 +374,12 @@ window.addEventListener('pointermove', (e) => {
   if (!g || e.pointerId !== g.id) return;
   const dx = e.clientX - g.x;
   const dy = e.clientY - g.y;
+  g.lx = e.clientX;
+  g.ly = e.clientY;
+  if (zoom) {
+    if (Math.abs(dx) > 7) g.swipe = true; // lendo de perto: deslizar é passo de leitura
+    return;
+  }
   if (!g.live) {
     if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
     if (Math.abs(dy) > Math.abs(dx) * 1.3) {
@@ -282,7 +387,7 @@ window.addEventListener('pointermove', (e) => {
       return;
     }
     let dir;
-    if (book.mode === 'desktop') {
+    if (book.spread) {
       dir = g.x > spineX().x ? 1 : -1; // pegou a página da direita → avança
       if (book.s === 0) dir = 1;
       if (book.s === book.N) dir = -1;
@@ -298,7 +403,7 @@ window.addEventListener('pointermove', (e) => {
     g.dir = dir;
     g.th0 = thetaAt(g.x);
     // completa quando o ponteiro cruza a lombada (como num livro real)
-    if (book.mode === 'desktop' && book.drag?.leaf) {
+    if (book.spread && book.drag?.leaf) {
       book.drag.commitAt = dir > 0 ? (90 - g.th0) / Math.max(20, 180 - g.th0) : (g.th0 - 90) / Math.max(20, g.th0);
       book.drag.commitAt = Math.max(0.2, Math.min(0.6, book.drag.commitAt));
     }
@@ -307,7 +412,7 @@ window.addEventListener('pointermove', (e) => {
     g.t = performance.now();
   }
   let p;
-  if (book.mode === 'desktop' && book.drag?.leaf) {
+  if (book.spread && book.drag?.leaf) {
     // a borda da folha acompanha o ponteiro, partindo de onde ele pegou
     const th = thetaAt(e.clientX);
     p = g.dir > 0 ? (th - g.th0) / Math.max(20, 180 - g.th0) : (g.th0 - th) / Math.max(20, g.th0);
@@ -325,6 +430,20 @@ function endPageDrag(e) {
   const g = pageDrag;
   if (!g || (e && e.pointerId !== g.id)) return;
   pageDrag = null;
+  const dx = (e?.clientX ?? g.lx) - g.x;
+  const dy = (e?.clientY ?? g.ly) - g.y;
+  if (zoom && g.swipe) {
+    pageDragged = true;
+    setTimeout(() => (pageDragged = false), 80);
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) zoomStep(dx < 0 ? 1 : -1);
+    return;
+  }
+  // toque simples numa página (celular): aproxima para ler / volta às duas páginas
+  if (!g.live && book.mode === 'mobile' && Math.hypot(dx, dy) < 8 && !g.target.closest('a, button, [data-goto], [data-copy], .plate, input')) {
+    if (zoom) setZoom(null);
+    else setZoom(g.x < spineX().x ? 'left' : 'right');
+    return;
+  }
   if (!g.live) return;
   document.body.classList.remove('is-page-drag');
   const v = performance.now() - g.t > 90 ? 0 : g.v; // parou antes de soltar: sem impulso
@@ -345,6 +464,7 @@ function replay() {
   floatTween?.kill();
   autoOpen?.kill();
   spin.resetNow();
+  setZoom(null, true);
   book.setThick(false);
   if (book.tl) book.tl.progress(1);
   gsap.killTweensOf([camera, float, book.el, book.shadow, book.edges, cine.veil, cine.bars, cine.place, cine.pre, cine.name, cine.light, cine.desk, ...book.leaves]);
@@ -362,6 +482,12 @@ function replay() {
   book.applyStatic();
   book.castShadow(null);
   gsap.set(book.edges, { opacity: 1 });
+  levitate?.kill();
+  gsap.killTweensOf([rig, flash]);
+  gsap.set(rig, { scale: 1, x: 0, y: 0, clearProps: 'transformOrigin' });
+  gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0, transformOrigin: '50% 50%' });
+  gsap.set(book.shadow, { opacity: 1 });
+  gsap.set(flash, { opacity: 0 });
   gsap.set(float, { y: 0, rotationX: 0, rotationZ: 0 });
   gsap.set(cine.veil, { opacity: 1 });
   gsap.set(cine.bars, { scaleY: 1 });
@@ -514,10 +640,7 @@ const portal = createPortal({
   rig,
   reduced,
   beforeLeave: () => {
-    try {
-      sessionStorage.setItem('livro.back', String(book.page));
-    } catch {}
-    music.duck(1.2);
+    music.duck(1.0);
     hideTalk();
   },
   onReturn: () => {
@@ -569,7 +692,7 @@ function syncMusicUI() {
   musicBtn.classList.toggle('is-off', !music.enabled);
   musicBtn.setAttribute('aria-pressed', String(music.enabled));
   musicBtn.title = `Trilha sonora — volume ${music.muted ? 'mudo' : v}`;
-  musicHint.hidden = !(music.blocked && !music.muted);
+  musicHint.hidden = true; // sem aviso: a trilha já corre e o som entra no primeiro gesto
 }
 
 musicBtn.addEventListener('click', (e) => {
@@ -604,6 +727,8 @@ async function setTheme(next, origin) {
   try {
     localStorage.setItem('livro.theme', next);
   } catch {}
+  const fav = document.getElementById('favicon');
+  if (fav) fav.href = `favicon-${next}.svg`;
   window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
   syncThemeButton();
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -628,8 +753,8 @@ syncThemeButton();
 /* ───────────── interações ───────────── */
 
 function bindControls() {
-  ui.next.addEventListener('click', () => book.next());
-  ui.prev.addEventListener('click', () => book.prev());
+  ui.next.addEventListener('click', () => (zoom ? zoomStep(1) : book.next()));
+  ui.prev.addEventListener('click', () => (zoom ? zoomStep(-1) : book.prev()));
   ui.skip.addEventListener('click', skipIntro);
   const soundBtn = document.querySelector('#sound');
   const syncSound = () => {
@@ -653,7 +778,9 @@ function bindControls() {
     if (goto) {
       e.preventDefault();
       if (!opened) return;
-      book.goToPage(Number(goto.dataset.goto));
+      const target = Number(goto.dataset.goto);
+      book.goToPage(target);
+      if (zoom) setTimeout(() => setZoom(target % 2 ? 'left' : 'right'), 120);
       return;
     }
     const curl = e.target.closest('[data-curl]');
@@ -741,6 +868,7 @@ function bindControls() {
       book.relayout();
       if (!opened && !openTl) gsap.set(book.el, { x: book.xFor(0) });
       measureMargins();
+      setZoom(zoom, true);
       updateUI();
     }, 120);
   });

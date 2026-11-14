@@ -9,7 +9,7 @@
     <meta property="og:title" content="Matheus Andrade — Desenvolvedor Full Stack" />
     <meta property="og:description" content="Um livro sobre código, educação e pesquisa acadêmica: Ameríndia, Voz do Professor, MLG e mais." />
     <meta property="og:type" content="website" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%231d1410'/%3E%3Crect x='5' y='5' width='54' height='54' rx='6' fill='none' stroke='%23c9a45c' stroke-width='1.5'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='28' fill='%23e8c97a'%3EMA%3C/text%3E%3C/svg%3E" />
+    <link id="favicon" rel="icon" type="image/svg+xml" href="favicon-light.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -22,13 +22,15 @@
         try { t = localStorage.getItem('livro.theme'); } catch (e) {}
         if (t !== 'light' && t !== 'dark') t = 'dark'; // padrão: Edição Sombria
         document.documentElement.dataset.theme = t;
+        try { document.getElementById('favicon').href = 'favicon-' + t + '.svg'; } catch (e) {}
         // a trilha começa a baixar já aqui, antes de qualquer outro script
         try {
           if (localStorage.getItem('livro.music') !== 'off') {
             var a = new Audio(t === 'dark' ? 'music/lacrimosa-piano.mp3' : 'music/aria-bach-piano.mp3');
             a.preload = 'auto';
             a.loop = true;
-            a.volume = 0;
+            a.muted = true; // começa a tocar já (mudo é sempre permitido); o som entra assim que o navegador deixar
+            a.play().catch(function () {});
             window.__bgm = { theme: t, el: a };
           }
         } catch (e) {}
@@ -129,6 +131,7 @@
       <span class="prompt-text">Toque para abrir</span>
       <span class="prompt-line"></span>
     </button>
+    <div id="flash" aria-hidden="true"><svg viewBox="-100 -100 200 200"><defs><radialGradient id="fl-g"><stop offset="0" stop-color="#fffbe8"/><stop offset=".35" stop-color="var(--fl1)"/><stop offset="1" stop-color="var(--fl2)" stop-opacity="0"/></radialGradient></defs><circle r="100" fill="url(#fl-g)" opacity=".55"/><path d="M0-96C8-30 30-8 96 0C30 8 8 30 0 96C-8 30-30 8-96 0C-30-8-8-30 0-96Z" fill="url(#fl-g)"/></svg></div>
     <div id="cine" aria-hidden="true">
       <div class="cine-veil"></div>
       <i class="cine-bar cine-top"></i>
@@ -146,6 +149,8 @@
 
     <div class="grain" aria-hidden="true"></div>
     <div id="theme-veil" aria-hidden="true"></div>
+    <button id="zoom-out" class="zoom-out" type="button" hidden>⤢ ver as duas páginas</button>
+    <p id="read-hint" class="read-hint" hidden>toque numa página para ler · deslize para virar</p>
     <button id="music-hint" class="music-hint" type="button" hidden>♪ toque em qualquer lugar para ouvir a trilha</button>
 
     <!-- objetos da mesa (depois da abertura): clique e eles falam -->

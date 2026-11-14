@@ -67,16 +67,19 @@ export class Book {
       pw = Math.min((vw * 0.84) / 2, vh * 0.76 * aspect);
       ph = pw / aspect;
     } else {
-      const aspect = 0.62;
-      pw = Math.min(vw * 0.88, vh * 0.76 * aspect);
+      // celular: o livro aberto inteiro (as duas páginas) cabe na largura;
+      // para ler, um toque aproxima a câmera da página (modo leitura)
+      const aspect = 0.7;
+      pw = Math.min((vw * 0.94) / 2, vh * 0.6 * aspect);
       ph = pw / aspect;
     }
+    this.spread = true; // sempre espelho de duas páginas
     this.pw = Math.round(pw);
     this.ph = Math.round(ph);
     const root = document.documentElement.style;
     root.setProperty('--pw', `${this.pw}px`);
     root.setProperty('--ph', `${this.ph}px`);
-    root.setProperty('--fs', `${(this.pw / (desktop ? 30 : 27.5)).toFixed(3)}px`);
+    root.setProperty('--fs', `${(this.pw / 30).toFixed(3)}px`);
     root.setProperty('--T', `${((this.N - 1) * 2.4).toFixed(1)}px`);
     document.documentElement.dataset.mode = this.mode;
     // No mobile, nunca fique num lado que não existe
@@ -102,7 +105,7 @@ export class Book {
     const half = this.pw / 2;
     if (s === 0) return -half;
     if (s === this.N) return half;
-    if (this.mode === 'desktop') return 0;
+    if (this.spread) return 0;
     return side === 'left' ? half : -half;
   }
 
@@ -128,14 +131,14 @@ export class Book {
   get page() {
     if (this.s === 0) return 0;
     if (this.s === this.N) return 2 * this.N - 1;
-    if (this.mode === 'desktop') return 2 * this.s;
+    if (this.spread) return 2 * this.s;
     return this.side === 'left' ? 2 * this.s - 1 : 2 * this.s;
   }
 
   visiblePages(s = this.s, side = this.side) {
     if (s === 0) return [0];
     if (s === this.N) return [2 * this.N - 1];
-    if (this.mode === 'desktop') return [2 * s - 1, 2 * s];
+    if (this.spread) return [2 * s - 1, 2 * s];
     return [side === 'left' ? 2 * s - 1 : 2 * s];
   }
 
@@ -205,7 +208,7 @@ export class Book {
   makeBend(leaf, dir, tilt) {
     if (this.reduced || leaf.classList.contains('is-board')) return null;
     try {
-      return new Bend(leaf, { dir, tilt, pw: this.pw, strips: this.mode === 'mobile' || (navigator.hardwareConcurrency || 8) <= 4 ? 4 : 7 });
+      return new Bend(leaf, { dir, tilt, pw: this.pw, strips: this.mode === 'mobile' || (navigator.hardwareConcurrency || 8) <= 4 ? 5 : 10 });
     } catch {
       return null;
     }
@@ -245,7 +248,7 @@ export class Book {
    */
   planFor(dir) {
     const { s, N } = this;
-    if (this.mode === 'desktop' || s === 0 || s === N) {
+    if (this.spread || s === 0 || s === N) {
       if (dir > 0) return s >= N ? null : { dir, k: s, th0: 0, th1: 180, t: s + 1, side: 'left' };
       return s <= 0 ? null : { dir, k: s - 1, th0: 180, th1: 0, t: s - 1, side: 'right' };
     }
@@ -353,14 +356,14 @@ export class Book {
   }
 
   next() {
-    if (this.mode === 'desktop' || this.s === 0) return this.goTo(this.s + 1, 'left');
+    if (this.spread || this.s === 0) return this.goTo(this.s + 1, 'left');
     if (this.side === 'left' && this.s < this.N) return this.goTo(this.s, 'right');
     if (this.s < this.N) return this.goTo(this.s + 1, 'left');
   }
 
   prev() {
     if (this.s === 0) return;
-    if (this.mode === 'desktop' || this.s === this.N) return this.goTo(this.s - 1, 'right');
+    if (this.spread || this.s === this.N) return this.goTo(this.s - 1, 'right');
     if (this.side === 'right' && this.s > 0) return this.goTo(this.s, 'left');
     return this.goTo(this.s - 1, 'right');
   }

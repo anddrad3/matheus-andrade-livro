@@ -1,6 +1,6 @@
 /**
  * "Escrito à mão": prepara uma página para ser escrita diante do leitor.
- * Cada palavra vira um <span class="w"> com seu número na ordem de leitura;
+ * Cada palavra vira um <ink-w class="w"> com seu número na ordem de leitura;
  * o CSS faz a tinta aparecer palavra a palavra quando a página fica visível.
  * O ritmo se ajusta ao tamanho do texto (≈1,5 s no total), e nada bloqueia a
  * interação — links funcionam desde o primeiro instante.
@@ -28,14 +28,21 @@ export function inkify(page) {
         frag.appendChild(document.createTextNode(part));
         continue;
       }
-      const s = document.createElement('span');
+      // tag própria: nenhum seletor antigo do tipo ".x span" a alcança
+      const s = document.createElement('ink-w');
       s.className = 'w';
       s.textContent = part;
       words.push(s);
       frag.appendChild(s);
       i++;
     }
-    node.replaceWith(frag);
+    // dentro de flex/grid cada filho vira item com "gap": agrupa as palavras num único elemento
+    const disp = getComputedStyle(node.parentElement).display;
+    if (/flex|grid/.test(disp)) {
+      const g = document.createElement('ink-g');
+      g.appendChild(frag);
+      node.replaceWith(g);
+    } else node.replaceWith(frag);
   }
   const step = Math.max(6, Math.min(26, 1700 / Math.max(1, i)));
   words.forEach((s, n) => s.style.setProperty('--w', `${Math.round(n * step)}ms`));
