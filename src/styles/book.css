@@ -62,7 +62,6 @@
   height: var(--ph);
   transform-origin: 0 50%;
   will-change: transform;
-  --lift: 0;
 }
 
 .face {
@@ -77,24 +76,23 @@
 }
 
 /* sombra dinâmica enquanto a folha vira */
-.face::after {
-  content: '';
+.face > .lift {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: calc(var(--lift) * 0.85);
+  opacity: 0;
   z-index: 5;
 }
 
-.face.front::after {
+.face.front > .lift {
   background: linear-gradient(to right, rgba(30, 18, 8, 0.42), rgba(30, 18, 8, 0.12) 35%, rgba(255, 245, 225, 0.08) 75%, rgba(30, 18, 8, 0.1));
 }
 
-.face.back::after {
+.face.back > .lift {
   background: linear-gradient(to left, rgba(30, 18, 8, 0.42), rgba(30, 18, 8, 0.12) 35%, rgba(255, 245, 225, 0.08) 75%, rgba(30, 18, 8, 0.1));
 }
 
-.leaf.is-board .face::after {
+.leaf.is-board .face > .lift {
   inset: calc(-1 * var(--ov));
 }
 
@@ -748,9 +746,15 @@
   z-index: 9;
   pointer-events: none;
   background: linear-gradient(to right, rgba(30, 18, 8, 0.55), rgba(30, 18, 8, 0.15) 60%, rgba(255, 245, 225, 0.12));
-  opacity: var(--sh, 0);
+  opacity: 0;
 }
 
 .bback .bshade {
   background: linear-gradient(to left, rgba(30, 18, 8, 0.55), rgba(30, 18, 8, 0.15) 60%, rgba(255, 245, 225, 0.12));
+}
+
+/* clones da folha maleável: só imagem, sem transições nem animações próprias */
+.bface * {
+  transition: none !important;
+  animation: none !important;
 }

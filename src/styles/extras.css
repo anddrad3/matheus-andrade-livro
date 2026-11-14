@@ -25,8 +25,7 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 55% 50% at 50% 44%, rgba(255, 190, 110, 0.07), transparent 70%);
-  animation: lamp 5.5s ease-in-out infinite;
-  will-change: opacity;
+  opacity: 0.9;
 }
 
 @keyframes lamp {

@@ -1,15 +1,34 @@
 import gsap from 'gsap';
 import { Bend } from './bend.js';
 import { inkify } from './ink.js';
+import { view, vw, vh, isPhone } from './view.js';
+
+/** margem segura de baixo (barra de gestos do iPhone/Android) */
+function safeBottom() {
+  const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab'));
+  return Number.isFinite(v) ? v : 0;
+}
 
 /**
  * Motor do livro.
  *
  *  - N folhas, cada uma com frente (página par, à direita) e verso (página ímpar, à esquerda).
  *  - Espelho `s` = quantas folhas já foram viradas. Mostra páginas 2s−1 | 2s.
- *  - Desktop: o espelho inteiro fica visível.
- *  - Mobile: uma página por vez; o livro desliza para mostrar o lado ativo.
+ *  - Computador e celular deitado: o espelho inteiro fica visível.
+ *  - Celular em pé: uma página por vez; o livro desliza para mostrar o lado ativo.
  */
+/**
+ * Sombra da folha que levanta: opacidade direto em dois elementos pequenos.
+ * (Uma variável CSS na folha obrigaria o navegador a recalcular o estilo de
+ * cada palavra da página a cada quadro.)
+ */
+export function setLift(leaf, v) {
+  const o = (Math.max(0, v) * 0.85).toFixed(3);
+  if (leaf._lastLift === o) return;
+  leaf._lastLift = o;
+  leaf._lift?.forEach((el) => (el.style.opacity = o));
+}
+
 export class Book {
   constructor({ el, pages, tabs = [], onChange, onFlip, reduced }) {
     this.el = el;
@@ -38,7 +57,8 @@ export class Book {
         .filter((t) => t.leaf === k)
         .map((t) => `<button class="tab" type="button" data-goto="${t.page}" style="--pos:${t.pos};--tab-l:${t.color};--tab-d:${t.colorDark || t.color}" tabindex="-1" aria-label="Ir para ${t.label}"><span>${t.tab}</span></button>`)
         .join('');
-      leaf.innerHTML = `<div class="face front">${pages[2 * k]}${tabHtml}</div><div class="face back">${pages[2 * k + 1]}${tabHtml}</div>`;
+      leaf.innerHTML = `<div class="face front">${pages[2 * k]}${tabHtml}<i class="lift" aria-hidden="true"></i></div><div class="face back">${pages[2 * k + 1]}${tabHtml}<i class="lift" aria-hidden="true"></i></div>`;
+      leaf._lift = leaf.querySelectorAll(':scope > .face > .lift');
       frag.appendChild(leaf);
       this.leaves.push(leaf);
     }
@@ -56,33 +76,58 @@ export class Book {
   /* ─────────── dimensões ─────────── */
 
   layout() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const desktop = vw >= 820 && vw / vh > 1.05;
+    const W = vw();
+    const H = vh();
+    const phone = isPhone();
+    const desktop = !phone && W >= 820 && W / H > 1.05;
     this.mode = desktop ? 'desktop' : 'mobile';
+    const aspect = 0.7;
+    const root = document.documentElement;
+    const css = root.style;
     let pw;
-    let ph;
+    let lift = null; // deslocamento vertical do livro (null = o do CSS)
+    css.setProperty('--vvw', `${window.innerWidth}px`);
+    css.setProperty('--vvh', `${window.innerHeight}px`);
     if (desktop) {
-      const aspect = 0.7;
-      pw = Math.min((vw * 0.84) / 2, vh * 0.76 * aspect);
-      ph = pw / aspect;
+      pw = Math.min((W * 0.84) / 2, H * 0.76 * aspect);
+      this.spread = true;
+      this.orient = 'land';
+    } else if (W > H * 1.05) {
+      // celular deitado (de verdade, ou o livro deitado na tela em pé): as duas páginas
+      const rail = view.lying ? 0 : 68; // barra de ajustes vira um trilho à direita
+      pw = Math.min(((W - rail - 24) * 0.88) / 2, (H - 28) * aspect);
+      this.spread = true;
+      this.orient = 'land';
+      lift = 0;
+      css.setProperty('--rail', `${rail}px`);
     } else {
-      // celular: o livro aberto inteiro (as duas páginas) cabe na largura;
-      // para ler, um toque aproxima a câmera da página (modo leitura)
-      const aspect = 0.7;
-      pw = Math.min((vw * 0.94) / 2, vh * 0.6 * aspect);
-      ph = pw / aspect;
+      // celular em pé: uma página por vez, centralizada, com a mesa à mostra em
+      // cima e embaixo (onde ficam os objetos); tocar na página deita o livro
+      const top = 58;
+      const nav = 66 + safeBottom();
+      const band = Math.round(H * 0.13);
+      pw = Math.min(W * 0.8, (H - top - nav - 2 * band) * aspect);
+      this.spread = false;
+      this.orient = 'port';
+      lift = (nav - top) / 2;
+      css.setProperty('--rail', '0px');
+      css.setProperty('--navh', `${nav}px`);
     }
-    this.spread = true; // sempre espelho de duas páginas
+    if (desktop) css.setProperty('--rail', '0px');
     this.pw = Math.round(pw);
-    this.ph = Math.round(ph);
-    const root = document.documentElement.style;
-    root.setProperty('--pw', `${this.pw}px`);
-    root.setProperty('--ph', `${this.ph}px`);
-    root.setProperty('--fs', `${(this.pw / 30).toFixed(3)}px`);
-    root.setProperty('--T', `${((this.N - 1) * 2.4).toFixed(1)}px`);
-    document.documentElement.dataset.mode = this.mode;
-    // No mobile, nunca fique num lado que não existe
+    this.ph = Math.round(pw / aspect);
+    this.lift = lift;
+    const stage = this.el.closest('#stage');
+    if (stage) {
+      if (lift == null) stage.style.removeProperty('--lift-y');
+      else stage.style.setProperty('--lift-y', `${lift.toFixed(1)}px`);
+    }
+    css.setProperty('--pw', `${this.pw}px`);
+    css.setProperty('--ph', `${this.ph}px`);
+    css.setProperty('--fs', `${(this.pw / 30).toFixed(3)}px`);
+    css.setProperty('--T', `${((this.N - 1) * 2.4).toFixed(1)}px`);
+    root.dataset.mode = this.mode;
+    root.dataset.orient = this.orient;
     if (this.s === 0) this.side = 'right';
     if (this.s === this.N) this.side = 'left';
   }
@@ -91,7 +136,7 @@ export class Book {
     if (this.tl) this.tl.progress(1);
     const prevMode = this.mode;
     this.layout();
-    if (prevMode !== this.mode && this.mode === 'mobile' && this.s > 0 && this.s < this.N) this.side = 'right';
+    void prevMode;
     this.applyStatic();
   }
 
@@ -119,7 +164,7 @@ export class Book {
     this.leaves.forEach((leaf, k) => {
       const flipped = k < this.s;
       gsap.set(leaf, { rotationY: flipped ? -180 : 0, z: this.zFor(k, flipped), transformOrigin: '0% 50%' });
-      leaf.style.setProperty('--lift', 0);
+      setLift(leaf, 0);
     });
     gsap.set(this.el, { x: this.xFor() });
     gsap.set(this.shadow, this.shadowFor(this.s));
@@ -293,7 +338,7 @@ export class Book {
     if (g.leaf) {
       const theta = g.th0 + (g.th1 - g.th0) * p;
       gsap.set(g.leaf, { rotationY: -theta });
-      g.leaf.style.setProperty('--lift', Math.sin((theta / 180) * Math.PI).toFixed(3));
+      setLift(g.leaf, Math.sin((theta / 180) * Math.PI));
       this.castShadow(theta);
       g.bend?.set(p);
     }
@@ -333,7 +378,7 @@ export class Book {
           g.bend?.destroy();
           if (g.leaf) {
             this.castShadow(null);
-            g.leaf.style.setProperty('--lift', 0);
+            setLift(g.leaf, 0);
             const flipped = g.k < this.s;
             gsap.to(g.leaf, { z: this.zFor(g.k, flipped), duration: 0.2, ease: 'power1.in' });
           }
@@ -445,7 +490,7 @@ export class Book {
             ease,
             onUpdate: () => {
               const r = gsap.getProperty(leaf, 'rotationY');
-              leaf.style.setProperty('--lift', Math.sin((-r / 180) * Math.PI).toFixed(3));
+              setLift(leaf, Math.sin((-r / 180) * Math.PI));
               if (j === 0) this.castShadow(-r);
               bend?.set(flip ? -r / 180 : 1 + r / 180);
             },

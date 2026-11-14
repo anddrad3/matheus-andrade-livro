@@ -186,6 +186,11 @@ a {
   visibility: hidden;
 }
 
+/* carregou: o enfeite para de pulsar (escondido, ainda custaria um quadro por vez) */
+.is-ready .loader-orn {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .grain { animation: none; }
   *, *::before, *::after {

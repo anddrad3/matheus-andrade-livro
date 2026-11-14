@@ -220,6 +220,9 @@
   font-size: 1.15rem;
   letter-spacing: 0.06em;
   color: rgba(244, 220, 150, 0.85);
+}
+
+.can-open .prompt-text {
   animation: breathe 2.6s ease-in-out infinite;
 }
 

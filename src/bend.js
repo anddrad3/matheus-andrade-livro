@@ -43,14 +43,17 @@ export class Bend {
       const fc = front.cloneNode(true);
       fc.style.cssText += `;left:${-i * w}px;width:${W}px;right:auto`;
       f.appendChild(fc);
-      f.appendChild(Object.assign(document.createElement('i'), { className: 'bshade' }));
+      const fs = Object.assign(document.createElement('i'), { className: 'bshade' });
+      f.appendChild(fs);
       const b = document.createElement('div');
       b.className = 'bface bback';
       const bc = back.cloneNode(true);
       bc.style.cssText += `;left:${-(W - (i + 1) * w)}px;width:${W}px;right:auto`;
       b.appendChild(bc);
-      b.appendChild(Object.assign(document.createElement('i'), { className: 'bshade' }));
+      const bs = Object.assign(document.createElement('i'), { className: 'bshade' });
+      b.appendChild(bs);
       s.append(f, b);
+      s._sh = [fs, bs];
       parent.appendChild(s);
       parent = s;
       this.strips.push(s);
@@ -78,7 +81,10 @@ export class Bend {
       acc += Math.abs(deg);
       const s = this.strips[i];
       s.style.transform = i === 0 ? '' : `rotateY(${deg.toFixed(2)}deg) skewY(${sk.toFixed(2)}deg)`;
-      s.style.setProperty('--sh', (Math.min(1, acc / 110) * 0.6).toFixed(3));
+      // opacidade direto na sombra: nada de variável CSS herdada pela cadeia de faixas
+      const o = (Math.min(1, acc / 110) * 0.6).toFixed(3);
+      s._sh[0].style.opacity = o;
+      s._sh[1].style.opacity = o;
     }
   }
 

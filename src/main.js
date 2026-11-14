@@ -1,4 +1,4 @@
-import gsap from 'gsap';
+﻿import gsap from 'gsap';
 import './styles/base.css';
 import './styles/book.css';
 import './styles/pages.css';
@@ -11,6 +11,8 @@ import './styles/sombria.css';
 import './styles/interface.css';
 import './styles/texture.css';
 import './styles/objmodal.css';
+import './styles/mobile.css';
+import './styles/phone.css';
 import { installTextures, applyTextures, preloadTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS, CHAPTERS } from './pages.js';
@@ -19,7 +21,9 @@ import { createMusic } from './music.js';
 import { createPortal } from './portal.js';
 import { inkify } from './ink.js';
 import { createObjModal } from './objmodal.js';
-import { Book } from './book.js';
+import { createPhone } from './phone.js';
+import { view, vw, vpt, vrect } from './view.js';
+import { Book, setLift } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
 import { createSpin } from './spin.js';
@@ -31,6 +35,7 @@ const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' 
 const texturesReady = installTextures(theme());
 const sound = createSound();
 const music = createMusic({ getTheme: () => theme(), onChange: () => syncMusicUI() });
+let phone = null; // o celular da mesa (criado mais abaixo)
 startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
 const book = new Book({
@@ -53,16 +58,22 @@ const ui = {
   skip: $('#skip'),
   progress: $('#progress-bar'),
 };
+const tbProgress = $('#tb-progress');
+const whereCh = $('#where-ch');
+const whereNum = $('#where-num');
 
 function updateUI(b = book) {
   const p = b.page;
   const pages = b.visiblePages();
   const f = pages.map(folioOf).filter(Boolean);
-  ui.folio.textContent = f.length ? f.join(' – ') : '';
+  ui.folio.textContent = f.length ? f.join(' â€“ ') : '';
   ui.chapter.textContent = chapterOf(p);
   ui.prev.disabled = !b.canPrev();
   ui.next.disabled = !b.canNext();
   ui.progress.style.transform = `scaleX(${(b.s / b.N).toFixed(3)})`;
+  tbProgress.style.transform = ui.progress.style.transform;
+  whereCh.textContent = ui.chapter.textContent;
+  whereNum.textContent = ui.folio.textContent;
   ui.live.textContent = pages.map(pageLabel).join(' e ');
   const hash = hashForPage(pages[pages.length - 1]);
   const url = hash ? `#${hash}` : window.location.pathname + window.location.search;
@@ -72,10 +83,10 @@ function updateUI(b = book) {
   });
 }
 
-/* ───────────── abertura ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ abertura â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 let opened = false;
-// voltou de uma obra visitada: reabre direto na mesma página, sem cutscene
+// voltou de uma obra visitada: reabre direto na mesma pÃ¡gina, sem cutscene
 let returnPage = null;
 try {
   const back = sessionStorage.getItem('livro.back');
@@ -100,7 +111,7 @@ const cine = {
 };
 
 function setClosedPose() {
-  // plano aéreo: bem alto, quase de cima, girado sobre a mesa
+  // plano aÃ©reo: bem alto, quase de cima, girado sobre a mesa
   gsap.set(camera, { rotationX: 6, rotationZ: -42, rotationY: 0, z: -3000, y: 40, opacity: 1 });
   gsap.set(cine.light, { opacity: 0 });
 }
@@ -109,24 +120,24 @@ let floatTween;
 let enterTl = null;
 let autoOpen = null;
 let levitate = null;
-/** cutscene: a luz acende, a câmera desce da altura até o livro sobre a mesa */
+/** cutscene: a luz acende, a cÃ¢mera desce da altura atÃ© o livro sobre a mesa */
 function enter() {
   setClosedPose();
-  // sob o véu preto: mostra o verso do livro por 2 quadros para o navegador já
-  // pintar contracapa, lombada e corte (senão isso acontece no meio do giro)
+  // sob o vÃ©u preto: mostra o verso do livro por 2 quadros para o navegador jÃ¡
+  // pintar contracapa, lombada e corte (senÃ£o isso acontece no meio do giro)
   gsap.set(book.el, { rotationY: -180, transformOrigin: '75% 50%' });
   requestAnimationFrame(() => requestAnimationFrame(() => gsap.set(book.el, { rotationY: 0 })));
   const tl = gsap.timeline({ delay: 0.2 });
   enterTl = tl;
   tl
-    // a luminária acende, hesitando
+    // a luminÃ¡ria acende, hesitando
     .to(cine.light, { keyframes: [
       { opacity: 0.5, duration: 0.08 }, { opacity: 0.05, duration: 0.12 },
       { opacity: 0.8, duration: 0.07 }, { opacity: 0.3, duration: 0.18 },
       { opacity: 1, duration: 0.6, ease: 'power2.out' },
     ] }, 0.3)
     .to(cine.veil, { opacity: 0, duration: 2.2, ease: 'power2.inOut' }, 0.35)
-    // grua: desce e gira em direção ao livro
+    // grua: desce e gira em direÃ§Ã£o ao livro
     .to(camera, { z: -1250, rotationZ: -24, rotationX: 18, y: 30, duration: 3.4, ease: 'power1.inOut' }, 0.2)
     .to(camera, { z: -260, rotationZ: -11, rotationX: 34, rotationY: 4, y: 24, duration: 2.8, ease: 'power3.out' }, 3.6)
     // letreiros
@@ -147,7 +158,7 @@ function enter() {
       gsap.to(book.shadow, { opacity: 0.45, duration: 1.2 });
       prepareOpen();
       document.body.classList.add('can-open');
-      // se a pessoa não interagir, o livro se abre sozinho
+      // se a pessoa nÃ£o interagir, o livro se abre sozinho
       autoOpen = gsap.delayedCall(3.2, () => !opened && !openTl && open());
     }, 6.1);
   return tl;
@@ -155,12 +166,13 @@ function enter() {
 
 let openTl = null;
 let skipping = false;
+let hintShown = false;
 let prepared = false;
 
 /**
  * Enquanto o livro levita, deixa pronto tudo o que a abertura vai mostrar:
  * capa, contracapa e as primeiras folhas desenhadas (sem "pular"), e as
- * páginas iniciais já preparadas para a escrita — nada pesado no meio do giro.
+ * pÃ¡ginas iniciais jÃ¡ preparadas para a escrita â€” nada pesado no meio do giro.
  */
 function prepareOpen() {
   if (prepared) return;
@@ -171,27 +183,45 @@ function prepareOpen() {
   warmAssets();
 }
 
-/** pré-carrega o que aparece depois: fotos dos projetos, imagens e o outro tema */
+/** prÃ©-carrega o que aparece depois: fotos dos projetos, imagens e o outro tema */
 let warmed = false;
 function warmAssets() {
   if (warmed) return;
   warmed = true;
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
   idle(() => {
-    document.querySelectorAll('.leaves img').forEach((img) => img.decode?.().catch(() => {}));
+    decodeImages();
     preloadTextures(theme() === 'dark' ? 'light' : 'dark');
     const other = theme() === 'dark' ? 'aria-bach-piano' : 'lacrimosa-piano';
     const a = new Audio(`music/${other}.mp3`);
     a.preload = 'auto';
   });
 }
+/**
+ * Deixa as imagens do livro prontas para aparecer, uma de cada vez e sÃ³ as do
+ * tema atual (decodificar todas juntas estourava a memÃ³ria de celulares).
+ */
+function decodeImages() {
+  const skip = theme() === 'dark' ? '.only-light' : '.only-dark';
+  const imgs = [...document.querySelectorAll('.leaves img')].filter((i) => !i.closest(skip));
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 120));
+  let k = 0;
+  const next = () => {
+    const img = imgs[k++];
+    if (!img) return;
+    const p = img.decode ? img.decode() : Promise.resolve();
+    p.catch(() => {}).finally(() => idle(next));
+  };
+  next();
+}
+window.addEventListener('themechange', () => warmed && setTimeout(decodeImages, 400));
 const flash = $('#flash');
 
 /**
- * Abertura no estilo "livro mágico":
- *  1. o livro, levitando, dá uma volta completa no ar (lombada, contracapa, corte);
- *  2. a capa se abre de supetão enquanto a câmera mergulha na folha de rosto;
- *  3. uma estrela de luz toma a tela — e se dissolve revelando o livro aberto.
+ * Abertura no estilo "livro mÃ¡gico":
+ *  1. o livro, levitando, dÃ¡ uma volta completa no ar (lombada, contracapa, corte);
+ *  2. a capa se abre de supetÃ£o enquanto a cÃ¢mera mergulha na folha de rosto;
+ *  3. uma estrela de luz toma a tela â€” e se dissolve revelando o livro aberto.
  */
 function open() {
   if (opened || openTl) return;
@@ -200,7 +230,7 @@ function open() {
   prepareOpen();
   gsap.set(rig, { willChange: 'transform' });
   sound.unlock();
-  sound.flip(5); // sopro de páginas enquanto gira
+  sound.flip(5); // sopro de pÃ¡ginas enquanto gira
   floatTween?.kill();
   levitate?.kill();
   enterTl?.kill();
@@ -217,21 +247,21 @@ function open() {
     .to(cine.light, { opacity: 1, duration: 0.4 }, 0)
     .to(float, { y: 0, rotationZ: 0, rotationX: 0, duration: 0.8, ease: 'power2.out' }, 0);
 
-  // 1 · a volta completa no ar (gira em torno do centro do livro fechado)
+  // 1 Â· a volta completa no ar (gira em torno do centro do livro fechado)
   gsap.set(book.el, { transformOrigin: '75% 50%' });
-  // giro com aceleração suave e chegada desacelerada (sem "tranco" no fim)
+  // giro com aceleraÃ§Ã£o suave e chegada desacelerada (sem "tranco" no fim)
   tl.to(camera, { rotationX: 14, rotationZ: 0, rotationY: 0, z: -160, y: 0, duration: 1.15, ease: 'sine.inOut' }, 0)
     .to(book.el, { rotationY: -360, rotationZ: 0, rotationX: 0, z: 150, duration: 1.2, ease: 'expo.inOut' }, 0)
     .to(book.shadow, { opacity: 0.25, duration: 0.6 }, 0)
     .add(() => sound.open(), 0.95)
-    .add(() => gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }), 1.2); // 360° = identidade
+    .add(() => gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }), 1.2); // 360Â° = identidade
 
-  // 2 · a capa abre de supetão; o miolo assenta; o livro centraliza
+  // 2 Â· a capa abre de supetÃ£o; o miolo assenta; o livro centraliza
   tl.to(cover, {
     rotationY: -180,
     duration: 0.75,
     ease: 'power3.out',
-    onUpdate: () => cover.style.setProperty('--lift', Math.sin((-gsap.getProperty(cover, 'rotationY') / 180) * Math.PI).toFixed(3)),
+    onUpdate: () => setLift(cover, Math.sin((-gsap.getProperty(cover, 'rotationY') / 180) * Math.PI)),
   }, 1.05)
     .to(book.el, { x: x1, duration: 0.75, ease: 'power3.out' }, 1.05)
     .to(book.shadow, { scaleX: 1, xPercent: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }, 1.05)
@@ -246,7 +276,7 @@ function open() {
     book.updateVisibility([1, 2, 3, 4]);
   }, 1.2);
 
-  // 3 · a câmera mergulha na página da direita até a estrela de luz tomar a tela
+  // 3 Â· a cÃ¢mera mergulha na pÃ¡gina da direita atÃ© a estrela de luz tomar a tela
   tl.add(() => {
     const rr = rig.getBoundingClientRect();
     gsap.set(rig, { transformOrigin: `${75}% ${45}%` });
@@ -266,20 +296,21 @@ function finish() {
   book.d = book.dOpen;
   book.s = 1;
   book.side = 'right';
-  // corte escondido pela luz: câmera e livro voltam ao enquadramento de leitura
+  // corte escondido pela luz: cÃ¢mera e livro voltam ao enquadramento de leitura
   gsap.set(rig, { scale: 1, clearProps: 'transformOrigin' });
   gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0, transformOrigin: '50% 50%' });
   gsap.set(camera, { rotationX: 0, rotationY: 0, rotationZ: 0, z: 0, y: 0 });
   if (skipping) gsap.set(flash, { opacity: 0 });
-  // a troca de cena (pesada) acontece com a luz parada cobrindo tudo; a luz só
-  // começa a se dissolver dois quadros depois — nenhuma engasgada visível
+  // a troca de cena (pesada) acontece com a luz parada cobrindo tudo; a luz sÃ³
+  // comeÃ§a a se dissolver dois quadros depois â€” nenhuma engasgada visÃ­vel
   else requestAnimationFrame(() => requestAnimationFrame(() => gsap.to(flash, { opacity: 0, scale: 3.2, rotation: 18, duration: 0.85, delay: 0.28, ease: 'power2.out' })));
   const wasSkipping = skipping;
   skipping = false;
   document.body.classList.remove('is-opening');
   document.body.classList.add('is-open');
-  measureMargins();
-  if (book.mode === 'mobile') {
+  layoutProps();
+  if (book.mode === 'mobile' && book.orient === 'port' && !hintShown) {
+    hintShown = true;
     const h = $('#read-hint');
     h.hidden = false;
     setTimeout(() => h.classList.add('is-gone'), 4200);
@@ -291,7 +322,7 @@ function finish() {
   prepared = false;
   updateUI();
   enableParallax();
-  // deixa a luz se dissolver e a cena assentar antes de virar para o sumário
+  // deixa a luz se dissolver e a cena assentar antes de virar para o sumÃ¡rio
   gsap.delayedCall(wasSkipping ? 0 : 0.85, () => {
     book.noBendOnce = true;
     book.goToPage(target).then(() => updateUI());
@@ -307,7 +338,7 @@ function skipIntro() {
   openTl?.progress(1);
 }
 
-/* ───────────── girar 360° e voltar à capa ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ girar 360Â° e voltar Ã  capa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const spin = createSpin({
   float,
@@ -318,75 +349,204 @@ const spin = createSpin({
   hint: $('#spin-hint'),
   canStart: () => opened && !openTl,
   onChange: (on) => {
-    if (on) setZoom(null);
+    if (on) {
+      resetPZ();
+      if (view.lying) exitLyingNow();
+    }
     book.setThick(on);
+    syncTabbar();
   },
 });
 
 function goHome() {
   if (!opened) return;
-  setZoom(null);
+  resetPZ();
   if (spin.rotated) spin.reset();
   book.goTo(0).then(() => updateUI());
 }
 
-/* ───────────── modo leitura (celular) ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ pinÃ§a: aproximar e afastar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-// No celular o livro aberto aparece inteiro (as duas páginas). Um toque numa
-// página aproxima a câmera para ler; deslizar passa para a outra página e, no
-// fim do espelho, vira a folha. Tocar de novo (ou o botão) volta às duas páginas.
-let zoom = null; // null | 'left' | 'right'
+// Dois dedos aproximam/afastam o livro em torno do ponto entre eles; aproximado,
+// um dedo (ou o mouse) arrasta a vista. No computador: Ctrl + roda / pinÃ§a do trackpad.
 const zoomBtn = $('#zoom-out');
+const pz = { s: 1, x: 0, y: 0 };
+const touches = new Map(); // dedos no palco (coordenadas do palco)
+let pinch = null;
+let pan = null;
+const zoomed = () => pz.s > 1.04;
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 
-function zoomFrame(side) {
-  if (!side) return { scale: 1, x: 0, y: 0 };
-  const ui = 150; // espaço da barra de cima e dos controles de baixo
-  const z = Math.min((window.innerWidth * 0.96) / book.pw, (window.innerHeight - ui) / book.ph);
-  // na capa/contracapa o livro fechado está deslocado; nas demais, centrado na lombada
-  const bx = gsap.getProperty(book.el, 'x');
-  const cx = side === 'left' ? -book.pw / 2 : book.pw / 2;
-  return { scale: z, x: -(cx + bx) * z, y: 12 };
-}
-
-function setZoom(side, instant = false) {
-  if (book.mode !== 'mobile' || !opened) side = null;
-  if (book.s === 0 || book.s === book.N) side = null; // capas: livro fechado, sempre inteiro
-  zoom = side;
-  document.body.classList.toggle('is-zoomed', !!side);
-  zoomBtn.hidden = !side;
-  const f = zoomFrame(side);
-  gsap.to(rig, { ...f, duration: instant ? 0 : 0.65, ease: 'power3.inOut', overwrite: 'auto' });
-}
-
-/** passo de leitura: dir 1 = avançar, −1 = voltar */
-function zoomStep(dir) {
-  if (dir > 0) {
-    if (zoom === 'left') return setZoom('right');
-    if (!book.canNext()) return;
-    book.nextTilt = 0.6;
-    book.next();
-    setTimeout(() => setZoom(book.s === book.N ? null : 'left'), 120);
-  } else {
-    if (zoom === 'right') return setZoom('left');
-    if (!book.canPrev()) return;
-    book.nextTilt = 0.6;
-    book.prev();
-    setTimeout(() => setZoom(book.s === 0 ? null : 'right'), 120);
+function renderPZ(animate) {
+  const z = zoomed();
+  document.body.classList.toggle('is-zoomed', z);
+  zoomBtn.hidden = !z;
+  const vars = { scale: pz.s, x: pz.x, y: pz.y };
+  if (animate) gsap.to(rig, { ...vars, duration: 0.5, ease: 'power3.out', overwrite: 'auto' });
+  else {
+    gsap.killTweensOf(rig, 'scale,x,y');
+    gsap.set(rig, vars);
   }
 }
 
-zoomBtn.addEventListener('click', () => setZoom(null));
+/** mantÃ©m a pÃ¡gina Ã  vista: dÃ¡ para passear sÃ³ atÃ© a borda do que foi ampliado */
+function clampPZ() {
+  pz.s = Math.max(1, Math.min(4, pz.s));
+  const visW = book.spread ? 2 * book.pw : book.pw;
+  const mx = (visW * (pz.s - 1)) / 2 + 24;
+  const my = (book.ph * (pz.s - 1)) / 2 + 24;
+  pz.x = Math.max(-mx, Math.min(mx, pz.x));
+  pz.y = Math.max(-my, Math.min(my, pz.y));
+  if (pz.s <= 1.001) pz.x = pz.y = 0;
+}
 
-/* ───────────── virar a página com a mão (estilo iPad) ───────────── */
+function resetPZ(instant = false) {
+  pinch = null;
+  pan = null;
+  const idle = pz.s === 1 && pz.x === 0 && pz.y === 0;
+  pz.s = 1;
+  pz.x = 0;
+  pz.y = 0;
+  renderPZ(!instant && !idle);
+}
 
-// Computador: pegue a página em qualquer ponto e arraste — a folha segue o ponteiro.
-// Celular: deslize o dedo — a página acompanha. Soltar depois da metade (ou num
-// gesto rápido) completa; antes disso, a página volta.
+/** centro do livro na tela, sem a translaÃ§Ã£o da pinÃ§a */
+function rigCenter() {
+  const r = vrect(rig);
+  return { x: r.left + r.width / 2 - pz.x, y: r.top + r.height / 2 - pz.y };
+}
+
+/** amplia para a escala s mantendo o ponto p parado */
+function zoomAt(p, s, animate) {
+  const c = rigCenter();
+  const qx = (p.x - c.x - pz.x) / pz.s;
+  const qy = (p.y - c.y - pz.y) / pz.s;
+  pz.s = s;
+  pz.x = p.x - c.x - s * qx;
+  pz.y = p.y - c.y - s * qy;
+  clampPZ();
+  renderPZ(animate);
+}
+
+function startPinch() {
+  const [a, b] = [...touches.values()];
+  cancelPageDrag();
+  pan = null;
+  pageDragged = true; // os dedos que sobem nÃ£o viram clique
+  gsap.killTweensOf(rig, 'scale,x,y');
+  const c = rigCenter();
+  const m = mid(a, b);
+  pinch = { d0: Math.max(20, dist(a, b)), s0: pz.s, c, qx: (m.x - c.x - pz.x) / pz.s, qy: (m.y - c.y - pz.y) / pz.s };
+  document.body.classList.add('is-pinching');
+}
+
+function movePinch() {
+  const [a, b] = [...touches.values()];
+  const m = mid(a, b);
+  // um pouco de elasticidade abaixo de 1Ã— e acima de 4Ã—
+  let s = pinch.s0 * (dist(a, b) / pinch.d0);
+  if (s < 1) s = 1 - (1 - s) * 0.4;
+  if (s > 4) s = 4 + (s - 4) * 0.3;
+  pz.s = s;
+  pz.x = m.x - pinch.c.x - s * pinch.qx;
+  pz.y = m.y - pinch.c.y - s * pinch.qy;
+  renderPZ(false);
+}
+
+function endPinch() {
+  pinch = null;
+  document.body.classList.remove('is-pinching');
+  setTimeout(() => (pageDragged = false), 120);
+  if (pz.s < 1.08) return resetPZ();
+  clampPZ();
+  renderPZ(true);
+}
+
+zoomBtn.addEventListener('click', () => resetPZ());
+
+// Ctrl + roda do mouse (ou pinÃ§a do trackpad, que o navegador entrega assim)
+window.addEventListener('wheel', (e) => {
+  if (!e.ctrlKey || !opened || openTl || spin.active) return;
+  e.preventDefault();
+  const s = Math.max(1, Math.min(4, pz.s * Math.exp(-e.deltaY * 0.004)));
+  if (s <= 1.02) return resetPZ();
+  zoomAt(vpt(e.clientX, e.clientY), s, false);
+}, { passive: false });
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ celular: o livro deitado mostra as duas pÃ¡ginas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+// Em pÃ©, o celular mostra uma pÃ¡gina por vez (e a mesa com os objetos em volta).
+// Um toque na pÃ¡gina deita o livro: o palco gira 90Â° e as duas pÃ¡ginas aparecem
+// inteiras â€” Ã© sÃ³ virar o aparelho. Outro toque (ou o botÃ£o) volta a uma pÃ¡gina.
+// Se a pessoa girar o celular de verdade, a tela deitada jÃ¡ mostra as duas.
+const stageEl = $('#stage');
+const lieExit = $('#lie-exit');
+const lieHint = $('#lie-hint');
+let lieHintTimer;
+
+function applyLying(on) {
+  view.lying = on;
+  document.body.classList.toggle('is-lying', on);
+  lieExit.hidden = !on;
+  if (!on) {
+    clearTimeout(lieHintTimer);
+    lieHint.hidden = true;
+  }
+  book.relayout();
+  layoutProps();
+  updateUI();
+}
+
+function setLying(on) {
+  on = !!on && opened && !openTl && book.mode === 'mobile' && window.innerHeight > window.innerWidth;
+  if (view.lying === on) return;
+  if (spin.active) spin.resetNow();
+  cancelPageDrag();
+  if (book.tl) book.tl.progress(1);
+  resetPZ(true);
+  gsap.killTweensOf(stageEl);
+  gsap.to(stageEl, {
+    opacity: 0,
+    duration: 0.16,
+    ease: 'power1.in',
+    onComplete: () => {
+      applyLying(on);
+      gsap.to(stageEl, { opacity: 1, duration: 0.4, ease: 'power2.out', clearProps: 'opacity' });
+      if (on) {
+        lieHint.hidden = false;
+        lieHint.classList.remove('is-gone');
+        clearTimeout(lieHintTimer);
+        lieHintTimer = setTimeout(() => {
+          lieHint.classList.add('is-gone');
+          lieHintTimer = setTimeout(() => (lieHint.hidden = true), 600);
+        }, 2600);
+      }
+    },
+  });
+}
+
+/** sai do modo deitado na hora (sem transiÃ§Ã£o) */
+function exitLyingNow() {
+  if (!view.lying) return;
+  gsap.killTweensOf(stageEl);
+  gsap.set(stageEl, { clearProps: 'opacity' });
+  applyLying(false);
+}
+
+lieExit.addEventListener('click', () => setLying(false));
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ virar a pÃ¡gina com a mÃ£o (estilo iPad) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+// Computador: pegue a pÃ¡gina em qualquer ponto e arraste â€” a folha segue o ponteiro.
+// Celular: deslize o dedo â€” a pÃ¡gina acompanha. Soltar depois da metade (ou num
+// gesto rÃ¡pido) completa; antes disso, a pÃ¡gina volta.
+// (Todas as medidas em coordenadas do palco: com o livro deitado, a tela gira.)
 let pageDrag = null;
 let pageDragged = false;
-const NO_DRAG = 'input, textarea, [data-copy], #ui, #menu, #desk-props, #talk';
+const NO_DRAG = 'input, textarea, [data-copy], #ui, #desk-props, #talk, #lie-exit';
 
-// se o gesto virou arrasto, o clique no fim (num link, aba ou canto) não conta
+// se o gesto virou arrasto, o clique no fim (num link, aba ou canto) nÃ£o conta
 document.addEventListener('click', (e) => {
   if (pageDragged && e.target.closest('.leaf')) {
     e.preventDefault();
@@ -395,54 +555,100 @@ document.addEventListener('click', (e) => {
 }, true);
 
 function spineX() {
-  const r = rig.getBoundingClientRect();
+  const r = vrect(rig);
   const scale = r.width / (2 * book.pw);
   return { x: r.left + r.width / 2 + gsap.getProperty(book.el, 'x') * scale, scale };
 }
 
-function thetaAt(clientX) {
-  const { x, scale } = spineX();
-  const dx = (clientX - x) / (book.pw * scale);
+function thetaAt(x) {
+  const sp = spineX();
+  const dx = (x - sp.x) / (book.pw * sp.scale);
   return (Math.acos(Math.max(-1, Math.min(1, dx))) * 180) / Math.PI;
 }
 
+/** desiste do gesto em andamento (a folha volta ao lugar) */
+function cancelPageDrag() {
+  const g = pageDrag;
+  pageDrag = null;
+  document.body.classList.remove('is-page-drag');
+  if (g?.live && book.drag) {
+    book.dragMove(0);
+    book.dragEnd(0).then(() => updateUI());
+  }
+}
+
 document.addEventListener('pointerdown', (e) => {
-  if (!opened || openTl || e.button !== 0) return;
-  // no 360°: com o livro de frente, arrastar a página vira a página; girado, gira o livro
+  if (!opened || openTl) return;
+  const onStage = !!e.target.closest('#stage');
+  // dois dedos no livro: pinÃ§a
+  if (e.pointerType === 'touch' && onStage && !spin.active) {
+    touches.set(e.pointerId, vpt(e.clientX, e.clientY));
+    if (touches.size >= 2) {
+      e.__page = true;
+      startPinch();
+      return;
+    }
+  }
+  if (e.button !== 0 || pinch) return;
+  // no 360Â°: com o livro de frente, arrastar a pÃ¡gina vira a pÃ¡gina; girado, gira o livro
   if ((spin.active || spin.rotated) && !(spin.active && spin.frontal && e.target.closest('.leaf'))) return;
   if (e.target.closest(NO_DRAG)) return;
+  const pt = vpt(e.clientX, e.clientY);
+  // aproximado: arrastar passeia pela pÃ¡gina
+  if (zoomed() && onStage) {
+    e.__page = true;
+    pan = { id: e.pointerId, x: pt.x, y: pt.y, px: pz.x, py: pz.y, moved: false };
+    gsap.killTweensOf(rig, 'scale,x,y');
+    pageDragged = false;
+    return;
+  }
   const mobile = book.mode === 'mobile';
-  if (!e.target.closest('.leaf') && !(mobile && e.target.closest('#stage'))) return;
-  e.__page = true; // o giro 360° não pega este gesto
-  pageDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, live: false, p: 0, t: 0, v: 0, target: e.target, lx: e.clientX, ly: e.clientY };
+  if (!e.target.closest('.leaf') && !(mobile && onStage)) return;
+  e.__page = true; // o giro 360Â° nÃ£o pega este gesto
+  pageDrag = { id: e.pointerId, x: pt.x, y: pt.y, live: false, p: 0, t: 0, v: 0, target: e.target, lx: pt.x, ly: pt.y };
   pageDragged = false;
 }, true);
 
 window.addEventListener('pointermove', (e) => {
-  const g = pageDrag;
-  if (!g || e.pointerId !== g.id) return;
-  const dx = e.clientX - g.x;
-  const dy = e.clientY - g.y;
-  g.lx = e.clientX;
-  g.ly = e.clientY;
-  if (zoom) {
-    if (Math.abs(dx) > 7) g.swipe = true; // lendo de perto: deslizar é passo de leitura
+  if (touches.has(e.pointerId)) touches.set(e.pointerId, vpt(e.clientX, e.clientY));
+  if (pinch) {
+    if (touches.size >= 2) movePinch();
     return;
   }
+  if (pan && e.pointerId === pan.id) {
+    const pt = vpt(e.clientX, e.clientY);
+    const dx = pt.x - pan.x;
+    const dy = pt.y - pan.y;
+    if (!pan.moved && Math.hypot(dx, dy) < 6) return;
+    pan.moved = true;
+    pageDragged = true;
+    pz.x = pan.px + dx;
+    pz.y = pan.py + dy;
+    clampPZ();
+    renderPZ(false);
+    return;
+  }
+  const g = pageDrag;
+  if (!g || e.pointerId !== g.id) return;
+  const pt = vpt(e.clientX, e.clientY);
+  const dx = pt.x - g.x;
+  const dy = pt.y - g.y;
+  g.lx = pt.x;
+  g.ly = pt.y;
   if (!g.live) {
     if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
     if (Math.abs(dy) > Math.abs(dx) * 1.3) {
-      pageDrag = null; // gesto vertical: não é virar página
+      pageDrag = null; // gesto vertical: nÃ£o Ã© virar pÃ¡gina
       return;
     }
     let dir;
     if (book.spread) {
-      dir = g.x > spineX().x ? 1 : -1; // pegou a página da direita → avança
+      dir = g.x > spineX().x ? 1 : -1; // pegou a pÃ¡gina da direita â†’ avanÃ§a
       if (book.s === 0) dir = 1;
       if (book.s === book.N) dir = -1;
     } else dir = dx < 0 ? 1 : -1;
-    // levantou por cima ou por baixo? (−1 topo … 1 base) — o canto puxado vai à frente
-    const rr = rig.getBoundingClientRect();
+    // levantou por cima ou por baixo? (âˆ’1 topo â€¦ 1 base) â€” o canto puxado vai Ã  frente
+    const rr = vrect(rig);
     const tilt = Math.max(-1, Math.min(1, ((g.y - rr.top) / rr.height - 0.5) * 2.2));
     if (!book.dragStart(dir, tilt)) {
       pageDrag = null;
@@ -463,10 +669,10 @@ window.addEventListener('pointermove', (e) => {
   let p;
   if (book.spread && book.drag?.leaf) {
     // a borda da folha acompanha o ponteiro, partindo de onde ele pegou
-    const th = thetaAt(e.clientX);
+    const th = thetaAt(pt.x);
     p = g.dir > 0 ? (th - g.th0) / Math.max(20, 180 - g.th0) : (g.th0 - th) / Math.max(20, g.th0);
   } else {
-    p = (-g.dir * dx) / (window.innerWidth * (book.drag?.leaf ? 0.78 : 0.6));
+    p = (-g.dir * dx) / (vw() * (book.drag?.leaf ? 0.78 : 0.6));
   }
   const now = performance.now();
   g.v = ((p - g.p) / Math.max(1, now - g.t)) * 16;
@@ -476,21 +682,31 @@ window.addEventListener('pointermove', (e) => {
 });
 
 function endPageDrag(e) {
+  if (e) touches.delete(e.pointerId);
+  if (pinch) {
+    if (touches.size < 2) endPinch();
+    return;
+  }
+  if (pan && (!e || e.pointerId === pan.id)) {
+    const moved = pan.moved;
+    pan = null;
+    if (moved) {
+      setTimeout(() => (pageDragged = false), 80);
+      clampPZ();
+      renderPZ(true);
+    }
+    return;
+  }
   const g = pageDrag;
   if (!g || (e && e.pointerId !== g.id)) return;
   pageDrag = null;
-  const dx = (e?.clientX ?? g.lx) - g.x;
-  const dy = (e?.clientY ?? g.ly) - g.y;
-  if (zoom && g.swipe) {
-    pageDragged = true;
-    setTimeout(() => (pageDragged = false), 80);
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) zoomStep(dx < 0 ? 1 : -1);
-    return;
-  }
-  // toque simples numa página (celular): aproxima para ler / volta às duas páginas
-  if (!g.live && book.mode === 'mobile' && !spin.active && Math.hypot(dx, dy) < 8 && !g.target.closest('a, button, [data-goto], [data-copy], .plate, input')) {
-    if (zoom) setZoom(null);
-    else setZoom(g.x < spineX().x ? 'left' : 'right');
+  const pt = e ? vpt(e.clientX, e.clientY) : { x: g.lx, y: g.ly };
+  const dx = pt.x - g.x;
+  const dy = pt.y - g.y;
+  // toque simples numa pÃ¡gina (celular): deita o livro para ver as duas / volta a uma
+  if (!g.live && e?.type === 'pointerup' && book.mode === 'mobile' && !spin.active && !zoomed() && Math.hypot(dx, dy) < 8 && g.target.closest('.leaf') && !g.target.closest('a, button, [data-goto], [data-copy], [data-curl], .plate, input, .tab')) {
+    if (view.lying) setLying(false);
+    else if (!book.spread && book.s > 0 && book.s < book.N) setLying(true);
     return;
   }
   if (!g.live) return;
@@ -502,18 +718,22 @@ function endPageDrag(e) {
 window.addEventListener('pointerup', endPageDrag);
 window.addEventListener('pointercancel', endPageDrag);
 
-/* ───────────── reiniciar a abertura ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ reiniciar a abertura â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function replay() {
-  closeMenu();
   hideTalk();
+  objModal.close();
+  phone.close();
+  cancelPageDrag();
+  touches.clear();
+  exitLyingNow();
   enterTl?.kill();
   openTl?.kill();
   openTl = null;
   floatTween?.kill();
   autoOpen?.kill();
   spin.resetNow();
-  setZoom(null, true);
+  resetPZ(true);
   book.setThick(false);
   if (book.tl) book.tl.progress(1);
   gsap.killTweensOf([camera, float, book.el, book.shadow, book.edges, cine.veil, cine.bars, cine.place, cine.pre, cine.name, cine.light, cine.desk, ...book.leaves]);
@@ -527,7 +747,7 @@ function replay() {
   book.d = 2.4;
   book.s = 0;
   book.side = 'right';
-  book.leaves.forEach((l) => l.style.setProperty('--lift', 0));
+  book.leaves.forEach((l) => setLift(l, 0));
   book.applyStatic();
   book.castShadow(null);
   gsap.set(book.edges, { opacity: 1 });
@@ -543,18 +763,21 @@ function replay() {
   gsap.set([cine.place, cine.pre, cine.name], { opacity: 0 });
   gsap.set(cine.desk, { opacity: 1 });
   updateUI();
+  layoutProps();
+  // a trilha recomeÃ§a junto com a abertura
+  music.restart();
   enter();
 }
 $('#replay').addEventListener('click', replay);
 
-/* ───────────── objetos da mesa: clique e eles falam ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ objetos da mesa: clique e eles falam â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const propsEl = $('#desk-props');
 const talkEl = $('#talk');
 const talkIndex = {};
 let talkTimer;
 
-// as peças são as mesmas da cutscene (ids dos degradês renomeados)
+// as peÃ§as sÃ£o as mesmas da cutscene (ids dos degradÃªs renomeados)
 propsEl.querySelector('.dp-glasses').innerHTML = $('.prop-glasses').innerHTML;
 propsEl.querySelector('.dp-pen').innerHTML = $('.prop-pen').innerHTML.replace(/pen-g\b/g, 'pen-g2').replace(/pen-au\b/g, 'pen-au2');
 propsEl.querySelector('.dp-note').innerHTML = $('.prop-note').innerHTML;
@@ -563,18 +786,49 @@ propsEl.querySelector('.dp-whisky').innerHTML = cloneIds($('.prop-whisky').inner
 propsEl.querySelector('.dp-ashtray').innerHTML = cloneIds($('.prop-ashtray').innerHTML);
 propsEl.querySelector('.dp-lighter').innerHTML = cloneIds($('.prop-lighter').innerHTML);
 propsEl.querySelector('.dp-notepad').innerHTML = $('.prop-notepad').innerHTML;
+// fumaÃ§a e brasa do cigarro em HTML (animam na GPU, sem repintar o desenho)
+const SMOKE = '<i class="emb" aria-hidden="true"></i><i class="smk" aria-hidden="true"><i></i><i></i><i></i></i>';
+propsEl.querySelector('.dp-ashtray').insertAdjacentHTML('beforeend', SMOKE);
+$('.prop-ashtray').insertAdjacentHTML('beforeend', SMOKE);
 
-function measureMargins() {
-  const m = (window.innerWidth - 2 * book.pw) / 2;
-  document.documentElement.style.setProperty('--m', `${Math.max(0, m)}px`);
-  document.documentElement.classList.toggle('no-props', book.mode === 'mobile' || m < 96);
+/**
+ * Onde a mesa aparece em volta do livro (os objetos ficam ali):
+ *  - computador e celular deitado: margens Ã  esquerda e Ã  direita;
+ *  - celular em pÃ©: uma faixa acima e outra abaixo da pÃ¡gina.
+ * Sem espaÃ§o suficiente (ou com o livro deitado/aproximado), os objetos saem.
+ */
+function layoutProps() {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const root = document.documentElement;
+  const st = root.style;
+  let hide = view.lying;
+  if (book.orient === 'land') {
+    const rail = book.mode === 'desktop' ? 0 : parseFloat(st.getPropertyValue('--rail')) || 0;
+    const m = (W - rail - 2 * book.pw) / 2;
+    st.setProperty('--m', `${Math.max(0, m)}px`);
+    hide = hide || m < (book.mode === 'desktop' ? 96 : 64);
+  } else {
+    const top = 58;
+    const nav = parseFloat(st.getPropertyValue('--navh')) || 66;
+    const bookTop = H / 2 - (book.lift ?? 0) - book.ph / 2;
+    const bt = Math.max(0, bookTop - top);
+    const bb = Math.max(0, H - nav - (bookTop + book.ph));
+    st.setProperty('--btop', `${top}px`);
+    st.setProperty('--bt', `${bt.toFixed(1)}px`);
+    st.setProperty('--bb', `${bb.toFixed(1)}px`);
+    st.setProperty('--m', '0px');
+    hide = hide || Math.min(bt, bb) < 54;
+  }
+  root.classList.toggle('no-props', hide);
 }
 
 const objModal = createObjModal({ getTheme: () => theme(), talk: deskTalk, onOpen: () => sound.flip(1) });
 
-// clicar num objeto abre o card dele (girável em 360°)
+// clicar num objeto abre o card dele (girÃ¡vel em 360Â°)
 function talk(prop) {
   hideTalk();
+  if (prop === 'phone') return phone.open();
   objModal.open(prop);
 }
 
@@ -585,7 +839,7 @@ function talkBubble(prop, anchor) {
   const i = (talkIndex[key] = ((talkIndex[key] ?? -1) + 1) % d.lines.length);
   talkEl.querySelector('.talk-name').textContent = d.name;
   talkEl.querySelector('.talk-text').textContent = d.lines[i];
-  talkEl.querySelector('.talk-more').textContent = window.matchMedia('(pointer: coarse)').matches ? 'toque de novo ↻' : 'clique de novo ↻';
+  talkEl.querySelector('.talk-more').textContent = window.matchMedia('(pointer: coarse)').matches ? 'toque de novo â†»' : 'clique de novo â†»';
   talkEl.hidden = false;
   talkEl.classList.remove('is-shown');
   talkEl.style.left = talkEl.style.top = '';
@@ -620,78 +874,35 @@ document.addEventListener('pointerdown', (e) => {
 });
 window.addEventListener('themechange', hideTalk);
 
-/* ───────────── menu (celular) ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ barra de ajustes (celular) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-const menu = $('#menu');
-const menuBtn = $('#menu-btn');
-const MENU_ITEMS = [
-  ...CHAPTERS.map((c) => ({ label: c.label, page: c.page })),
-  { label: 'Carta e contato', page: 18 },
-  { label: 'Diário de bordo', page: 19 },
-].sort((a, b) => a.page - b.page);
-menu.querySelector('.menu-chapters').innerHTML =
-  '<li><button type="button" data-home data-menu-close>Capa</button></li>' +
-  MENU_ITEMS.map((it) => `<li><button type="button" data-goto="${it.page}" data-menu-close>${it.label}</button></li>`).join('');
+// No celular: uma barra no rodapÃ© (como nos apps) sÃ³ com o essencial â€”
+// tema, mÃºsica (abre o celular da mesa), som das pÃ¡ginas, 360Â° e abertura.
+const tabbar = $('#tabbar');
+const tb = (act) => tabbar.querySelector(`[data-act="${act}"]`);
 
-function renderMenuProps() {
-  menu.querySelector('.menu-props').innerHTML = Object.entries(deskTalk[theme()])
-    .map(([k, d]) => `<button type="button" data-talk="${k}">${d.name}</button>`)
-    .join('');
+function syncTabbar() {
+  tb('sound').setAttribute('aria-pressed', String(sound.enabled));
+  tb('sound').classList.toggle('is-off', !sound.enabled);
+  tb('music').classList.toggle('is-off', !music.enabled);
+  tb('spin').setAttribute('aria-pressed', String(spin.active));
 }
 
-function syncMenuStates() {
-  const st = {
-    theme: theme() === 'dark' ? 'sombria' : 'clássica',
-    sound: sound.enabled ? 'ligado' : 'desligado',
-    spin: spin.enabled ? 'ligado' : 'desligado',
-  };
-  menu.querySelectorAll('[data-state]').forEach((el) => (el.textContent = st[el.dataset.state] ?? ''));
-}
-
-function openMenu() {
-  renderMenuProps();
-  syncMenuStates();
-  menu.hidden = false;
-  menuBtn.setAttribute('aria-expanded', 'true');
-  requestAnimationFrame(() => menu.classList.add('is-open'));
-}
-
-function closeMenu() {
-  if (menu.hidden) return;
-  menu.classList.remove('is-open');
-  menuBtn.setAttribute('aria-expanded', 'false');
-  setTimeout(() => !menu.classList.contains('is-open') && (menu.hidden = true), 320);
-}
-
-menuBtn.addEventListener('click', () => (menu.hidden ? openMenu() : closeMenu()));
-menu.addEventListener('click', (e) => {
-  const proxy = e.target.closest('[data-proxy]');
-  if (proxy) {
-    const id = proxy.dataset.proxy;
-    if (id === 'replay') {
-      replay();
-      return;
-    }
-    $(`#${id}`).click();
-    setTimeout(syncMenuStates, 400);
-    return;
-  }
-  const tk = e.target.closest('[data-talk]');
-  if (tk) {
-    closeMenu();
-    setTimeout(() => talk(tk.dataset.talk, null), 250);
-    return;
-  }
-  if (e.target.closest('[data-menu-close]')) closeMenu();
-});
-window.addEventListener('themechange', () => {
-  if (!menu.hidden) {
-    renderMenuProps();
-    syncMenuStates();
-  }
+tabbar.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'theme') {
+    const r = b.getBoundingClientRect();
+    toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+  } else if (act === 'music') phone.open();
+  else if (act === 'sound') toggleSound();
+  else if (act === 'spin') $('#spin').click();
+  else if (act === 'replay') replay();
+  syncTabbar();
 });
 
-/* ───────────── "Visitar a obra": mergulho de câmera ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ "Visitar a obra": mergulho de cÃ¢mera â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const portal = createPortal({
   rig,
@@ -709,7 +920,7 @@ const portal = createPortal({
 });
 
 document.addEventListener('click', (e) => {
-  // clicar na foto (prancha) do projeto também mergulha no site
+  // clicar na foto (prancha) do projeto tambÃ©m mergulha no site
   const plate = !e.target.closest('[data-visit]') && e.target.closest('.work .plate');
   const a = e.target.closest('[data-visit]') || (plate && plate.closest('.work').querySelector('[data-visit]'));
   if (!a || e.defaultPrevented) return;
@@ -717,54 +928,61 @@ document.addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
   if (spin.rotated) spin.resetNow();
+  exitLyingNow();
+  resetPZ(true);
   const frame = a.closest('.work')?.querySelector('.photo-frame, .plate-inner');
   portal.go(a.href, frame, a.dataset.title || 'a obra');
 });
-// pré-conecta ao destino quando o ponteiro chega no link
+// prÃ©-conecta ao destino quando o ponteiro chega no link
 document.addEventListener('pointerover', (e) => {
   const a = e.target.closest?.('[data-visit]');
   if (a) portal.warm(a.href);
 });
 
-/* ───────────── trilha sonora: volume ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ trilha sonora e som das pÃ¡ginas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const musicBtn = $('#music');
-const volPop = $('#vol-pop');
-const volRanges = [$('#vol'), $('#vol-m')];
-const volOut = $('#vol-out');
-const volMutes = [$('#vol-mute'), $('#vol-mute-m')];
-const musicHint = $('#music-hint');
+const soundBtn = $('#sound');
 
 function syncMusicUI() {
   const v = Math.round(music.volume * 100);
-  volRanges.forEach((r) => {
-    if (document.activeElement !== r) r.value = String(v);
-    r.style.setProperty('--v', `${music.muted ? 0 : v}%`);
-  });
-  volOut.textContent = music.muted ? '—' : String(v);
-  volMutes.forEach((b) => {
-    b.textContent = music.muted ? 'ligar' : 'mudo';
-    b.setAttribute('aria-pressed', String(music.muted));
-  });
   musicBtn.classList.toggle('is-off', !music.enabled);
   musicBtn.setAttribute('aria-pressed', String(music.enabled));
-  musicBtn.title = `Trilha sonora — volume ${music.muted ? 'mudo' : v}`;
-  musicHint.hidden = true; // sem aviso: a trilha já corre e o som entra no primeiro gesto
+  musicBtn.title = `Trilha sonora â€” volume ${music.muted ? 'mudo' : v} Â· abre o celular`;
+  syncTabbar();
+  phone?.sync();
 }
 
+function syncSound() {
+  soundBtn.setAttribute('aria-pressed', String(sound.enabled));
+  soundBtn.classList.toggle('is-off', !sound.enabled);
+  syncTabbar();
+  phone?.sync();
+}
+
+function toggleSound() {
+  sound.toggle();
+  syncSound();
+}
+
+// o botÃ£o de mÃºsica (no computador e na barra do celular) abre o celular da mesa
 musicBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  volPop.hidden = !volPop.hidden;
+  phone.open();
 });
-volRanges.forEach((r) => r.addEventListener('input', () => music.setVolume(Number(r.value) / 100)));
-volMutes.forEach((b) => b.addEventListener('click', () => music.toggle()));
-document.addEventListener('pointerdown', (e) => {
-  if (!volPop.hidden && !e.target.closest('.vol-wrap')) volPop.hidden = true;
-});
-musicHint.addEventListener('click', () => (musicHint.hidden = true));
-syncMusicUI();
+soundBtn.addEventListener('click', toggleSound);
 
-/* ───────────── tema claro (clássico) × escuro (Edição Sombria) ───────────── */
+phone = createPhone({
+  music,
+  sound,
+  getTheme: () => theme(),
+  switchTheme: () => toggleTheme(null),
+  onSound: syncSound,
+});
+syncMusicUI();
+syncSound();
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ tema claro (clÃ¡ssico) Ã— escuro (EdiÃ§Ã£o Sombria) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const THEME_COLOR = { light: '#0b0807', dark: '#050506' };
 let switching = false;
@@ -798,31 +1016,23 @@ function syncThemeButton() {
   const b = $('#theme');
   const dark = theme() === 'dark';
   b.setAttribute('aria-pressed', String(dark));
-  b.title = dark ? 'Edição Sombria — clique para a edição clássica' : 'Edição clássica — clique para a Edição Sombria';
-  b.querySelector('.theme-label').textContent = dark ? 'sombria' : 'clássica';
+  b.title = dark ? 'EdiÃ§Ã£o Sombria â€” clique para a ediÃ§Ã£o clÃ¡ssica' : 'EdiÃ§Ã£o clÃ¡ssica â€” clique para a EdiÃ§Ã£o Sombria';
+  b.querySelector('.theme-label').textContent = dark ? 'sombria' : 'clÃ¡ssica';
 }
 
-$('#theme').addEventListener('click', (e) => {
-  setTheme(theme() === 'dark' ? 'light' : 'dark', { x: e.clientX, y: e.clientY });
-});
+function toggleTheme(origin) {
+  setTheme(theme() === 'dark' ? 'light' : 'dark', origin);
+}
+
+$('#theme').addEventListener('click', (e) => toggleTheme({ x: e.clientX, y: e.clientY }));
 syncThemeButton();
 
-/* ───────────── interações ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ interaÃ§Ãµes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function bindControls() {
-  ui.next.addEventListener('click', () => (zoom ? zoomStep(1) : book.next()));
-  ui.prev.addEventListener('click', () => (zoom ? zoomStep(-1) : book.prev()));
+  ui.next.addEventListener('click', () => book.next());
+  ui.prev.addEventListener('click', () => book.prev());
   ui.skip.addEventListener('click', skipIntro);
-  const soundBtn = document.querySelector('#sound');
-  const syncSound = () => {
-    soundBtn.setAttribute('aria-pressed', String(sound.enabled));
-    soundBtn.classList.toggle('is-off', !sound.enabled);
-  };
-  soundBtn.addEventListener('click', () => {
-    sound.toggle();
-    syncSound();
-  });
-  syncSound();
 
   document.addEventListener('click', (e) => {
     const home = e.target.closest('[data-home]');
@@ -835,9 +1045,7 @@ function bindControls() {
     if (goto) {
       e.preventDefault();
       if (!opened) return;
-      const target = Number(goto.dataset.goto);
-      book.goToPage(target);
-      if (zoom) setTimeout(() => setZoom(target % 2 ? 'left' : 'right'), 120);
+      book.goToPage(Number(goto.dataset.goto));
       return;
     }
     const curl = e.target.closest('[data-curl]');
@@ -855,7 +1063,7 @@ function bindControls() {
     const copy = e.target.closest('[data-copy]');
     if (copy) {
       navigator.clipboard?.writeText(copy.dataset.copy).then(() => {
-        copy.textContent = 'copiado ✓';
+        copy.textContent = 'copiado âœ“';
         setTimeout(() => (copy.textContent = 'copiar'), 1800);
       });
       return;
@@ -872,6 +1080,8 @@ function bindControls() {
       } else if (e.key === 'Escape') skipIntro();
       return;
     }
+    if (e.key === 'Escape' && zoomed()) { resetPZ(); return; }
+    if (e.key === 'Escape' && view.lying) { setLying(false); return; }
     if (e.key === 'Escape' && spin.rotated) { spin.reset(); return; }
     if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); book.next(); }
     if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); book.prev(); }
@@ -883,6 +1093,7 @@ function bindControls() {
   let acc = 0;
   let lock = 0;
   window.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) return; // Ctrl + roda = aproximar (tratado na pinÃ§a)
     if (!opened) {
       if (e.deltaY > 10) open();
       return;
@@ -918,20 +1129,58 @@ function bindControls() {
     if (p != null && opened) book.goToPage(p);
   });
 
+  // aba em segundo plano: o navegador Ã s vezes informa medidas falsas â€” ignora
   let rt;
   window.addEventListener('resize', () => {
+    if (document.hidden) return;
     clearTimeout(rt);
-    rt = setTimeout(() => {
-      book.relayout();
-      if (!opened && !openTl) gsap.set(book.el, { x: book.xFor(0) });
-      measureMargins();
-      setZoom(zoom, true);
-      updateUI();
-    }, 120);
+    rt = setTimeout(relayoutNow, 150);
   });
 }
 
-/* ───────────── paralaxe sutil ───────────── */
+let laidOut = '';
+function relayoutNow(force = false) {
+  const key = `${window.innerWidth}x${window.innerHeight}`;
+  if (!force && key === laidOut) return;
+  laidOut = key;
+  // girou o celular de verdade: a tela deitada jÃ¡ mostra as duas pÃ¡ginas
+  if (view.lying && window.innerWidth > window.innerHeight) {
+    view.lying = false;
+    document.body.classList.remove('is-lying');
+    lieExit.hidden = true;
+    lieHint.hidden = true;
+  }
+  book.relayout();
+  if (!opened && !openTl) gsap.set(book.el, { x: book.xFor(0) });
+  if (opened) layoutProps();
+  if (zoomed()) {
+    clampPZ();
+    renderPZ(false);
+  }
+  updateUI();
+}
+
+/**
+ * Ao voltar para a aba (depois de abrir um projeto, trocar de app ou de aba):
+ * gestos que ficaram "presos" (o dedo saiu da tela em outra aba) sÃ£o
+ * desfeitos, o mergulho do portal Ã© encerrado e as medidas, refeitas.
+ */
+function heal() {
+  if (document.hidden) return;
+  touches.clear();
+  if (pinch) endPinch();
+  pan = null;
+  cancelPageDrag();
+  pageDragged = false;
+  document.body.classList.remove('is-page-drag', 'is-dragging', 'is-pinching');
+  portal.heal();
+  relayoutNow();
+  if (opened && !openTl) layoutProps();
+}
+document.addEventListener('visibilitychange', () => setTimeout(heal, 80));
+window.addEventListener('pageshow', () => setTimeout(heal, 80));
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ paralaxe sutil â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function enableParallax() {
   if (reduced || !window.matchMedia('(pointer: fine)').matches) return;
@@ -950,8 +1199,8 @@ function enableParallax() {
   }, { passive: true });
 }
 
-// brilho do ouro acompanha o cursor — só nas capas, só quando estão à vista,
-// no máximo uma vez por quadro (variável no :root recalcularia a página inteira)
+// brilho do ouro acompanha o cursor â€” sÃ³ nas capas, sÃ³ quando estÃ£o Ã  vista,
+// no mÃ¡ximo uma vez por quadro (variÃ¡vel no :root recalcularia a pÃ¡gina inteira)
 const boards = [book.leaves[0], book.leaves[book.N - 1]];
 let mxQueued = false;
 let mxEvent = null;
@@ -971,9 +1220,10 @@ window.addEventListener('pointermove', (e) => {
   });
 }, { passive: true });
 
-/* ───────────── início ───────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ inÃ­cio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 bindControls();
+laidOut = `${window.innerWidth}x${window.innerHeight}`;
 updateUI();
 loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]'));
 
@@ -998,7 +1248,7 @@ Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout
   if (returnPage != null) skipIntro();
 });
 
-// Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas páginas
+// Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas pÃ¡ginas
 document.addEventListener('dragstart', (e) => {
   if (e.target.closest?.('.leaves')) e.preventDefault();
 });

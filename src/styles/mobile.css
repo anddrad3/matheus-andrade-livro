@@ -1,0 +1,626 @@
+/* ─────────────────────────────────────────────
+   Celular: barra de ajustes no rodapé, mesa com objetos em volta da
+   página, abas do livro, pinça, livro deitado — e desempenho
+   ───────────────────────────────────────────── */
+
+:root {
+  --sab: env(safe-area-inset-bottom, 0px);
+  --rail: 0px;
+}
+
+/* a página não dá zoom nem rola: a pinça é do livro */
+html,
+body {
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+body.is-open #stage,
+#desk-props,
+#tabbar {
+  touch-action: none;
+}
+
+/* ─────────── topo enxuto no celular ─────────── */
+.ui-where {
+  display: none;
+}
+
+[data-mode='mobile'] .ui-links,
+[data-mode='mobile'] .ui-bottom {
+  display: none;
+}
+
+[data-mode='mobile'] .ui-top {
+  padding: max(0.85rem, env(safe-area-inset-top)) calc(1rem + var(--rail)) 0 1rem;
+}
+
+[data-mode='mobile'] .ui-mark {
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
+[data-mode='mobile'] .ui-where {
+  display: grid;
+  justify-items: end;
+  gap: 0.1rem;
+  margin: 0;
+  text-align: right;
+}
+
+#where-ch {
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(233, 220, 194, 0.6);
+}
+
+#where-num {
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--gold);
+  min-height: 1.2em;
+  font-variant-numeric: oldstyle-nums;
+}
+
+/* ─────────── barra de ajustes (rodapé, como nos apps) ─────────── */
+.tabbar {
+  display: none;
+}
+
+[data-mode='mobile'] .tabbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: var(--navh, 66px);
+  padding-bottom: var(--sab);
+  background: linear-gradient(to bottom, #150f0b, #0c0806);
+  border-top: 1px solid rgba(192, 154, 82, 0.32);
+  box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.45);
+}
+
+.tb-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tb-progress i {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1s var(--ease-out);
+}
+
+.tb-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.28rem;
+  min-width: 0;
+  color: rgba(233, 220, 194, 0.62);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.3s;
+}
+
+.tb-btn svg {
+  width: 25px;
+  height: 25px;
+  color: var(--gold);
+  transition: transform 0.25s var(--ease-out), opacity 0.3s;
+}
+
+.tb-btn:active svg {
+  transform: scale(0.86);
+}
+
+.tb-label {
+  white-space: nowrap;
+}
+
+/* tema: sol na edição clássica, lua na Sombria */
+.tb-theme .ico-moon,
+:root[data-theme='dark'] .tb-theme .ico-sun {
+  display: none;
+}
+
+:root[data-theme='dark'] .tb-theme .ico-moon {
+  display: block;
+}
+
+.tb-sound .tb-slash {
+  opacity: 0;
+}
+
+.tb-sound.is-off .tb-slash {
+  opacity: 1;
+}
+
+.tb-sound.is-off .tb-wave,
+.tb-music.is-off svg {
+  opacity: 0.4;
+}
+
+.tb-btn.is-off {
+  color: rgba(233, 220, 194, 0.38);
+}
+
+.tb-music.is-off::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 1.6px;
+  margin: -14px 0 0 -14px;
+  background: #c0392b;
+  transform: rotate(-35deg) translate(0, 9px);
+  transform-origin: left;
+}
+
+.tb-spin[aria-pressed='true'] {
+  color: var(--cream);
+}
+
+.tb-spin[aria-pressed='true'] svg {
+  animation: spin-ico 2.4s linear infinite;
+}
+
+.tb-replay:active svg {
+  transform: rotate(-200deg);
+}
+
+/* celular deitado: a barra vira um trilho à direita */
+[data-mode='mobile'][data-orient='land'] .tabbar {
+  left: auto;
+  top: 0;
+  width: var(--rail);
+  height: auto;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(5, 1fr);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) var(--sab) 0;
+  border-top: 0;
+  border-left: 1px solid rgba(192, 154, 82, 0.32);
+  box-shadow: -14px 0 30px rgba(0, 0, 0, 0.45);
+}
+
+[data-mode='mobile'][data-orient='land'] .tb-progress {
+  display: none;
+}
+
+[data-mode='mobile'][data-orient='land'] .tb-label {
+  font-size: 0.5rem;
+}
+
+[data-mode='mobile'][data-orient='land'] #stage,
+[data-mode='mobile'][data-orient='land'] #desk-props {
+  right: var(--rail);
+}
+
+/* Edição Sombria */
+:root[data-theme='dark'] .tabbar {
+  background: linear-gradient(to bottom, #0d0d0f, #050506);
+  border-color: rgba(195, 198, 204, 0.28);
+}
+
+:root[data-theme='dark'] .tb-btn {
+  color: rgba(216, 214, 210, 0.6);
+}
+
+:root[data-theme='dark'] .tb-btn svg {
+  color: #d9dce2;
+}
+
+:root[data-theme='dark'] .tb-progress i {
+  background: #d11c24;
+}
+
+:root[data-theme='dark'] .tb-spin[aria-pressed='true'] svg,
+:root[data-theme='dark'] .tb-theme svg {
+  color: #d11c24;
+}
+
+:root[data-theme='dark'] #where-ch {
+  color: rgba(216, 214, 210, 0.6);
+}
+
+:root[data-theme='dark'] #where-num {
+  color: #e4e7ec;
+}
+
+/* avisos e botões flutuantes acima da barra */
+[data-mode='mobile'] .read-hint {
+  bottom: calc(var(--navh, 66px) + 12px);
+}
+
+[data-mode='mobile'] .spin-exit {
+  bottom: calc(var(--navh, 66px) + 14px);
+}
+
+[data-mode='mobile'] .zoom-out {
+  top: max(4rem, calc(env(safe-area-inset-top) + 3.4rem));
+}
+
+/* ─────────── abas do livro também no celular ─────────── */
+[data-mode='mobile'] .tab {
+  display: grid;
+  width: max(26px, calc(var(--pw) * 0.085));
+  height: calc(var(--ph) * 0.082);
+  font-size: 13px;
+}
+
+[data-mode='mobile'] .tab span {
+  font-size: 0.7em;
+}
+
+/* ─────────── mesa do celular em pé: faixas acima e abaixo da página ─────────── */
+[data-mode='mobile'][data-orient='port'] #desk-props {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: var(--btop, 58px) var(--bt, 100px) var(--ph) var(--bb, 100px) 1fr;
+  padding: 0 4px;
+}
+
+[data-mode='mobile'][data-orient='port'] body.is-open #desk-props,
+[data-mode='mobile'][data-orient='port'] body.is-opening #desk-props {
+  display: grid;
+}
+
+[data-mode='mobile'][data-orient='port'] .dp {
+  position: relative;
+  inset: auto;
+  place-self: center;
+  margin: 0;
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-glasses {
+  grid-area: 2 / 1 / 3 / 5;
+  --w: min(27vw, calc(var(--bt) * 1.9));
+  rotate: -10deg;
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-whisky {
+  grid-area: 2 / 5 / 3 / 7;
+  --w: min(15vw, calc(var(--bt) * 0.72));
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-notepad {
+  grid-area: 2 / 7 / 3 / 9;
+  --w: min(13vw, calc(var(--bt) * 0.56));
+  rotate: -8deg;
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-pen {
+  grid-area: 2 / 9 / 3 / 13;
+  --w: min(32vw, calc(var(--bt) * 1.6));
+  rotate: -24deg;
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-ring {
+  grid-area: 4 / 1 / 5 / 4;
+  --w: min(19vw, calc(var(--bb) * 0.72));
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-ashtray {
+  grid-area: 4 / 4 / 5 / 7;
+  --w: min(24vw, calc(var(--bb) * 0.95));
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-lighter {
+  grid-area: 4 / 7 / 5 / 8;
+  --w: min(7.5vw, calc(var(--bb) * 0.36));
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-phone {
+  grid-area: 4 / 8 / 5 / 10;
+  --w: min(11vw, calc(var(--bb) * 0.36));
+  rotate: 10deg;
+}
+
+[data-mode='mobile'][data-orient='port'] .dp-note {
+  grid-area: 4 / 10 / 5 / 13;
+  --w: min(21vw, calc(var(--bb) * 0.95));
+}
+
+/* aproximado, deitado ou girando: a mesa sai de cena */
+body.is-zoomed #desk-props,
+body.is-lying #desk-props {
+  display: none !important;
+}
+
+/* ─────────── o celular da mesa ─────────── */
+.dp-phone {
+  --w: min(54px, calc(var(--m) * 0.22));
+  left: calc(var(--m) * 0.08);
+  top: 50vh;
+  width: var(--w);
+  rotate: -12deg;
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.55));
+  animation-delay: 1.3s;
+}
+
+.prop-phone {
+  width: calc(var(--pw) * 0.16);
+  margin-left: calc(var(--pw) * 1.22);
+  margin-top: calc(var(--ph) * -0.2);
+  rotate: 14deg;
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.55));
+}
+
+.ph-body {
+  fill: #1d1e22;
+  stroke: rgba(0, 0, 0, 0.6);
+}
+
+.ph-screen {
+  fill: #f4ede0;
+}
+
+.ph-art {
+  fill: #b89a5e;
+}
+
+.ph-glow circle {
+  fill: rgba(255, 248, 220, 0.95);
+}
+
+.ph-glow circle:first-child {
+  opacity: 0.45;
+}
+
+.ph-line {
+  fill: rgba(43, 32, 25, 0.55);
+}
+
+.ph-prog {
+  fill: #8e2a1c;
+}
+
+.ph-play {
+  fill: #2b2019;
+}
+
+.ph-ctl {
+  stroke: #2b2019;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+:root[data-theme='dark'] .ph-screen {
+  fill: #0b0b0c;
+}
+
+:root[data-theme='dark'] .ph-art {
+  fill: #2a0709;
+}
+
+:root[data-theme='dark'] .ph-glow circle {
+  fill: rgba(209, 28, 36, 0.9);
+}
+
+:root[data-theme='dark'] .ph-line {
+  fill: rgba(220, 222, 228, 0.5);
+}
+
+:root[data-theme='dark'] .ph-prog {
+  fill: #d11c24;
+}
+
+:root[data-theme='dark'] .ph-play {
+  fill: #e6e3dc;
+}
+
+:root[data-theme='dark'] .ph-ctl {
+  stroke: #e6e3dc;
+}
+
+:root[data-theme='dark'] .dp-phone {
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 10px rgba(209, 28, 36, 0.25));
+}
+
+/* ─────────── livro deitado (celular em pé) ─────────── */
+body.is-lying #stage {
+  inset: auto;
+  top: 0;
+  left: var(--vvw);
+  width: var(--vvh);
+  height: var(--vvw);
+  transform-origin: 0 0;
+  transform: rotate(90deg);
+}
+
+body.is-lying #ui {
+  opacity: 0 !important;
+  visibility: hidden;
+}
+
+/* fora do livro: no canto (o "pé direito" do livro deitado) */
+.lie-exit {
+  position: fixed;
+  left: max(10px, env(safe-area-inset-left));
+  bottom: max(14px, var(--sab));
+  z-index: 12;
+  writing-mode: vertical-rl;
+  padding: 1rem 0.55rem;
+  border: 1px solid rgba(192, 154, 82, 0.5);
+  border-radius: 99px;
+  background: #120c09;
+  color: #f4dc96;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.lie-exit[hidden],
+.lie-hint[hidden] {
+  display: none;
+}
+
+body.is-lying .zoom-out {
+  top: 14px;
+  left: max(10px, env(safe-area-inset-left));
+  right: auto;
+  width: auto;
+  margin: 0;
+  writing-mode: vertical-rl;
+  padding: 1rem 0.55rem;
+}
+
+.lie-hint {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 14;
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  width: min(280px, calc(100vw - 48px));
+  margin: 0;
+  padding: 1.3rem 1.2rem 1.1rem;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: #f4dc96;
+  background: #120c09;
+  border: 1px solid rgba(192, 154, 82, 0.5);
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+.lie-hint.is-gone {
+  opacity: 0;
+}
+
+.lh-phone {
+  width: 26px;
+  height: 46px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  animation: lh-turn 2.2s var(--ease-out) infinite;
+}
+
+@keyframes lh-turn {
+  0%, 15% { transform: rotate(0deg); }
+  55%, 100% { transform: rotate(-90deg); }
+}
+
+:root[data-theme='dark'] .lie-exit,
+:root[data-theme='dark'] .lie-hint {
+  color: #e4e7ec;
+  background: #0a0a0b;
+  border-color: rgba(195, 198, 204, 0.45);
+}
+
+/* ─────────── fumaça e brasa em HTML: animam na GPU, sem repintar ─────────── */
+.as-smoke {
+  display: none;
+}
+
+.as-ember {
+  animation: none !important;
+}
+
+.smk {
+  position: absolute;
+  left: 37.9%;
+  top: 55.8%;
+  width: 15%;
+  height: 78%;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+
+.smk i {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 80'%3E%3Cpath d='M10 79c-6-8 6-13 0-21s6-13 0-22s5-11 0-19s4-9 0-16' fill='none' stroke='rgba(225,228,236,.62)' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+  opacity: 0;
+  transform-origin: 50% 100%;
+  animation: smk 3.6s linear infinite;
+  will-change: transform, opacity;
+}
+
+.smk i:nth-child(2) {
+  scale: -1 1;
+  animation-delay: -1.2s;
+}
+
+.smk i:nth-child(3) {
+  left: -12%;
+  animation-delay: -2.4s;
+}
+
+@keyframes smk {
+  0% { opacity: 0; transform: translateY(12%) scaleY(0.6); }
+  15% { opacity: 0.9; }
+  60% { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-28%) scaleY(1.25) skewX(10deg); }
+}
+
+.emb {
+  position: absolute;
+  left: 37.9%;
+  top: 55.8%;
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 242, 176, 0.95), rgba(255, 138, 42, 0.6) 40%, transparent 70%);
+  pointer-events: none;
+  animation: emb 2.4s ease-in-out infinite;
+}
+
+@keyframes emb {
+  0%, 100% { opacity: 0.7; scale: 1; }
+  50% { opacity: 1; scale: 1.2; }
+}
+
+.om-layer .smk,
+.om-layer .emb {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smk i,
+  .emb,
+  .lh-phone {
+    animation: none;
+  }
+
+  .smk i {
+    opacity: 0.4;
+  }
+}
+
+/* ─────────── desempenho ─────────── */
+/* folhas fora de vista não ocupam memória de vídeo (no iPhone, camadas demais
+   fazem imagens "sumirem") */
+.leaf.is-culled {
+  will-change: auto;
+}
+
+/* enquanto os dedos fazem pinça, nada de transição no livro */
+body.is-pinching #rig {
+  transition: none;
+}
+
+/* celular deitado de verdade: óculos abaixo do monograma */
+[data-mode='mobile'][data-orient='land'] .dp-glasses {
+  top: 19vh;
+}

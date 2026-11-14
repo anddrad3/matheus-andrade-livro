@@ -253,5 +253,36 @@ export function createMusic({ getTheme, onChange }) {
       duckF = 1;
       render();
     },
+    /** a faixa do tema atual (o app de música do celular lê tempo e duração dela) */
+    get el() {
+      return (current ?? track(getTheme())).el;
+    },
+    get playing() {
+      return playing && !muted;
+    },
+    /** volta a faixa ao começo (ex.: reiniciar a abertura), com entrada suave */
+    restart() {
+      const t = current ?? track(getTheme());
+      try {
+        t.el.currentTime = 0;
+      } catch {}
+      if (muted) return;
+      if (blocked) {
+        t.el.play().catch(() => {});
+        return;
+      }
+      t.level = 0;
+      render();
+      t.el.play().then(() => {
+        playing = true;
+        fade(t, 1, 1200);
+        emit();
+      }).catch(() => {});
+    },
+    /** f ∈ [0, 1]: posição da faixa */
+    seek(f) {
+      const el = (current ?? track(getTheme())).el;
+      if (el.duration) el.currentTime = Math.max(0, Math.min(0.999, f)) * el.duration;
+    },
   };
 }

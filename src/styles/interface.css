@@ -617,6 +617,9 @@ body.is-open #desk-props {
   height: 4px;
   border-radius: 50%;
   background: currentColor;
+}
+
+#portal.is-on .portal-label i {
   animation: portal-dot 1s ease-in-out infinite;
 }
 
@@ -905,7 +908,6 @@ body.is-spin #stage {
 .as-smoke path {
   transform-box: fill-box;
   transform-origin: 50% 100%;
-  animation: smoke 3.6s linear infinite;
 }
 
 .as-smoke path:nth-child(2) {

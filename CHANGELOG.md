@@ -2,6 +2,25 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.0.0] — 2026-11-14
+### Celular redesenhado
+- **Barra de ajustes no rodapé**, como nos apps: tema, música, som das páginas, 360° e reiniciar a abertura. Com o celular deitado, vira um trilho na lateral. O menu de cima saiu; no topo ficam só o monograma e onde você está (capítulo e fólio).
+- **Uma página por vez** com o celular em pé, centralizada, e a **mesa com os objetos à mostra** em cima e embaixo, como no computador.
+- **Tocar na página deita o livro**: as duas páginas aparecem inteiras, giradas, e é só virar o aparelho. Outro toque (ou "uma página") volta. Girar o celular de verdade também mostra as duas páginas, já com os objetos dos lados.
+- **Pinça para aproximar e afastar** (com elasticidade nos limites); aproximado, um dedo passeia pela página; "tamanho original" volta. No computador: Ctrl + roda ou pinça do trackpad, e Esc volta.
+- **Abas do livro** (Capa, capítulos, Fim) também no celular.
+### Adicionado
+- **Celular na mesa**: abre num app de música com a faixa que está tocando em cada edição, um texto sobre ela e a capa com uma gravura de Gustave Doré para a *Divina Comédia*: a **Rosa Celeste do Paraíso** (Canto XXXI) na clássica e **Lúcifer no gelo do Inferno** (Canto XXXIV) na Sombria. App claro na clássica, escuro na Sombria. Pausar, voltar ao começo, arrastar a faixa, volume, som das páginas e trocar de edição, tudo pelo aparelho. O botão de música (barra do celular ou topo do computador) abre o celular.
+- **Reiniciar a abertura reinicia a música** junto.
+### Desempenho
+- Virar páginas ficou **~3,5× mais leve no celular** e ~2× no computador (medido com CPU 4× mais lenta: 15 → 53–59 quadros/s). A sombra da folha e a curvatura mudavam variáveis CSS herdadas por centenas de palavras a cada quadro; agora mudam só a opacidade de elementos pequenos.
+- Animações que rodavam escondidas (convite de abrir, pontinhos do portal, luminária, fumaça antiga) deixaram de forçar um recálculo de estilo por quadro com o livro parado.
+- Fumaça e brasa do cigarro refeitas em HTML (animação na GPU).
+- Folhas fora de vista não ocupam memória de vídeo (no iPhone, camadas demais faziam imagens "sumirem").
+### Corrigido
+- **Imagens que demoravam ou não apareciam**: o servidor não mandava cabeçalhos de cache, então cada imagem era revalidada a cada visita. Agora há `.htaccess` com cache longo para imagens, música e arquivos do build. O pré-carregamento decodifica só as imagens do tema atual, uma de cada vez, em vez de todas juntas.
+- **Objetos e livro "travados" ao voltar** depois de abrir um projeto ou trocar de aba: gestos presos (o dedo saiu da tela em outra aba) são desfeitos, o mergulho do portal é encerrado e as medidas, refeitas. Medidas falsas informadas com a aba em segundo plano são ignoradas.
+
 ## [3.5.0] — 2026-11-14
 ### Adicionado
 - **Gravuras de domínio público** nas aberturas de capítulo e no colofão, uma série por tema: Clássica — Dürer (*São Jerônimo no estudo*, *Melencolia I*), Flammarion e a oficina do impressor de Jost Amman (1568); Sombria — Gustave Doré, ilustrações de *O Corvo* de Poe (1884). Cada uma com crédito.

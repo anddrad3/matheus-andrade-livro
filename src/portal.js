@@ -26,6 +26,8 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
   const label = root.querySelector('.portal-label');
   let busy = false;
   let hidden = null;
+  let tl = null; // animação em curso (ida ou volta)
+  let offering = false; // bloqueador de pop-ups: esperando o clique no link
 
   function warm(url) {
     try {
@@ -45,6 +47,9 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
 
   function reset() {
     busy = false;
+    offering = false;
+    tl?.kill();
+    tl = null;
     gsap.killTweensOf([img, veil, label, rig]);
     root.classList.remove('is-on');
     gsap.set(rig, { clearProps: 'scale,transformOrigin' });
@@ -107,7 +112,7 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
     const oy = ((r.top + r.height / 2 - rr.top) / rr.height) * 100;
     gsap.set(rig, { transformOrigin: `${ox}% ${oy}%` });
 
-    const tl = gsap.timeline({
+    tl = gsap.timeline({
       onComplete: () => {
         // abre numa NOVA aba (ainda dentro da janela de "gesto do usuário",
         // por isso a animação dura ~1,2 s) e o livro volta ao lugar nesta
@@ -133,7 +138,9 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
 
   /** desfaz o mergulho: a imagem volta para a prancha e o livro recua */
   function back(r) {
-    const tl = gsap.timeline({ delay: 0.25, onComplete: () => (reset(), onReturn?.()) });
+    offering = false;
+    tl?.kill();
+    tl = gsap.timeline({ data: 'back', delay: 0.25, onComplete: () => (reset(), onReturn?.()) });
     tl.to(label, { opacity: 0, duration: 0.25 }, 0)
       .to(img, { left: r.left, top: r.top, width: r.width, height: r.height, borderRadius: 3, duration: 0.9, ease: 'expo.inOut' }, 0)
       .to(veil, { opacity: 0, duration: 0.7, ease: 'power1.inOut' }, 0.2)
@@ -141,6 +148,7 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
   }
 
   function offer(url, r) {
+    offering = true;
     label.innerHTML = '';
     const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener', textContent: 'abrir em nova aba →' });
     a.className = 'portal-open';
@@ -152,5 +160,17 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
     label.style.pointerEvents = 'auto';
   }
 
-  return { go, warm, reset };
+  /**
+   * Voltou para esta aba depois de abrir a obra na outra: encerra o mergulho na
+   * hora (a pessoa não viu a volta mesmo) — nada fica preso cobrindo o livro.
+   */
+  function heal() {
+    if (!busy || offering) return;
+    // ainda mergulhando (a obra nem abriu): deixa terminar
+    if (tl && tl.data !== 'back' && tl.progress() < 1) return;
+    reset();
+    onReturn?.();
+  }
+
+  return { go, warm, reset, heal };
 }
