@@ -1175,3 +1175,13 @@ body.is-zoomed .ribbon {
   letter-spacing: 0.14em;
   line-height: 1.5;
 }
+
+/* objetos da mesa já montados (invisíveis) durante a abertura: a troca de cena fica leve */
+body.is-opening #desk-props {
+  display: block;
+  visibility: hidden;
+}
+
+body.is-opening #desk-props .dp {
+  animation-play-state: paused;
+}

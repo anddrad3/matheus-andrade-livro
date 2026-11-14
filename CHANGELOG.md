@@ -2,6 +2,14 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [3.4.1] — 2026-11-14
+### Corrigido
+- "FULL STACK" cortado na folha de rosto.
+- Abertura travando: o verso do livro é pintado de antemão (sob o véu preto inicial), as primeiras páginas são preparadas durante a levitação e a troca de cena acontece com a luz cobrindo a tela. Medido: ~38 → ~58 quadros/s, sem engasgos visíveis.
+- O giro mostrava a página aberta (a escrita das primeiras páginas era montada no meio do giro); agora só capa, lombada e contracapa aparecem até a capa abrir.
+### Alterado
+- Giro com aceleração e chegada suaves, emendando direto na abertura da capa (sem parada).
+
 ## [3.4.0] — 2026-11-14
 ### Adicionado
 - **Nova abertura** no estilo "livro mágico": o livro levita sobre a mesa, dá uma volta completa no ar, a capa se abre de supetão enquanto a câmera mergulha na folha de rosto e uma estrela de luz faz a passagem para o livro aberto.

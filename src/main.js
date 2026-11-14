@@ -16,6 +16,7 @@ import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TA
 import { deskTalk } from './content.js';
 import { createMusic } from './music.js';
 import { createPortal } from './portal.js';
+import { inkify } from './ink.js';
 import { Book } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
@@ -109,6 +110,10 @@ let levitate = null;
 /** cutscene: a luz acende, a câmera desce da altura até o livro sobre a mesa */
 function enter() {
   setClosedPose();
+  // sob o véu preto: mostra o verso do livro por 2 quadros para o navegador já
+  // pintar contracapa, lombada e corte (senão isso acontece no meio do giro)
+  gsap.set(book.el, { rotationY: -180, transformOrigin: '75% 50%' });
+  requestAnimationFrame(() => requestAnimationFrame(() => gsap.set(book.el, { rotationY: 0 })));
   const tl = gsap.timeline({ delay: 0.2 });
   enterTl = tl;
   tl
@@ -138,6 +143,7 @@ function enter() {
         .to(book.el, { z: 70, rotationZ: -4, rotationX: 4, duration: 2.2, ease: 'sine.inOut' })
         .to(book.el, { z: 95, rotationZ: 3, rotationX: -2, duration: 2.2, ease: 'sine.inOut' });
       gsap.to(book.shadow, { opacity: 0.45, duration: 1.2 });
+      prepareOpen();
       document.body.classList.add('can-open');
       // se a pessoa não interagir, o livro se abre sozinho
       autoOpen = gsap.delayedCall(3.2, () => !opened && !openTl && open());
@@ -147,6 +153,20 @@ function enter() {
 
 let openTl = null;
 let skipping = false;
+let prepared = false;
+
+/**
+ * Enquanto o livro levita, deixa pronto tudo o que a abertura vai mostrar:
+ * capa, contracapa e as primeiras folhas desenhadas (sem "pular"), e as
+ * páginas iniciais já preparadas para a escrita — nada pesado no meio do giro.
+ */
+function prepareOpen() {
+  if (prepared) return;
+  prepared = true;
+  book.cull([0, 1, 2, book.N - 1]);
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 60));
+  idle(() => [1, 2, 3, 4].forEach((p) => inkify(book.pageEls[p])));
+}
 const flash = $('#flash');
 
 /**
@@ -159,7 +179,8 @@ function open() {
   if (opened || openTl) return;
   document.body.classList.remove('can-open');
   document.body.classList.add('is-opening');
-  book.cull([0, 1]);
+  prepareOpen();
+  gsap.set(rig, { willChange: 'transform' });
   sound.unlock();
   sound.flip(5); // sopro de páginas enquanto gira
   floatTween?.kill();
@@ -180,23 +201,22 @@ function open() {
 
   // 1 · a volta completa no ar (gira em torno do centro do livro fechado)
   gsap.set(book.el, { transformOrigin: '75% 50%' });
-  tl.to(camera, { rotationX: 14, rotationZ: 0, rotationY: 0, z: -160, y: 0, duration: 1.0, ease: 'power2.inOut' }, 0)
-    .to(book.el, { rotationY: -360, rotationZ: 0, rotationX: 0, z: 150, duration: 1.1, ease: 'power2.inOut' }, 0)
+  // giro com aceleração suave e chegada desacelerada (sem "tranco" no fim)
+  tl.to(camera, { rotationX: 14, rotationZ: 0, rotationY: 0, z: -160, y: 0, duration: 1.15, ease: 'sine.inOut' }, 0)
+    .to(book.el, { rotationY: -360, rotationZ: 0, rotationX: 0, z: 150, duration: 1.2, ease: 'expo.inOut' }, 0)
     .to(book.shadow, { opacity: 0.25, duration: 0.6 }, 0)
-    .add(() => {
-      gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }); // 360° = identidade
-      sound.open();
-    }, 1.1);
+    .add(() => sound.open(), 0.95)
+    .add(() => gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }), 1.2); // 360° = identidade
 
   // 2 · a capa abre de supetão; o miolo assenta; o livro centraliza
   tl.to(cover, {
     rotationY: -180,
-    duration: 0.7,
+    duration: 0.75,
     ease: 'power3.out',
     onUpdate: () => cover.style.setProperty('--lift', Math.sin((-gsap.getProperty(cover, 'rotationY') / 180) * Math.PI).toFixed(3)),
-  }, 1.1)
-    .to(book.el, { x: x1, duration: 0.7, ease: 'power3.out' }, 1.1)
-    .to(book.shadow, { scaleX: 1, xPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, 1.1)
+  }, 1.05)
+    .to(book.el, { x: x1, duration: 0.75, ease: 'power3.out' }, 1.05)
+    .to(book.shadow, { scaleX: 1, xPercent: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }, 1.05)
     .to(book.edges, { opacity: 0, duration: 0.5 }, 1.25);
   book.leaves.slice(1).forEach((leaf, i) => {
     tl.to(leaf, { z: book.zFor(i + 1, false, book.dOpen), duration: 0.6, ease: 'power2.out' }, 1.15);
@@ -214,9 +234,9 @@ function open() {
     gsap.set(rig, { transformOrigin: `${75}% ${45}%` });
     void rr;
   }, 1.2)
-    .to(camera, { rotationX: 0, z: 0, duration: 0.8, ease: 'power2.in' }, 1.2)
-    .to(book.el, { z: 0, duration: 0.8, ease: 'power2.in' }, 1.2)
-    .to(rig, { scale: 3, duration: 0.85, ease: 'power3.in' }, 1.25)
+    .to(camera, { rotationX: 0, z: 0, duration: 0.9, ease: 'sine.inOut' }, 1.15)
+    .to(book.el, { z: 0, duration: 0.9, ease: 'sine.inOut' }, 1.15)
+    .to(rig, { scale: 3, duration: 0.95, ease: 'power2.in' }, 1.2)
     .fromTo(flash, { opacity: 0, scale: 0.3, rotation: -25 }, { opacity: 1, scale: 1.25, rotation: 0, duration: 0.65, ease: 'power1.in' }, 1.45)
     .to(cine.desk, { opacity: 0, duration: 0.3 }, 1.8)
     .add(() => {}, 2.12);
@@ -233,7 +253,10 @@ function finish() {
   gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0, transformOrigin: '50% 50%' });
   gsap.set(camera, { rotationX: 0, rotationY: 0, rotationZ: 0, z: 0, y: 0 });
   if (skipping) gsap.set(flash, { opacity: 0 });
-  else gsap.to(flash, { opacity: 0, scale: 3.2, rotation: 18, duration: 0.9, ease: 'power2.out' });
+  // a troca de cena (pesada) acontece com a luz parada cobrindo tudo; a luz só
+  // começa a se dissolver dois quadros depois — nenhuma engasgada visível
+  else requestAnimationFrame(() => requestAnimationFrame(() => gsap.to(flash, { opacity: 0, scale: 3.2, rotation: 18, duration: 0.85, delay: 0.28, ease: 'power2.out' })));
+  const wasSkipping = skipping;
   skipping = false;
   document.body.classList.remove('is-opening');
   document.body.classList.add('is-open');
@@ -246,9 +269,15 @@ function finish() {
   }
   const target = returnPage ?? pageForHash(window.location.hash) ?? 4;
   returnPage = null;
-  book.goToPage(target).then(() => updateUI());
+  gsap.set(rig, { willChange: 'auto' });
+  prepared = false;
   updateUI();
   enableParallax();
+  // deixa a luz se dissolver e a cena assentar antes de virar para o sumário
+  gsap.delayedCall(wasSkipping ? 0 : 0.85, () => {
+    book.noBendOnce = true;
+    book.goToPage(target).then(() => updateUI());
+  });
 }
 
 function skipIntro() {

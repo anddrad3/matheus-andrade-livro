@@ -411,6 +411,8 @@ export class Book {
     const single = count <= 1;
     const tilt = this.nextTilt ?? 0.45;
     this.nextTilt = null;
+    const noBend = this.noBendOnce;
+    this.noBendOnce = false;
     const D = single ? 1.15 : Math.max(0.55, 0.85 - count * 0.03);
     const stagger = single ? 0 : Math.min(0.11, 0.6 / count);
     const ease = single ? 'power2.inOut' : 'power1.inOut';
@@ -434,7 +436,7 @@ export class Book {
         const leaf = this.leaves[k];
         const at = j * stagger;
         const rot = flip ? -180 : 0;
-        const bend = single ? this.makeBend(leaf, flip ? 1 : -1, tilt) : null;
+        const bend = single && !noBend ? this.makeBend(leaf, flip ? 1 : -1, tilt) : null;
         tl.to(
           leaf,
           {
