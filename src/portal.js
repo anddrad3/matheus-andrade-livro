@@ -1,4 +1,5 @@
 import gsap from 'gsap';
+import { t } from './lang.js';
 
 /**
  * "Visitar a obra": a câmera mergulha na prancha do site até ela ocupar a tela,
@@ -95,7 +96,7 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
       inner.innerHTML = frame.innerHTML;
       img.classList.add('is-drawn');
     }
-    label.querySelector('span').textContent = `abrindo ${title}`;
+    label.querySelector('span').textContent = `${t('abrindo', 'opening')} ${title}`;
 
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -150,10 +151,10 @@ export function createPortal({ rig, reduced, beforeLeave, onReturn }) {
   function offer(url, r) {
     offering = true;
     label.innerHTML = '';
-    const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener', textContent: 'abrir em nova aba →' });
+    const a = Object.assign(document.createElement('a'), { href: url, target: '_blank', rel: 'noopener', textContent: t('abrir em nova aba →', 'open in a new tab →') });
     a.className = 'portal-open';
     a.addEventListener('click', () => back(r));
-    const x = Object.assign(document.createElement('button'), { type: 'button', textContent: 'voltar ao livro' });
+    const x = Object.assign(document.createElement('button'), { type: 'button', textContent: t('voltar ao livro', 'back to the book') });
     x.className = 'portal-cancel';
     x.addEventListener('click', () => back(r));
     label.append(a, x);

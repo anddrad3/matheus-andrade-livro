@@ -10,7 +10,7 @@
  *   ponto do palco (u, v)  →  tela (x, y) = (larguraTela − v, u)
  *   tela (x, y)            →  palco (u, v) = (y, larguraTela − x)
  */
-export const view = { lying: false };
+export const view = { lying: false, double: false };
 
 /** largura e altura que o livro "enxerga" */
 export const vw = () => (view.lying ? window.innerHeight : window.innerWidth);

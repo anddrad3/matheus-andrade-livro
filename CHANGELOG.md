@@ -2,6 +2,30 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.1.0] — 2026-11-14
+### Adicionado
+- **Português e inglês**: o livro inteiro (páginas, objetos, celular, botões, avisos) existe nas duas línguas. Na primeira visita segue o idioma do aparelho; o interruptor discreto **PT ⇄ EN** no topo troca e a escolha fica guardada. README também em inglês (`README.en.md`).
+- **Tema do aparelho**: claro → edição clássica, escuro → Edição Sombria (antes era sempre a Sombria). A troca pelo botão vale durante a visita; se o aparelho muda de tema (modo escuro automático), o livro acompanha.
+- **Botão “2 páginas” no celular**: a pessoa escolhe ver uma ou duas páginas — girar o aparelho não muda mais o modo sozinho. Com o celular em pé, duas páginas deitam o livro na tela; deitado, aparecem lado a lado. Uma página também funciona com o celular deitado.
+- **Zoom no computador**: botões **− 100% +** no topo e teclas `+` `−` `0` (além de Ctrl + roda).
+### Alterado
+- **Cigarro apagado na edição clássica** (sem fumaça nem brasa, com falas novas); aceso e fumegando só na Sombria.
+- O livro não se abre mais sozinho: o toque que abre também libera a música.
+- Abertura um pouco mais curta.
+### Corrigido
+- **360° no celular**: arrastar sobre o livro (e sobre os objetos) agora gira; antes só funcionava num cantinho livre da mesa.
+- **Card dos objetos**: um toque não dispara giros, a inércia é limitada (no máximo ~meia volta) e não briga mais com o arrasto.
+- **Rolar dentro do celular** (ou de um card) não folheia mais o livro; teclas também ficam com o card aberto.
+- **Acentos quebrados** em textos da interface (ex.: “1 â€“ 2” no número da página), causados por uma regravação com codificação errada na 4.0.0.
+### Desempenho (relatórios do PageSpeed)
+- **CLS 0,208 → 0**: o palco só aparece depois de medido; gravuras e fotos com `width`/`height`.
+- **LCP**: a primeira pintura é um monograma grande em fonte do sistema (antes o LCP era a folha de rosto ou o couro da contracapa pintados no fim da cena, ~13–19 s no celular); as folhas do miolo são preparadas cedo, em etapas pequenas.
+- Fontes do Google sem bloquear a renderização; `maximum-scale` removido do viewport (acessibilidade: o zoom do navegador volta a funcionar).
+- Peso inicial bem menor: trilhas em MP3 mono de 80 kbps (5,6 → 3,5 MB), a trilha do outro tema não é mais pré-carregada, gravuras do outro tema só sob demanda, caveira e assinatura em WebP, diário do GitHub só quando o leitor se aproxima (sem erro no console de quem só abre a página).
+- Cache de um ano para imagens e trilhas.
+- Mesa da abertura: a textura só onde a vinheta deixa ver (antes um quadrado de 340vmax inteiro, a maior camada da cena).
+- Celular: sem grão de filme e sem poeira em canvas (camadas de tela cheia), folha maleável com 4 faixas.
+
 ## [4.0.0] — 2026-11-14
 ### Celular redesenhado
 - **Barra de ajustes no rodapé**, como nos apps: tema, música, som das páginas, 360° e reiniciar a abertura. Com o celular deitado, vira um trilho na lateral. O menu de cima saiu; no topo ficam só o monograma e onde você está (capítulo e fólio).

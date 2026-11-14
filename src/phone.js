@@ -1,4 +1,5 @@
 import gsap from 'gsap';
+import { EN } from './lang.js';
 
 /**
  * O celular da mesa: abre num app de música mostrando a faixa que está tocando
@@ -7,7 +8,7 @@ import gsap from 'gsap';
  * arrastar a faixa, mudar o volume, desligar o som das páginas e trocar de
  * edição (e de música) pelo próprio aparelho.
  */
-const TRACKS = {
+const TRACKS_PT = {
   light: {
     app: 'Vitrola',
     title: 'Ária — Suíte nº 3, BWV 1068',
@@ -27,6 +28,29 @@ const TRACKS = {
     next: 'voltar à edição clássica',
   },
 };
+
+const TRACKS_EN = {
+  light: {
+    app: 'Gramophone',
+    title: 'Air — Suite No. 3, BWV 1068',
+    artist: 'J. S. Bach · on piano',
+    art: 'engr/paraiso-31.webp',
+    credit: 'Gustave Doré · Paradiso, Canto XXXI — the Celestial Rose (1868)',
+    blurb: 'Soundtrack of the classic edition. Bach wrote this air around 1730, and it turns slowly like Doré’s Celestial Rose: light in circles, unhurried. Matheus recommends it with coffee and the book open.',
+    next: 'go to the Dark Edition',
+  },
+  dark: {
+    app: 'Requiem',
+    title: 'Lacrimosa — Requiem, K. 626',
+    artist: 'W. A. Mozart · on piano (arr. Thalberg)',
+    art: 'engr/inferno-34.webp',
+    credit: 'Gustave Doré · Inferno, Canto XXXIV — Lucifer in the ice (1861)',
+    blurb: 'Soundtrack of the Dark Edition. Mozart died writing the Requiem: of the Lacrimosa he left only the first eight bars. Andrade listens to it in the ninth circle, waist-deep in ice — with the deploy still failing.',
+    next: 'back to the classic edition',
+  },
+};
+
+const TRACKS = EN ? TRACKS_EN : TRACKS_PT;
 
 const fmt = (s) => {
   if (!Number.isFinite(s)) return '0:00';
@@ -77,12 +101,12 @@ export function createPhone({ music, sound, getTheme, switchTheme, onSound }) {
   function sync() {
     const on = music.playing;
     el.play.classList.toggle('is-paused', !on);
-    el.play.setAttribute('aria-label', on ? 'Pausar a trilha' : 'Tocar a trilha');
+    el.play.setAttribute('aria-label', on ? (EN ? 'Pause the soundtrack' : 'Pausar a trilha') : EN ? 'Play the soundtrack' : 'Tocar a trilha');
     root.classList.toggle('is-playing', on);
     const v = Math.round(music.volume * 100);
     if (document.activeElement !== el.vol) el.vol.value = String(v);
     el.vol.style.setProperty('--v', `${music.muted ? 0 : v}%`);
-    el.volOut.textContent = music.muted ? 'mudo' : String(v);
+    el.volOut.textContent = music.muted ? (EN ? 'muted' : 'mudo') : String(v);
     el.pages.setAttribute('aria-checked', String(sound.enabled));
     const d = new Date();
     el.clock.textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;

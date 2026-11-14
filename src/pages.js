@@ -3,6 +3,7 @@ import {
   guilloche, medallion, corner, rule, fleuron, waxSeal, barcode, arrow, roman,
   handArrow, handCircle, handUnderline, phonePlate, tape,
 } from './ornaments.js';
+import { t, LOCALE } from './lang.js';
 
 /**
  * Mapa do livro — 12 folhas, 24 faces.
@@ -17,21 +18,21 @@ export const folioOf = (p) => FOLIO[p] ?? '';
 const pageOfFolio = (f) => (typeof f === 'number' ? f + 4 : Number(Object.keys(FOLIO).find((k) => FOLIO[k] === f)));
 
 export const CHAPTERS = [
-  { id: 'sumario', label: 'Sumário', page: 4 },
-  { id: 'prologo', label: prologue.title, sub: prologue.heading, page: 5, tab: 'Pról.' },
+  { id: 'sumario', label: t('Sumário', 'Contents'), page: 4 },
+  { id: 'prologo', label: prologue.title, sub: prologue.heading, page: 5, tab: t('Pról.', 'Prol.') },
   { id: 'arsenal', label: arsenal.title, sub: arsenal.heading, page: 7, num: 1, tab: 'I' },
   { id: 'obras', label: works.title, sub: works.heading, page: 9, num: 2, tab: 'II' },
   { id: 'formacao', label: formation.title, sub: formation.heading, page: 15, num: 3, tab: 'III' },
-  { id: 'epilogo', label: epilogue.title, sub: `${epilogue.heading} & diário de bordo`, page: 17, tab: 'Epíl.' },
-  { id: 'colofao', label: 'Colofão', page: 20 },
-  { id: 'indice', label: 'Índice remissivo', page: 21, tab: 'Índ.' },
+  { id: 'epilogo', label: epilogue.title, sub: `${epilogue.heading} & ${t('diário de bordo', 'logbook')}`, page: 17, tab: t('Epíl.', 'Epil.') },
+  { id: 'colofao', label: t('Colofão', 'Colophon'), page: 20 },
+  { id: 'indice', label: t('Índice remissivo', 'Index'), page: 21, tab: t('Índ.', 'Ind.') },
 ];
 
 /** Abas de dicionário: em qual folha cada capítulo começa */
 const TAB_LIST = [
-  { id: 'capa', label: 'Capa', page: 0, tab: 'Capa' },
+  { id: 'capa', label: t('Capa', 'Cover'), page: 0, tab: t('Capa', 'Cover') },
   ...CHAPTERS.filter((c) => c.tab),
-  { id: 'fim', label: 'Contracapa', page: 23, tab: 'Fim' },
+  { id: 'fim', label: t('Contracapa', 'Back cover'), page: 23, tab: t('Fim', 'End') },
 ];
 export const TABS = TAB_LIST.map((c, i, all) => ({
   ...c,
@@ -42,11 +43,11 @@ export const TABS = TAB_LIST.map((c, i, all) => ({
 }));
 
 export function chapterOf(p) {
-  if (p <= 0) return 'Capa';
-  if (p === 1 || p === 22) return 'Guarda';
-  if (p === 2) return 'Folha de rosto';
-  if (p === 3) return 'Frontispício';
-  if (p >= 23) return 'Contracapa';
+  if (p <= 0) return t('Capa', 'Cover');
+  if (p === 1 || p === 22) return t('Guarda', 'Endpaper');
+  if (p === 2) return t('Folha de rosto', 'Title page');
+  if (p === 3) return t('Frontispício', 'Frontispiece');
+  if (p >= 23) return t('Contracapa', 'Back cover');
   if (p === 19) return diary.title;
   let ch = CHAPTERS[0];
   for (const c of CHAPTERS) if (p >= c.page) ch = c;
@@ -89,18 +90,24 @@ function epigraph(e) {
 
 /* Gravuras de domínio público, uma por tema (clássica: Dürer, Flammarion, Amman; sombria: Doré, O Corvo) */
 const ENGR = {
-  prologo: [['classica-prologo', 'Albrecht Dürer, São Jerônimo no estudo (1514)'], ['sombria-prologo', 'Gustave Doré, O Corvo (1884)']],
-  formacao: [['classica-formacao', 'Camille Flammarion, L’atmosphère (1888)'], ['sombria-formacao', 'Gustave Doré, O Corvo (1884)']],
-  epilogo: [['classica-arsenal', 'Albrecht Dürer, Melencolia I (1514)'], ['sombria-epilogo', 'Gustave Doré, O Corvo (1884)']],
-  colofao: [['classica-epilogo', 'Jost Amman, a oficina do impressor (1568)'], ['sombria-arsenal', 'Gustave Doré, “Nevermore” (1884)']],
+  prologo: [['classica-prologo', t('Albrecht Dürer, São Jerônimo no estudo (1514)', 'Albrecht Dürer, Saint Jerome in His Study (1514)')], ['sombria-prologo', t('Gustave Doré, O Corvo (1884)', 'Gustave Doré, The Raven (1884)')]],
+  formacao: [['classica-formacao', 'Camille Flammarion, L’atmosphère (1888)'], ['sombria-formacao', t('Gustave Doré, O Corvo (1884)', 'Gustave Doré, The Raven (1884)')]],
+  epilogo: [['classica-arsenal', 'Albrecht Dürer, Melencolia I (1514)'], ['sombria-epilogo', t('Gustave Doré, O Corvo (1884)', 'Gustave Doré, The Raven (1884)')]],
+  colofao: [['classica-epilogo', t('Jost Amman, a oficina do impressor (1568)', 'Jost Amman, the printer’s workshop (1568)')], ['sombria-arsenal', 'Gustave Doré, “Nevermore” (1884)']],
+};
+
+/* medidas reais das gravuras (width/height evitam a página "pular" ao carregar) */
+const ENGR_SIZE = {
+  'classica-prologo': [480, 624], 'classica-formacao': [480, 382], 'classica-arsenal': [480, 620], 'classica-epilogo': [480, 619],
+  'sombria-prologo': [480, 690], 'sombria-formacao': [480, 715], 'sombria-epilogo': [480, 685], 'sombria-arsenal': [480, 704],
 };
 
 function engraving(key, cls = '') {
   const [[l, lc], [d, dc]] = ENGR[key];
   return `<figure class="engr ${cls} reveal" style="--i:${revealIndex++}">
     <span class="engr-frame">
-      <img class="only-light" src="engr/${l}.webp" alt="Gravura: ${esc(lc)}" decoding="async" />
-      <img class="only-dark" src="engr/${d}.webp" alt="Gravura: ${esc(dc)}" decoding="async" />
+      <img class="only-light" src="engr/${l}.webp" width="${ENGR_SIZE[l][0]}" height="${ENGR_SIZE[l][1]}" alt="${t('Gravura', 'Engraving')}: ${esc(lc)}" loading="lazy" decoding="async" />
+      <img class="only-dark" src="engr/${d}.webp" width="${ENGR_SIZE[d][0]}" height="${ENGR_SIZE[d][1]}" alt="${t('Gravura', 'Engraving')}: ${esc(dc)}" loading="lazy" decoding="async" />
     </span>
     <figcaption><span class="only-light">${esc(lc)}</span><span class="only-dark">${esc(dc)}</span></figcaption>
   </figure>`;
@@ -111,7 +118,7 @@ function opener({ p, label, num, title, ep, intro, extra = '', notes = '', engr 
     p,
     'left',
     `<div class="opener${extra ? ' has-extra' : ''}">
-      ${rv('p', 'opener-label', num ? `Capítulo ${roman(num)}` : label)}
+      ${rv('p', 'opener-label', num ? `${t('Capítulo', 'Chapter')} ${roman(num)}` : label)}
       ${num ? rv('div', 'opener-numeral', roman(num), 'aria-hidden="true"') : rv('div', 'opener-numeral is-orn', fleuron('opener-fleuron'))}
       ${rv('h2', 'opener-title', esc(title))}
       ${rule('opener-rule reveal-rule')}
@@ -133,7 +140,7 @@ function cover() {
     </div>
     <div class="cover-content">
       ${fleuron('cover-fleuron foil-stroke only-light')}
-      <div class="cover-skull only-dark" role="img" aria-label="Caveira gravada por Albrecht Dürer"><i></i></div>
+      <div class="cover-skull only-dark" role="img" aria-label="${t('Caveira gravada por Albrecht Dürer', 'Skull engraved by Albrecht Dürer')}"><i></i></div>
       <p class="cover-kicker foil">Vol. I · ${roman(author.year)}</p>
       <h1 class="cover-title">
         <span class="foil">${esc(author.first)}</span>
@@ -143,7 +150,7 @@ function cover() {
       <p class="cover-role foil">${esc(author.role)}</p>
       ${medallion(author.monogram, { a: 8, b: 3, loops: 36, r: 0.52 }, 'cover-medallion foil-stroke only-light')}
       <p class="cover-motto foil only-dark">— Nevermore —</p>
-      <p class="cover-edition foil only-dark">Edição Sombria</p>
+      <p class="cover-edition foil only-dark">${t('Edição Sombria', 'Dark Edition')}</p>
     </div>
     <div class="cover-glint"></div>
     <div class="cover-sheen"></div>
@@ -158,8 +165,8 @@ function endpaper(p, side) {
       ${p === 1 ? `<div class="exlibris">
           <span class="exlibris-top">Ex Libris</span>
           ${fleuron('exlibris-fleuron')}
-          <span class="exlibris-name">do leitor curioso</span>
-          <span class="exlibris-hand">você ✎</span>
+          <span class="exlibris-name">${t('do leitor curioso', 'of the curious reader')}</span>
+          <span class="exlibris-hand">${t('você', 'you')} ✎</span>
         </div>` : ''}
     </div>
   </div>`;
@@ -190,7 +197,7 @@ function titlePage() {
     2,
     'right',
     `<div class="title-page">
-      ${rv('p', 'tp-author', 'Desenvolvedor')}
+      ${rv('p', 'tp-author', t('Desenvolvedor', 'Developer'))}
       ${rule('tp-rule reveal-rule')}
       ${rv('h1', 'tp-title', `<em>${esc(author.first)}</em><em>${esc(author.last)}</em><span>${esc(author.roleShort.join(' '))}</span>`)}
       ${rv('p', 'tp-subtitle', esc(author.subtitle))}
@@ -213,7 +220,7 @@ function frontispiece() {
       <div class="frontis-plate">
         ${corner('c-tl')}${corner('c-tr')}${corner('c-bl')}${corner('c-br')}
         ${medallion(author.monogram, { a: 5, b: 2, loops: 44, r: 0.56 }, 'frontis-medallion')}
-        <p class="plate-caption">Retrato do autor, em guilloché</p>
+        <p class="plate-caption">${t('Retrato do autor, em guilloché', 'Portrait of the author, in guilloché')}</p>
       </div>
       ${epigraph(author.epigraph)}
     </div>`,
@@ -241,15 +248,15 @@ function contents() {
   return paper(
     4,
     'right',
-    `<nav class="toc" aria-label="Sumário">
-      <h2 class="toc-heading reveal" style="--i:0">Sumário</h2>
+    `<nav class="toc" aria-label="${t('Sumário', 'Contents')}">
+      <h2 class="toc-heading reveal" style="--i:0">${t('Sumário', 'Contents')}</h2>
       ${rule('toc-rule reveal-rule')}
       <ol>${items}</ol>
-      <p class="toc-hint reveal" style="--i:10">Escolha um capítulo, use as abas na lateral — ou vire a página.</p>
+      <p class="toc-hint reveal" style="--i:10">${t('Escolha um capítulo, use as abas na lateral — ou vire a página.', 'Pick a chapter, use the tabs on the side — or turn the page.')}</p>
     </nav>`,
     {
       cls: 'is-toc',
-      notes: note('comece por aqui', { style: 'top:6.6em;right:1.6em;--r:5deg', arrowDir: 'down', arrowStyle: 'right:2.4em;top:1.25em' }),
+      notes: note(t('comece por aqui', 'start here'), { style: 'top:6.6em;right:1.6em;--r:5deg', arrowDir: 'down', arrowStyle: 'right:2.4em;top:1.25em' }),
     },
   );
 }
@@ -267,8 +274,8 @@ function prologueText() {
       ${rest.map((t) => rv('p', '', esc(t))).join('')}
       ${rv('blockquote', 'pull', `<p>${esc(prologue.quote)}</p>`)}
       <dl class="catalog reveal" style="--i:${revealIndex++}">
-        <div class="catalog-title">Ficha catalográfica</div>
-        ${prologue.facts.map(([k, v]) => `<div class="catalog-row"><dt>${esc(k)}</dt><dd>${esc(v)}${v.startsWith('Aberto') ? `<span class="catalog-circle">${handCircle}</span>` : ''}</dd></div>`).join('')}
+        <div class="catalog-title">${t('Ficha catalográfica', 'Catalogue record')}</div>
+        ${prologue.facts.map(([k, v]) => `<div class="catalog-row"><dt>${esc(k)}</dt><dd>${esc(v)}${/^(Aberto|Open)/.test(v) ? `<span class="catalog-circle">${handCircle}</span>` : ''}</dd></div>`).join('')}
       </dl>
     </article>`,
     { notes: note(prologue.note, { style: 'bottom:2.2em;left:3.4em;--r:-3deg' }) },
@@ -282,7 +289,7 @@ function arsenalText() {
     8,
     'right',
     `<article class="index">
-      ${rv('h3', 'section-heading', 'Índice de ferramentas')}
+      ${rv('h3', 'section-heading', t('Índice de ferramentas', 'Index of tools'))}
       ${arsenal.groups
         .map(
           (g) => `<section class="index-group reveal" style="--i:${revealIndex++}">
@@ -300,11 +307,11 @@ function arsenalText() {
 
 function plateFor(item, i) {
   const pl = item.plate;
-  const cap = () => `<figcaption>Prancha ${roman(i + 1)} — <em>${esc(item.title)}</em></figcaption>`;
+  const cap = () => `<figcaption>${t('Prancha', 'Plate')} ${roman(i + 1)} — <em>${esc(item.title)}</em></figcaption>`;
   if (pl.kind === 'photo') {
     return `<figure class="plate photo mount-${pl.mount} reveal" style="--i:${revealIndex++}">
       <div class="photo-frame">
-        <img src="${pl.src}" alt="Captura de tela do site ${esc(item.title)}" decoding="async" fetchpriority="low" style="object-position:${pl.pos}" />
+        <img src="${pl.src}" alt="${t('Captura de tela do site', 'Screenshot of the website')} ${esc(item.title)}" width="960" height="600" decoding="async" fetchpriority="low" style="object-position:${pl.pos}" />
         <span class="halftone"></span>
         ${pl.mount === 'corners' ? '<i class="pc pc-tl"></i><i class="pc pc-tr"></i><i class="pc pc-bl"></i><i class="pc pc-br"></i>' : `${tape('t-l')}${tape('t-r')}`}
       </div>
@@ -338,17 +345,17 @@ function workPage(item, i, p, side) {
     p,
     side,
     `<article class="work">
-      ${rv('p', 'work-meta', `<span>Obra ${roman(i + 1)}</span><span>${esc(item.tag)}</span>`)}
+      ${rv('p', 'work-meta', `<span>${t('Obra', 'Work')} ${roman(i + 1)}</span><span>${esc(item.tag)}</span>`)}
       ${plateFor(item, i)}
       ${rv('h3', 'work-title', esc(item.title))}
       ${rv('p', 'work-kicker', esc(item.kicker))}
       ${rv('p', 'work-desc', esc(item.description))}
       <dl class="work-facts reveal" style="--i:${revealIndex++}">
-        <div><dt>Técnica</dt><dd>${item.stack.map(esc).join(' · ')}</dd></div>
+        <div><dt>${t('Técnica', 'Medium')}</dt><dd>${item.stack.map(esc).join(' · ')}</dd></div>
       </dl>
       <div class="work-links reveal" style="--i:${revealIndex++}">
-        ${item.site ? `<a class="work-link is-visit" href="${item.site}" data-visit data-title="${esc(item.title)}">${esc(item.siteLabel ?? 'Visitar a obra')} ${arrow}</a>` : ''}
-        <a class="work-link is-code" href="${item.repo}" target="_blank" rel="noopener">Ler o código ${arrow}</a>
+        ${item.site ? `<a class="work-link is-visit" href="${item.site}" data-visit data-title="${esc(item.title)}">${esc(item.siteLabel ?? t('Visitar a obra', 'Visit the work'))} ${arrow}</a>` : ''}
+        <a class="work-link is-code" href="${item.repo}" target="_blank" rel="noopener">${t('Ler o código', 'Read the code')} ${arrow}</a>
       </div>
     </article>`,
     { cls: `is-work work-${item.id}`, notes: note(item.note, notePos) },
@@ -398,20 +405,20 @@ function contactText() {
     18,
     'right',
     `<article class="letter">
-      ${rv('p', 'letter-date', `${esc(author.city)}, ${new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`)}
-      ${rv('p', 'letter-salutation', 'Caro leitor,')}
-      ${rv('p', 'letter-body', 'Para projetos freelance, colaborações em educação e tecnologia, ou uma boa conversa sobre código e pesquisa, escreva para:')}
+      ${rv('p', 'letter-date', `${esc(author.city)}, ${new Date().toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })}`)}
+      ${rv('p', 'letter-salutation', t('Caro leitor,', 'Dear reader,'))}
+      ${rv('p', 'letter-body', t('Para projetos freelance, colaborações em educação e tecnologia, ou uma boa conversa sobre código e pesquisa, escreva para:', 'For freelance projects, collaborations in education and technology, or a good conversation about code and research, write to:'))}
       <div class="letter-email reveal" style="--i:${revealIndex++}">
         <a href="mailto:${epilogue.email}">${esc(epilogue.email)}</a>
-        <button class="copy" data-copy="${epilogue.email}" type="button">copiar</button>
+        <button class="copy" data-copy="${epilogue.email}" type="button">${t('copiar', 'copy')}</button>
       </div>
       <ul class="letter-links reveal" style="--i:${revealIndex++}">
         ${epilogue.links.map(([t, h]) => `<li><a href="${h}" target="_blank" rel="noopener">${esc(t)} ${arrow}</a></li>`).join('')}
       </ul>
       ${rv('p', 'letter-note', esc(epilogue.availability))}
       <div class="letter-sign">
-        <span class="sign-pre reveal" style="--i:${revealIndex++}">Com estima,</span>
-        <div class="signature-real" role="img" aria-label="Assinatura de ${esc(author.fullName)}"><i></i></div>
+        <span class="sign-pre reveal" style="--i:${revealIndex++}">${t('Com estima,', 'With regards,')}</span>
+        <div class="signature-real" role="img" aria-label="${t('Assinatura de', 'Signature of')} ${esc(author.fullName)}"><i></i></div>
       </div>
       <div class="letter-seal">${waxSeal(author.monogram)}</div>
     </article>`,
@@ -419,7 +426,7 @@ function contactText() {
 }
 
 function diaryPage() {
-  const fmt = (d) => new Date(`${d}T12:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace(' de ', ' ').replace('.', '');
+  const fmt = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(LOCALE, { day: '2-digit', month: 'short' }).replace(' de ', ' ').replace('.', '');
   return paper(
     19,
     'left',
@@ -437,9 +444,9 @@ function diaryPage() {
           )
           .join('')}
       </ol>
-      <p class="diary-status reveal" style="--i:${revealIndex++}" data-diary-status>registro impresso</p>
+      <p class="diary-status reveal" style="--i:${revealIndex++}" data-diary-status>${t('registro impresso', 'printed record')}</p>
     </article>`,
-    { cls: 'is-diary', notes: note('ao vivo do GitHub ✦', { style: 'bottom:5.4em;right:3.2em;--r:-4deg' }) },
+    { cls: 'is-diary', notes: note(t('ao vivo do GitHub ✦', 'live from GitHub ✦'), { style: 'bottom:5.4em;right:3.2em;--r:-4deg' }) },
   );
 }
 
@@ -448,11 +455,11 @@ function colophonPage() {
     20,
     'right',
     `<div class="colophon">
-      ${rv('h3', 'colophon-title', 'Colofão')}
+      ${rv('h3', 'colophon-title', t('Colofão', 'Colophon'))}
       ${colophon.text.map((t) => rv('p', '', esc(t))).join('')}
       ${rv('p', 'colophon-date sc', `${esc(author.city)} · ${roman(author.year)}`)}
       ${engraving('colofao', 'engr-colophon')}
-      ${rv('p', 'fin', '<span>Fim</span>')}
+      ${rv('p', 'fin', `<span>${t('Fim', 'The End')}</span>`)}
     </div>`,
     { head: false, cls: 'is-colophon' },
   );
@@ -475,10 +482,10 @@ function indexPage() {
     21,
     'left',
     `<article class="ix">
-      ${rv('h3', 'section-heading', 'Índice remissivo')}
+      ${rv('h3', 'section-heading', t('Índice remissivo', 'Index'))}
       <ul class="ix-list reveal" style="--i:${revealIndex++}">${items}</ul>
     </article>`,
-    { cls: 'is-index', notes: note('clique num número!', { style: 'bottom:2.4em;right:3em;--r:-4deg' }) },
+    { cls: 'is-index', notes: note(t('clique num número!', 'click a number!'), { style: 'bottom:2.4em;right:3em;--r:-4deg' }) },
   );
 }
 
@@ -535,7 +542,7 @@ export function buildPages() {
 
 export function pageLabel(p) {
   const folio = folioOf(p);
-  return folio ? `${chapterOf(p)}, página ${folio}` : chapterOf(p);
+  return folio ? `${chapterOf(p)}, ${t('página', 'page')} ${folio}` : chapterOf(p);
 }
 
 export function pageForHash(hash) {

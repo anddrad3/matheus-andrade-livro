@@ -18,7 +18,8 @@ export function createObjModal({ getTheme, talk, onOpen }) {
   let current = null;
   let rx = -12;
   let ry = -25;
-  let spinTween = null;
+  let spinTween = null; // giro lento de vitrine
+  let glide = null; // inércia depois de soltar
   let drag = null;
   let lastFocus = null;
 
@@ -44,7 +45,7 @@ export function createObjModal({ getTheme, talk, onOpen }) {
     obj.innerHTML = '';
     if (!src) return;
     const depth = DEPTH[prop] ?? 6;
-    const n = depth > 12 ? 9 : depth > 5 ? 7 : 5;
+    const n = depth > 12 ? 6 : depth > 5 ? 5 : 4;
     obj.style.setProperty('--omw', `${WIDTH[prop] ?? 220}px`);
     for (let i = 0; i < n; i++) {
       const layer = document.createElement('div');
@@ -104,6 +105,8 @@ export function createObjModal({ getTheme, talk, onOpen }) {
     if (root.hidden) return;
     root.classList.remove('is-open');
     spinTween?.kill();
+    glide?.kill();
+    drag = null;
     setTimeout(() => {
       if (!root.classList.contains('is-open')) {
         root.hidden = true;
@@ -135,9 +138,11 @@ export function createObjModal({ getTheme, talk, onOpen }) {
   });
 
   stage.addEventListener('pointerdown', (e) => {
+    if (drag) return; // um dedo por vez
     spinTween?.kill();
+    glide?.kill();
     gsap.killTweensOf(obj);
-    drag = { x: e.clientX, y: e.clientY, rx, ry, id: e.pointerId, t: performance.now(), v: 0 };
+    drag = { x: e.clientX, y: e.clientY, rx, ry, id: e.pointerId, t: performance.now(), v: 0, moved: false, hist: [] };
     try {
       stage.setPointerCapture(e.pointerId);
     } catch {}
@@ -145,23 +150,32 @@ export function createObjModal({ getTheme, talk, onOpen }) {
   });
   stage.addEventListener('pointermove', (e) => {
     if (!drag || e.pointerId !== drag.id) return;
-    const nry = drag.ry + (e.clientX - drag.x) * 0.8;
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return; // encostar não gira
+    drag.moved = true;
     const now = performance.now();
-    drag.v = ((nry - ry) / Math.max(1, now - drag.t)) * 16;
+    ry = drag.ry + dx * 0.55;
+    rx = Math.max(-70, Math.min(70, drag.rx - dy * 0.45));
+    // velocidade média dos últimos ~100 ms (eventos chegam em rajadas)
+    drag.hist.push([now, ry]);
+    while (drag.hist.length > 2 && now - drag.hist[0][0] > 100) drag.hist.shift();
     drag.t = now;
-    ry = nry;
-    rx = Math.max(-80, Math.min(80, drag.rx - (e.clientY - drag.y) * 0.6));
     apply();
   });
-  const end = () => {
-    if (!drag) return;
-    const v = performance.now() - drag.t > 90 ? 0 : drag.v;
+  const end = (e) => {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    const h = drag.hist;
+    let v = 0; // graus por milissegundo
+    if (drag.moved && h.length > 1 && performance.now() - drag.t < 80) v = (h[h.length - 1][1] - h[0][1]) / Math.max(16, h[h.length - 1][0] - h[0][0]);
     drag = null;
     stage.classList.remove('is-grabbing');
+    // impulso limitado: no máximo ~meia volta
+    const extra = Math.max(-180, Math.min(180, v * 420));
     const st = { ry };
-    gsap.to(st, {
-      ry: ry + v * 14,
-      duration: 1.2,
+    glide = gsap.to(st, {
+      ry: ry + extra,
+      duration: 0.9 + Math.abs(extra) / 300,
       ease: 'power3.out',
       onUpdate: () => {
         ry = st.ry;

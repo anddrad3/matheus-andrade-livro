@@ -1,8 +1,9 @@
 # Cache do navegador: sem isto, cada imagem era revalidada com o servidor a cada visita.
+# Imagens e músicas têm nome fixo: ao trocar uma, troque também o nome do arquivo.
 <IfModule mod_headers.c>
-  # imagens, texturas, gravuras e música: uma semana
+  # imagens, texturas, gravuras e música: um ano
   <FilesMatch "\.(webp|png|jpe?g|svg|mp3|woff2?)$">
-    Header set Cache-Control "public, max-age=604800"
+    Header set Cache-Control "public, max-age=31536000"
   </FilesMatch>
   # arquivos do build (com hash no nome): nunca mudam
   <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css)$">
@@ -16,8 +17,8 @@
 
 <IfModule mod_expires.c>
   ExpiresActive On
-  ExpiresByType image/webp "access plus 7 days"
-  ExpiresByType image/png "access plus 7 days"
-  ExpiresByType image/svg+xml "access plus 7 days"
-  ExpiresByType audio/mpeg "access plus 7 days"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType audio/mpeg "access plus 1 year"
 </IfModule>

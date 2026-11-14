@@ -1,3 +1,4 @@
+import { t } from './lang.js';
 /**
  * Ornamentos vetoriais gerados por código.
  * Tudo usa `currentColor`, então a cor vem do CSS.
@@ -232,13 +233,13 @@ export function phonePlate() {
     </g>
     <g class="ph-toast">
       <rect x="124" y="150" width="72" height="18" rx="9" fill="var(--ink)" stroke="none"/>
-      <text x="160" y="162.5" text-anchor="middle" class="ph-toast-text">Shorts bloqueado</text>
+      <text x="160" y="162.5" text-anchor="middle" class="ph-toast-text">${t('Shorts bloqueado', 'Shorts blocked')}</text>
     </g>
     <g stroke-width="1.1" opacity=".8">
       <path d="M60 60c10-8 24-10 34-4"/><path d="M94 56l-6-4M94 56l-5 6"/>
-      <text x="22" y="54" class="ph-label">voltar ↩</text>
+      <text x="22" y="54" class="ph-label">${t('voltar', 'back')} ↩</text>
       <path d="M232 120c14 6 30 4 42-6"/><circle cx="282" cy="104" r="12"/><path d="M276 104l4 4 8-9"/>
-      <text x="240" y="150" class="ph-label">banco ok</text>
+      <text x="240" y="150" class="ph-label">${t('banco ok', 'bank ok')}</text>
     </g>
   </svg>`;
 }

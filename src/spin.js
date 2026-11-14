@@ -88,9 +88,11 @@ export function createSpin({ float, camera, stage, button, exit, hint, canStart,
   button.addEventListener('click', () => (active ? reset() : enter()));
   exit.addEventListener('click', reset);
 
-  stage.addEventListener('pointerdown', (e) => {
-    if (!active || e.button !== 0) return;
-    if (e.target.closest('#ui, #menu, #desk-props, #talk, #spin-exit, input, textarea')) return;
+  // em qualquer ponto do palco ou da mesa (no celular o livro ocupa quase a tela toda)
+  document.addEventListener('pointerdown', (e) => {
+    if (!active || e.button !== 0 || e.__page) return;
+    if (!e.target.closest('#stage, #desk-props')) return;
+    if (e.target.closest('#ui, #talk, #spin-exit, #obj-modal, #phone-modal, input, textarea')) return;
     gsap.killTweensOf(state);
     drag = { x: e.clientX, y: e.clientY, rx, ry, t: performance.now(), vx: 0, vy: 0, id: e.pointerId };
     moved = false;

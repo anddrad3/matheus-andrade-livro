@@ -95,10 +95,12 @@ export class Book {
     } else if (W > H * 1.05) {
       // celular deitado (de verdade, ou o livro deitado na tela em pé): as duas páginas
       const rail = view.lying ? 0 : 68; // barra de ajustes vira um trilho à direita
-      pw = Math.min(((W - rail - 24) * 0.88) / 2, (H - 28) * aspect);
-      this.spread = true;
+      // o leitor escolhe: duas páginas lado a lado, ou uma grande com a mesa em volta
+      this.spread = view.double || view.lying;
+      const top = view.lying ? 0 : 52; // faixa do topo (monograma, PT/EN, "2 páginas")
+      pw = this.spread ? Math.min(((W - rail - 24) * 0.88) / 2, (H - top - 20) * aspect) : Math.min((W - rail) * 0.6, (H - 28) * aspect);
       this.orient = 'land';
-      lift = 0;
+      lift = this.spread && !view.lying ? -top / 2 : 0;
       css.setProperty('--rail', `${rail}px`);
     } else {
       // celular em pé: uma página por vez, centralizada, com a mesa à mostra em
@@ -127,6 +129,8 @@ export class Book {
     css.setProperty('--fs', `${(this.pw / 30).toFixed(3)}px`);
     css.setProperty('--T', `${((this.N - 1) * 2.4).toFixed(1)}px`);
     root.dataset.mode = this.mode;
+    root.classList.add('laid'); // medidas prontas: o palco pode aparecer (sem "pulo" de layout)
+    root.classList.toggle('is-single', !this.spread);
     root.dataset.orient = this.orient;
     if (this.s === 0) this.side = 'right';
     if (this.s === this.N) this.side = 'left';
@@ -154,9 +158,11 @@ export class Book {
     return side === 'left' ? half : -half;
   }
 
-  shadowFor(s) {
+  shadowFor(s, side = this.side) {
     if (s === 0) return { scaleX: 0.5, xPercent: 25 };
     if (s === this.N) return { scaleX: 0.5, xPercent: -25 };
+    // uma página por vez: a sombra fica só sob a página à mostra
+    if (!this.spread) return { scaleX: 0.5, xPercent: side === 'left' ? -25 : 25 };
     return { scaleX: 1, xPercent: 0 };
   }
 
@@ -253,7 +259,7 @@ export class Book {
   makeBend(leaf, dir, tilt) {
     if (this.reduced || leaf.classList.contains('is-board')) return null;
     try {
-      return new Bend(leaf, { dir, tilt, pw: this.pw, strips: this.mode === 'mobile' || (navigator.hardwareConcurrency || 8) <= 4 ? 5 : 10 });
+      return new Bend(leaf, { dir, tilt, pw: this.pw, strips: this.mode === 'mobile' ? 4 : (navigator.hardwareConcurrency || 8) <= 4 ? 6 : 10 });
     } catch {
       return null;
     }
@@ -323,6 +329,7 @@ export class Book {
     g.x1 = this.xFor(g.t, g.side);
     g.p = 0;
     this.drag = g;
+    this.el.classList.add('is-flipping');
     return g;
   }
 
@@ -364,7 +371,7 @@ export class Book {
       this.side = g.side;
       this.onChange?.(this);
       if (g.leaf) this.onFlip?.(1, g.dir);
-      gsap.to(this.shadow, { ...this.shadowFor(this.s), duration: D + 0.2, ease: 'power2.out' });
+      gsap.to(this.shadow, { ...this.shadowFor(this.s, this.side), duration: D + 0.2, ease: 'power2.out' });
     }
     return new Promise((resolve) => {
       const st = { p: g.p };
@@ -375,6 +382,7 @@ export class Book {
         onUpdate: () => this.applyDrag(g, st.p),
         onComplete: () => {
           this.drag = null;
+          this.el.classList.remove('is-flipping');
           g.bend?.destroy();
           if (g.leaf) {
             this.castShadow(null);
@@ -464,9 +472,11 @@ export class Book {
     const zTop = this.N * this.d + 6;
 
     return new Promise((resolve) => {
+      this.el.classList.add('is-flipping');
       const tl = gsap.timeline({
         onComplete: () => {
           this.tl = null;
+          this.el.classList.remove('is-flipping');
           this.updateVisibility();
           resolve();
         },
@@ -507,7 +517,7 @@ export class Book {
 
       const total = (moving.length ? (moving.length - 1) * stagger + D : 0.8);
       tl.to(this.el, { x: this.xFor(t, side), duration: moving.length ? total : 0.8, ease: 'power3.inOut' }, 0);
-      tl.to(this.shadow, { ...this.shadowFor(t), duration: Math.max(total, 0.8), ease: 'power3.inOut' }, 0);
+      tl.to(this.shadow, { ...this.shadowFor(t, side), duration: Math.max(total, 0.8), ease: 'power3.inOut' }, 0);
     });
   }
 }

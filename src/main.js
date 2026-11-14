@@ -1,4 +1,4 @@
-﻿import gsap from 'gsap';
+import gsap from 'gsap';
 import './styles/base.css';
 import './styles/book.css';
 import './styles/pages.css';
@@ -27,6 +27,7 @@ import { Book, setLift } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
 import { createSpin } from './spin.js';
+import { t, EN, setLang } from './lang.js';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s) => document.querySelector(s);
@@ -58,6 +59,7 @@ const ui = {
   skip: $('#skip'),
   progress: $('#progress-bar'),
 };
+let diaryLoaded = false;
 const tbProgress = $('#tb-progress');
 const whereCh = $('#where-ch');
 const whereNum = $('#where-num');
@@ -66,7 +68,7 @@ function updateUI(b = book) {
   const p = b.page;
   const pages = b.visiblePages();
   const f = pages.map(folioOf).filter(Boolean);
-  ui.folio.textContent = f.length ? f.join(' â€“ ') : '';
+  ui.folio.textContent = f.length ? f.join(' – ') : '';
   ui.chapter.textContent = chapterOf(p);
   ui.prev.disabled = !b.canPrev();
   ui.next.disabled = !b.canNext();
@@ -74,7 +76,12 @@ function updateUI(b = book) {
   tbProgress.style.transform = ui.progress.style.transform;
   whereCh.textContent = ui.chapter.textContent;
   whereNum.textContent = ui.folio.textContent;
-  ui.live.textContent = pages.map(pageLabel).join(' e ');
+  ui.live.textContent = pages.map(pageLabel).join(t(' e ', ' and '));
+  // diário de bordo: só busca no GitHub quando o leitor se aproxima dele
+  if (!diaryLoaded && b.s >= 8) {
+    diaryLoaded = true;
+    loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]'));
+  }
   const hash = hashForPage(pages[pages.length - 1]);
   const url = hash ? `#${hash}` : window.location.pathname + window.location.search;
   if (opened) history.replaceState(null, '', url);
@@ -83,10 +90,10 @@ function updateUI(b = book) {
   });
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ abertura â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── abertura ───────────── */
 
 let opened = false;
-// voltou de uma obra visitada: reabre direto na mesma pÃ¡gina, sem cutscene
+// voltou de uma obra visitada: reabre direto na mesma página, sem cutscene
 let returnPage = null;
 try {
   const back = sessionStorage.getItem('livro.back');
@@ -111,43 +118,50 @@ const cine = {
 };
 
 function setClosedPose() {
-  // plano aÃ©reo: bem alto, quase de cima, girado sobre a mesa
+  // plano aéreo: bem alto, quase de cima, girado sobre a mesa
   gsap.set(camera, { rotationX: 6, rotationZ: -42, rotationY: 0, z: -3000, y: 40, opacity: 1 });
   gsap.set(cine.light, { opacity: 0 });
 }
 
 let floatTween;
 let enterTl = null;
-let autoOpen = null;
 let levitate = null;
-/** cutscene: a luz acende, a cÃ¢mera desce da altura atÃ© o livro sobre a mesa */
+/** cutscene: a luz acende, a câmera desce da altura até o livro sobre a mesa */
 function enter() {
   setClosedPose();
-  // sob o vÃ©u preto: mostra o verso do livro por 2 quadros para o navegador jÃ¡
-  // pintar contracapa, lombada e corte (senÃ£o isso acontece no meio do giro)
+  // sob o véu preto: mostra o verso do livro por 2 quadros para o navegador já
+  // pintar contracapa, lombada e corte (senão isso acontece no meio do giro)
+  // as folhas que a abertura mostra (capa, guardas, contracapa) já são desenhadas
+  // aqui, com o livro pequeno sob o véu — acordá-las depois contava como uma
+  // "pintura nova e grande" e atrasava o LCP para o fim da cena
+  // capa e contracapa já; o miolo em duas etapas pequenas, com o livro ainda longe
+  // (pintar páginas grandes no fim da cena atrasaria o LCP; tudo de uma vez travaria o início)
+  book.cull([0, book.N - 1]);
+  setTimeout(() => !opened && book.cull([0, 1, book.N - 1]), 900);
+  setTimeout(() => !opened && book.cull([0, 1, 2, book.N - 1]), 1500);
   gsap.set(book.el, { rotationY: -180, transformOrigin: '75% 50%' });
   requestAnimationFrame(() => requestAnimationFrame(() => gsap.set(book.el, { rotationY: 0 })));
   const tl = gsap.timeline({ delay: 0.2 });
   enterTl = tl;
   tl
-    // a luminÃ¡ria acende, hesitando
+    // a luminária acende, hesitando
     .to(cine.light, { keyframes: [
       { opacity: 0.5, duration: 0.08 }, { opacity: 0.05, duration: 0.12 },
       { opacity: 0.8, duration: 0.07 }, { opacity: 0.3, duration: 0.18 },
       { opacity: 1, duration: 0.6, ease: 'power2.out' },
     ] }, 0.3)
-    .to(cine.veil, { opacity: 0, duration: 2.2, ease: 'power2.inOut' }, 0.35)
-    // grua: desce e gira em direÃ§Ã£o ao livro
-    .to(camera, { z: -1250, rotationZ: -24, rotationX: 18, y: 30, duration: 3.4, ease: 'power1.inOut' }, 0.2)
-    .to(camera, { z: -260, rotationZ: -11, rotationX: 34, rotationY: 4, y: 24, duration: 2.8, ease: 'power3.out' }, 3.6)
+    .to(cine.veil, { opacity: 0, duration: 1.5, ease: 'power2.inOut' }, 0.3)
+    // grua: desce e gira em direção ao livro
+    .to(camera, { z: -1250, rotationZ: -24, rotationX: 18, y: 30, duration: 2.9, ease: 'power1.inOut' }, 0.2)
+    .to(camera, { z: -260, rotationZ: -11, rotationX: 34, rotationY: 4, y: 24, duration: 2.5, ease: 'power3.out' }, 3.1)
     // letreiros
-    .to(cine.place, { opacity: 1, duration: 1.2, ease: 'power1.out' }, 1.0)
-    .fromTo(cine.pre, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 1.1, ease: 'power2.out' }, 1.9)
-    .fromTo(cine.name, { opacity: 0, y: 14, letterSpacing: '0.12em' }, { opacity: 1, y: 0, letterSpacing: '0.02em', duration: 1.8, ease: 'power3.out' }, 2.1)
-    .to([cine.pre, cine.name], { opacity: 0, y: -10, duration: 1, ease: 'power2.in' }, 4.3)
-    .to(cine.place, { opacity: 0, duration: 0.8 }, 5.2)
+    .to(cine.place, { opacity: 1, duration: 1.1, ease: 'power1.out' }, 0.8)
+    .fromTo(cine.pre, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 1.1, ease: 'power2.out' }, 1.5)
+    .fromTo(cine.name, { opacity: 0, y: 14, letterSpacing: '0.12em' }, { opacity: 1, y: 0, letterSpacing: '0.02em', duration: 1.7, ease: 'power3.out' }, 1.7)
+    .to([cine.pre, cine.name], { opacity: 0, y: -10, duration: 0.9, ease: 'power2.in' }, 3.7)
+    .to(cine.place, { opacity: 0, duration: 0.8 }, 4.4)
     // as faixas de cinema recolhem
-    .to(cine.bars, { scaleY: 0, duration: 1.2, ease: 'power3.inOut' }, 5.5)
+    .to(cine.bars, { scaleY: 0, duration: 1.1, ease: 'power3.inOut' }, 4.6)
     .add(() => {
       if (opened || openTl) return;
       // o livro levita sobre a mesa, girando de leve no ar (a mesa fica parada)
@@ -158,9 +172,7 @@ function enter() {
       gsap.to(book.shadow, { opacity: 0.45, duration: 1.2 });
       prepareOpen();
       document.body.classList.add('can-open');
-      // se a pessoa nÃ£o interagir, o livro se abre sozinho
-      autoOpen = gsap.delayedCall(3.2, () => !opened && !openTl && open());
-    }, 6.1);
+    }, 5.4);
   return tl;
 }
 
@@ -172,7 +184,7 @@ let prepared = false;
 /**
  * Enquanto o livro levita, deixa pronto tudo o que a abertura vai mostrar:
  * capa, contracapa e as primeiras folhas desenhadas (sem "pular"), e as
- * pÃ¡ginas iniciais jÃ¡ preparadas para a escrita â€” nada pesado no meio do giro.
+ * páginas iniciais já preparadas para a escrita — nada pesado no meio do giro.
  */
 function prepareOpen() {
   if (prepared) return;
@@ -180,10 +192,9 @@ function prepareOpen() {
   book.cull([0, 1, 2, book.N - 1]);
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 60));
   idle(() => [1, 2, 3, 4].forEach((p) => inkify(book.pageEls[p])));
-  warmAssets();
 }
 
-/** prÃ©-carrega o que aparece depois: fotos dos projetos, imagens e o outro tema */
+/** pré-carrega o que aparece depois: fotos dos projetos, imagens e o outro tema */
 let warmed = false;
 function warmAssets() {
   if (warmed) return;
@@ -191,19 +202,19 @@ function warmAssets() {
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
   idle(() => {
     decodeImages();
-    preloadTextures(theme() === 'dark' ? 'light' : 'dark');
-    const other = theme() === 'dark' ? 'aria-bach-piano' : 'lacrimosa-piano';
-    const a = new Audio(`music/${other}.mp3`);
-    a.preload = 'auto';
+    // conexão econômica: o outro tema só baixa se for escolhido
+    const slow = navigator.connection && (navigator.connection.saveData || /2g/.test(navigator.connection.effectiveType || ''));
+    if (!slow) preloadTextures(theme() === 'dark' ? 'light' : 'dark');
   });
 }
 /**
- * Deixa as imagens do livro prontas para aparecer, uma de cada vez e sÃ³ as do
- * tema atual (decodificar todas juntas estourava a memÃ³ria de celulares).
+ * Deixa as imagens do livro prontas para aparecer, uma de cada vez e só as do
+ * tema atual (decodificar todas juntas estourava a memória de celulares).
  */
 function decodeImages() {
   const skip = theme() === 'dark' ? '.only-light' : '.only-dark';
   const imgs = [...document.querySelectorAll('.leaves img')].filter((i) => !i.closest(skip));
+  imgs.forEach((i) => (i.loading = 'eager')); // começa a baixar já (antes eram preguiçosas)
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 120));
   let k = 0;
   const next = () => {
@@ -218,10 +229,10 @@ window.addEventListener('themechange', () => warmed && setTimeout(decodeImages, 
 const flash = $('#flash');
 
 /**
- * Abertura no estilo "livro mÃ¡gico":
- *  1. o livro, levitando, dÃ¡ uma volta completa no ar (lombada, contracapa, corte);
- *  2. a capa se abre de supetÃ£o enquanto a cÃ¢mera mergulha na folha de rosto;
- *  3. uma estrela de luz toma a tela â€” e se dissolve revelando o livro aberto.
+ * Abertura no estilo "livro mágico":
+ *  1. o livro, levitando, dá uma volta completa no ar (lombada, contracapa, corte);
+ *  2. a capa se abre de supetão enquanto a câmera mergulha na folha de rosto;
+ *  3. uma estrela de luz toma a tela — e se dissolve revelando o livro aberto.
  */
 function open() {
   if (opened || openTl) return;
@@ -230,12 +241,11 @@ function open() {
   prepareOpen();
   gsap.set(rig, { willChange: 'transform' });
   sound.unlock();
-  sound.flip(5); // sopro de pÃ¡ginas enquanto gira
+  sound.flip(5); // sopro de páginas enquanto gira
   floatTween?.kill();
   levitate?.kill();
   enterTl?.kill();
-  autoOpen?.kill();
-
+  
   const tl = gsap.timeline({ onComplete: finish });
   openTl = tl;
   const x1 = book.xFor(1, 'right');
@@ -247,16 +257,16 @@ function open() {
     .to(cine.light, { opacity: 1, duration: 0.4 }, 0)
     .to(float, { y: 0, rotationZ: 0, rotationX: 0, duration: 0.8, ease: 'power2.out' }, 0);
 
-  // 1 Â· a volta completa no ar (gira em torno do centro do livro fechado)
+  // 1 · a volta completa no ar (gira em torno do centro do livro fechado)
   gsap.set(book.el, { transformOrigin: '75% 50%' });
-  // giro com aceleraÃ§Ã£o suave e chegada desacelerada (sem "tranco" no fim)
+  // giro com aceleração suave e chegada desacelerada (sem "tranco" no fim)
   tl.to(camera, { rotationX: 14, rotationZ: 0, rotationY: 0, z: -160, y: 0, duration: 1.15, ease: 'sine.inOut' }, 0)
     .to(book.el, { rotationY: -360, rotationZ: 0, rotationX: 0, z: 150, duration: 1.2, ease: 'expo.inOut' }, 0)
     .to(book.shadow, { opacity: 0.25, duration: 0.6 }, 0)
     .add(() => sound.open(), 0.95)
-    .add(() => gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }), 1.2); // 360Â° = identidade
+    .add(() => gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }), 1.2); // 360° = identidade
 
-  // 2 Â· a capa abre de supetÃ£o; o miolo assenta; o livro centraliza
+  // 2 · a capa abre de supetão; o miolo assenta; o livro centraliza
   tl.to(cover, {
     rotationY: -180,
     duration: 0.75,
@@ -276,7 +286,7 @@ function open() {
     book.updateVisibility([1, 2, 3, 4]);
   }, 1.2);
 
-  // 3 Â· a cÃ¢mera mergulha na pÃ¡gina da direita atÃ© a estrela de luz tomar a tela
+  // 3 · a câmera mergulha na página da direita até a estrela de luz tomar a tela
   tl.add(() => {
     const rr = rig.getBoundingClientRect();
     gsap.set(rig, { transformOrigin: `${75}% ${45}%` });
@@ -296,20 +306,20 @@ function finish() {
   book.d = book.dOpen;
   book.s = 1;
   book.side = 'right';
-  // corte escondido pela luz: cÃ¢mera e livro voltam ao enquadramento de leitura
+  // corte escondido pela luz: câmera e livro voltam ao enquadramento de leitura
   gsap.set(rig, { scale: 1, clearProps: 'transformOrigin' });
   gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0, transformOrigin: '50% 50%' });
   gsap.set(camera, { rotationX: 0, rotationY: 0, rotationZ: 0, z: 0, y: 0 });
   if (skipping) gsap.set(flash, { opacity: 0 });
-  // a troca de cena (pesada) acontece com a luz parada cobrindo tudo; a luz sÃ³
-  // comeÃ§a a se dissolver dois quadros depois â€” nenhuma engasgada visÃ­vel
+  // a troca de cena (pesada) acontece com a luz parada cobrindo tudo; a luz só
+  // começa a se dissolver dois quadros depois — nenhuma engasgada visível
   else requestAnimationFrame(() => requestAnimationFrame(() => gsap.to(flash, { opacity: 0, scale: 3.2, rotation: 18, duration: 0.85, delay: 0.28, ease: 'power2.out' })));
   const wasSkipping = skipping;
   skipping = false;
   document.body.classList.remove('is-opening');
   document.body.classList.add('is-open');
   layoutProps();
-  if (book.mode === 'mobile' && book.orient === 'port' && !hintShown) {
+  if (book.mode === 'mobile' && !hintShown) {
     hintShown = true;
     const h = $('#read-hint');
     h.hidden = false;
@@ -322,7 +332,8 @@ function finish() {
   prepared = false;
   updateUI();
   enableParallax();
-  // deixa a luz se dissolver e a cena assentar antes de virar para o sumÃ¡rio
+  setTimeout(warmAssets, 1800); // depois que o livro assentar
+  // deixa a luz se dissolver e a cena assentar antes de virar para o sumário
   gsap.delayedCall(wasSkipping ? 0 : 0.85, () => {
     book.noBendOnce = true;
     book.goToPage(target).then(() => updateUI());
@@ -338,7 +349,7 @@ function skipIntro() {
   openTl?.progress(1);
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ girar 360Â° e voltar Ã  capa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── girar 360° e voltar à capa ───────────── */
 
 const spin = createSpin({
   float,
@@ -365,10 +376,10 @@ function goHome() {
   book.goTo(0).then(() => updateUI());
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ pinÃ§a: aproximar e afastar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── pinça: aproximar e afastar ───────────── */
 
 // Dois dedos aproximam/afastam o livro em torno do ponto entre eles; aproximado,
-// um dedo (ou o mouse) arrasta a vista. No computador: Ctrl + roda / pinÃ§a do trackpad.
+// um dedo (ou o mouse) arrasta a vista. No computador: Ctrl + roda / pinça do trackpad.
 const zoomBtn = $('#zoom-out');
 const pz = { s: 1, x: 0, y: 0 };
 const touches = new Map(); // dedos no palco (coordenadas do palco)
@@ -381,7 +392,8 @@ const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 function renderPZ(animate) {
   const z = zoomed();
   document.body.classList.toggle('is-zoomed', z);
-  zoomBtn.hidden = !z;
+  zoomBtn.hidden = !z || book.mode === 'desktop';
+  if (zoomVal) zoomVal.textContent = `${Math.round(pz.s * 100)}%`;
   const vars = { scale: pz.s, x: pz.x, y: pz.y };
   if (animate) gsap.to(rig, { ...vars, duration: 0.5, ease: 'power3.out', overwrite: 'auto' });
   else {
@@ -390,7 +402,7 @@ function renderPZ(animate) {
   }
 }
 
-/** mantÃ©m a pÃ¡gina Ã  vista: dÃ¡ para passear sÃ³ atÃ© a borda do que foi ampliado */
+/** mantém a página à vista: dá para passear só até a borda do que foi ampliado */
 function clampPZ() {
   pz.s = Math.max(1, Math.min(4, pz.s));
   const visW = book.spread ? 2 * book.pw : book.pw;
@@ -411,7 +423,7 @@ function resetPZ(instant = false) {
   renderPZ(!instant && !idle);
 }
 
-/** centro do livro na tela, sem a translaÃ§Ã£o da pinÃ§a */
+/** centro do livro na tela, sem a translação da pinça */
 function rigCenter() {
   const r = vrect(rig);
   return { x: r.left + r.width / 2 - pz.x, y: r.top + r.height / 2 - pz.y };
@@ -433,7 +445,7 @@ function startPinch() {
   const [a, b] = [...touches.values()];
   cancelPageDrag();
   pan = null;
-  pageDragged = true; // os dedos que sobem nÃ£o viram clique
+  pageDragged = true; // os dedos que sobem não viram clique
   gsap.killTweensOf(rig, 'scale,x,y');
   const c = rigCenter();
   const m = mid(a, b);
@@ -444,7 +456,7 @@ function startPinch() {
 function movePinch() {
   const [a, b] = [...touches.values()];
   const m = mid(a, b);
-  // um pouco de elasticidade abaixo de 1Ã— e acima de 4Ã—
+  // um pouco de elasticidade abaixo de 1× e acima de 4×
   let s = pinch.s0 * (dist(a, b) / pinch.d0);
   if (s < 1) s = 1 - (1 - s) * 0.4;
   if (s > 4) s = 4 + (s - 4) * 0.3;
@@ -465,7 +477,24 @@ function endPinch() {
 
 zoomBtn.addEventListener('click', () => resetPZ());
 
-// Ctrl + roda do mouse (ou pinÃ§a do trackpad, que o navegador entrega assim)
+/** aproximar/afastar um passo, em torno do centro do livro (botões e teclas + −) */
+function zoomBy(dir) {
+  if (!opened || openTl || spin.active) return;
+  const s = Math.max(1, Math.min(4, pz.s * (dir > 0 ? 1.25 : 0.8)));
+  if (s <= 1.02) return resetPZ();
+  const r = vrect(rig);
+  zoomAt({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, s, true);
+}
+const zoomVal = $('#zoomctl .zc-val');
+$('#zoomctl').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-zoom]');
+  if (!b) return;
+  const d = Number(b.dataset.zoom);
+  if (d === 0) resetPZ();
+  else zoomBy(d);
+});
+
+// Ctrl + roda do mouse (ou pinça do trackpad, que o navegador entrega assim)
 window.addEventListener('wheel', (e) => {
   if (!e.ctrlKey || !opened || openTl || spin.active) return;
   e.preventDefault();
@@ -474,33 +503,47 @@ window.addEventListener('wheel', (e) => {
   zoomAt(vpt(e.clientX, e.clientY), s, false);
 }, { passive: false });
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ celular: o livro deitado mostra as duas pÃ¡ginas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── celular: uma página ou duas (escolha do leitor) ───────────── */
 
-// Em pÃ©, o celular mostra uma pÃ¡gina por vez (e a mesa com os objetos em volta).
-// Um toque na pÃ¡gina deita o livro: o palco gira 90Â° e as duas pÃ¡ginas aparecem
-// inteiras â€” Ã© sÃ³ virar o aparelho. Outro toque (ou o botÃ£o) volta a uma pÃ¡gina.
-// Se a pessoa girar o celular de verdade, a tela deitada jÃ¡ mostra as duas.
+// Um botão discreto no topo ("2 páginas") alterna o modo. Com o celular em pé,
+// "duas páginas" deita o livro na tela (é só virar o aparelho); com o celular
+// deitado, as duas aparecem lado a lado. Girar o aparelho NÃO muda o modo
+// escolhido — só o jeito de mostrar.
 const stageEl = $('#stage');
 const lieExit = $('#lie-exit');
 const lieHint = $('#lie-hint');
+const pagesBtn = $('#pages-mode');
 let lieHintTimer;
 
-function applyLying(on) {
-  view.lying = on;
-  document.body.classList.toggle('is-lying', on);
-  lieExit.hidden = !on;
-  if (!on) {
+/** o livro precisa ser deitado (duas páginas com o celular em pé)? */
+const wantsLying = () => view.double && opened && book.mode === 'mobile' && window.innerHeight > window.innerWidth;
+
+function syncPagesBtn() {
+  pagesBtn.setAttribute('aria-pressed', String(view.double));
+  pagesBtn.querySelector('span').textContent = view.double ? t('1 página', '1 page') : t('2 páginas', '2 pages');
+  pagesBtn.title = view.double ? t('Ver uma página por vez', 'Show one page at a time') : t('Ver as duas páginas', 'Show both pages');
+}
+
+function applyMode() {
+  const lying = wantsLying();
+  const changed = lying !== view.lying;
+  view.lying = lying;
+  document.body.classList.toggle('is-lying', lying);
+  document.body.classList.toggle('is-double', view.double);
+  lieExit.hidden = !lying;
+  if (!lying) {
     clearTimeout(lieHintTimer);
     lieHint.hidden = true;
   }
+  syncPagesBtn();
   book.relayout();
   layoutProps();
   updateUI();
+  return changed && lying;
 }
 
-function setLying(on) {
-  on = !!on && opened && !openTl && book.mode === 'mobile' && window.innerHeight > window.innerWidth;
-  if (view.lying === on) return;
+function setPagesMode(double) {
+  if (view.double === double || !opened || openTl) return;
   if (spin.active) spin.resetNow();
   cancelPageDrag();
   if (book.tl) book.tl.progress(1);
@@ -511,9 +554,13 @@ function setLying(on) {
     duration: 0.16,
     ease: 'power1.in',
     onComplete: () => {
-      applyLying(on);
+      view.double = double;
+      try {
+        sessionStorage.setItem('livro.pages', double ? '2' : '1');
+      } catch {}
+      const nowLying = applyMode();
       gsap.to(stageEl, { opacity: 1, duration: 0.4, ease: 'power2.out', clearProps: 'opacity' });
-      if (on) {
+      if (nowLying) {
         lieHint.hidden = false;
         lieHint.classList.remove('is-gone');
         clearTimeout(lieHintTimer);
@@ -525,28 +572,35 @@ function setLying(on) {
     },
   });
 }
+const setLying = (on) => setPagesMode(!!on);
 
-/** sai do modo deitado na hora (sem transiÃ§Ã£o) */
+/** volta a uma página na hora (sem transição) */
 function exitLyingNow() {
-  if (!view.lying) return;
+  if (!view.double && !view.lying) return;
   gsap.killTweensOf(stageEl);
   gsap.set(stageEl, { clearProps: 'opacity' });
-  applyLying(false);
+  view.double = false;
+  applyMode();
 }
 
-lieExit.addEventListener('click', () => setLying(false));
+try {
+  view.double = sessionStorage.getItem('livro.pages') === '2';
+} catch {}
+syncPagesBtn();
+pagesBtn.addEventListener('click', () => setPagesMode(!view.double));
+lieExit.addEventListener('click', () => setPagesMode(false));
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ virar a pÃ¡gina com a mÃ£o (estilo iPad) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── virar a página com a mão (estilo iPad) ───────────── */
 
-// Computador: pegue a pÃ¡gina em qualquer ponto e arraste â€” a folha segue o ponteiro.
-// Celular: deslize o dedo â€” a pÃ¡gina acompanha. Soltar depois da metade (ou num
-// gesto rÃ¡pido) completa; antes disso, a pÃ¡gina volta.
+// Computador: pegue a página em qualquer ponto e arraste — a folha segue o ponteiro.
+// Celular: deslize o dedo — a página acompanha. Soltar depois da metade (ou num
+// gesto rápido) completa; antes disso, a página volta.
 // (Todas as medidas em coordenadas do palco: com o livro deitado, a tela gira.)
 let pageDrag = null;
 let pageDragged = false;
 const NO_DRAG = 'input, textarea, [data-copy], #ui, #desk-props, #talk, #lie-exit';
 
-// se o gesto virou arrasto, o clique no fim (num link, aba ou canto) nÃ£o conta
+// se o gesto virou arrasto, o clique no fim (num link, aba ou canto) não conta
 document.addEventListener('click', (e) => {
   if (pageDragged && e.target.closest('.leaf')) {
     e.preventDefault();
@@ -580,7 +634,7 @@ function cancelPageDrag() {
 document.addEventListener('pointerdown', (e) => {
   if (!opened || openTl) return;
   const onStage = !!e.target.closest('#stage');
-  // dois dedos no livro: pinÃ§a
+  // dois dedos no livro: pinça
   if (e.pointerType === 'touch' && onStage && !spin.active) {
     touches.set(e.pointerId, vpt(e.clientX, e.clientY));
     if (touches.size >= 2) {
@@ -590,11 +644,12 @@ document.addEventListener('pointerdown', (e) => {
     }
   }
   if (e.button !== 0 || pinch) return;
-  // no 360Â°: com o livro de frente, arrastar a pÃ¡gina vira a pÃ¡gina; girado, gira o livro
-  if ((spin.active || spin.rotated) && !(spin.active && spin.frontal && e.target.closest('.leaf'))) return;
+  // no 360°: com o livro de frente, arrastar a página vira a página; girado, gira o livro
+  const flipInSpin = spin.active && spin.frontal && e.pointerType === 'mouse' && e.target.closest('.leaf');
+  if ((spin.active || spin.rotated) && !flipInSpin) return;
   if (e.target.closest(NO_DRAG)) return;
   const pt = vpt(e.clientX, e.clientY);
-  // aproximado: arrastar passeia pela pÃ¡gina
+  // aproximado: arrastar passeia pela página
   if (zoomed() && onStage) {
     e.__page = true;
     pan = { id: e.pointerId, x: pt.x, y: pt.y, px: pz.x, py: pz.y, moved: false };
@@ -604,7 +659,7 @@ document.addEventListener('pointerdown', (e) => {
   }
   const mobile = book.mode === 'mobile';
   if (!e.target.closest('.leaf') && !(mobile && onStage)) return;
-  e.__page = true; // o giro 360Â° nÃ£o pega este gesto
+  e.__page = true; // o giro 360° não pega este gesto
   pageDrag = { id: e.pointerId, x: pt.x, y: pt.y, live: false, p: 0, t: 0, v: 0, target: e.target, lx: pt.x, ly: pt.y };
   pageDragged = false;
 }, true);
@@ -638,16 +693,16 @@ window.addEventListener('pointermove', (e) => {
   if (!g.live) {
     if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
     if (Math.abs(dy) > Math.abs(dx) * 1.3) {
-      pageDrag = null; // gesto vertical: nÃ£o Ã© virar pÃ¡gina
+      pageDrag = null; // gesto vertical: não é virar página
       return;
     }
     let dir;
     if (book.spread) {
-      dir = g.x > spineX().x ? 1 : -1; // pegou a pÃ¡gina da direita â†’ avanÃ§a
+      dir = g.x > spineX().x ? 1 : -1; // pegou a página da direita → avança
       if (book.s === 0) dir = 1;
       if (book.s === book.N) dir = -1;
     } else dir = dx < 0 ? 1 : -1;
-    // levantou por cima ou por baixo? (âˆ’1 topo â€¦ 1 base) â€” o canto puxado vai Ã  frente
+    // levantou por cima ou por baixo? (−1 topo … 1 base) — o canto puxado vai à frente
     const rr = vrect(rig);
     const tilt = Math.max(-1, Math.min(1, ((g.y - rr.top) / rr.height - 0.5) * 2.2));
     if (!book.dragStart(dir, tilt)) {
@@ -703,12 +758,6 @@ function endPageDrag(e) {
   const pt = e ? vpt(e.clientX, e.clientY) : { x: g.lx, y: g.ly };
   const dx = pt.x - g.x;
   const dy = pt.y - g.y;
-  // toque simples numa pÃ¡gina (celular): deita o livro para ver as duas / volta a uma
-  if (!g.live && e?.type === 'pointerup' && book.mode === 'mobile' && !spin.active && !zoomed() && Math.hypot(dx, dy) < 8 && g.target.closest('.leaf') && !g.target.closest('a, button, [data-goto], [data-copy], [data-curl], .plate, input, .tab')) {
-    if (view.lying) setLying(false);
-    else if (!book.spread && book.s > 0 && book.s < book.N) setLying(true);
-    return;
-  }
   if (!g.live) return;
   document.body.classList.remove('is-page-drag');
   const v = performance.now() - g.t > 90 ? 0 : g.v; // parou antes de soltar: sem impulso
@@ -718,7 +767,7 @@ function endPageDrag(e) {
 window.addEventListener('pointerup', endPageDrag);
 window.addEventListener('pointercancel', endPageDrag);
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ reiniciar a abertura â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── reiniciar a abertura ───────────── */
 
 function replay() {
   hideTalk();
@@ -731,8 +780,7 @@ function replay() {
   openTl?.kill();
   openTl = null;
   floatTween?.kill();
-  autoOpen?.kill();
-  spin.resetNow();
+    spin.resetNow();
   resetPZ(true);
   book.setThick(false);
   if (book.tl) book.tl.progress(1);
@@ -764,20 +812,20 @@ function replay() {
   gsap.set(cine.desk, { opacity: 1 });
   updateUI();
   layoutProps();
-  // a trilha recomeÃ§a junto com a abertura
+  // a trilha recomeça junto com a abertura
   music.restart();
   enter();
 }
 $('#replay').addEventListener('click', replay);
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ objetos da mesa: clique e eles falam â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── objetos da mesa: clique e eles falam ───────────── */
 
 const propsEl = $('#desk-props');
 const talkEl = $('#talk');
 const talkIndex = {};
 let talkTimer;
 
-// as peÃ§as sÃ£o as mesmas da cutscene (ids dos degradÃªs renomeados)
+// as peças são as mesmas da cutscene (ids dos degradês renomeados)
 propsEl.querySelector('.dp-glasses').innerHTML = $('.prop-glasses').innerHTML;
 propsEl.querySelector('.dp-pen').innerHTML = $('.prop-pen').innerHTML.replace(/pen-g\b/g, 'pen-g2').replace(/pen-au\b/g, 'pen-au2');
 propsEl.querySelector('.dp-note').innerHTML = $('.prop-note').innerHTML;
@@ -786,16 +834,16 @@ propsEl.querySelector('.dp-whisky').innerHTML = cloneIds($('.prop-whisky').inner
 propsEl.querySelector('.dp-ashtray').innerHTML = cloneIds($('.prop-ashtray').innerHTML);
 propsEl.querySelector('.dp-lighter').innerHTML = cloneIds($('.prop-lighter').innerHTML);
 propsEl.querySelector('.dp-notepad').innerHTML = $('.prop-notepad').innerHTML;
-// fumaÃ§a e brasa do cigarro em HTML (animam na GPU, sem repintar o desenho)
+// fumaça e brasa do cigarro em HTML (animam na GPU, sem repintar o desenho)
 const SMOKE = '<i class="emb" aria-hidden="true"></i><i class="smk" aria-hidden="true"><i></i><i></i><i></i></i>';
 propsEl.querySelector('.dp-ashtray').insertAdjacentHTML('beforeend', SMOKE);
 $('.prop-ashtray').insertAdjacentHTML('beforeend', SMOKE);
 
 /**
  * Onde a mesa aparece em volta do livro (os objetos ficam ali):
- *  - computador e celular deitado: margens Ã  esquerda e Ã  direita;
- *  - celular em pÃ©: uma faixa acima e outra abaixo da pÃ¡gina.
- * Sem espaÃ§o suficiente (ou com o livro deitado/aproximado), os objetos saem.
+ *  - computador e celular deitado: margens à esquerda e à direita;
+ *  - celular em pé: uma faixa acima e outra abaixo da página.
+ * Sem espaço suficiente (ou com o livro deitado/aproximado), os objetos saem.
  */
 function layoutProps() {
   const W = window.innerWidth;
@@ -805,7 +853,7 @@ function layoutProps() {
   let hide = view.lying;
   if (book.orient === 'land') {
     const rail = book.mode === 'desktop' ? 0 : parseFloat(st.getPropertyValue('--rail')) || 0;
-    const m = (W - rail - 2 * book.pw) / 2;
+    const m = (W - rail - (book.spread ? 2 : 1) * book.pw) / 2;
     st.setProperty('--m', `${Math.max(0, m)}px`);
     hide = hide || m < (book.mode === 'desktop' ? 96 : 64);
   } else {
@@ -823,9 +871,11 @@ function layoutProps() {
   root.classList.toggle('no-props', hide);
 }
 
+const modalOpen = () => objModal.isOpen || !!phone?.isOpen;
+
 const objModal = createObjModal({ getTheme: () => theme(), talk: deskTalk, onOpen: () => sound.flip(1) });
 
-// clicar num objeto abre o card dele (girÃ¡vel em 360Â°)
+// clicar num objeto abre o card dele (girável em 360°)
 function talk(prop) {
   hideTalk();
   if (prop === 'phone') return phone.open();
@@ -839,7 +889,7 @@ function talkBubble(prop, anchor) {
   const i = (talkIndex[key] = ((talkIndex[key] ?? -1) + 1) % d.lines.length);
   talkEl.querySelector('.talk-name').textContent = d.name;
   talkEl.querySelector('.talk-text').textContent = d.lines[i];
-  talkEl.querySelector('.talk-more').textContent = window.matchMedia('(pointer: coarse)').matches ? 'toque de novo â†»' : 'clique de novo â†»';
+  talkEl.querySelector('.talk-more').textContent = window.matchMedia('(pointer: coarse)').matches ? t('toque de novo ↻', 'tap again ↻') : t('clique de novo ↻', 'click again ↻');
   talkEl.hidden = false;
   talkEl.classList.remove('is-shown');
   talkEl.style.left = talkEl.style.top = '';
@@ -874,10 +924,10 @@ document.addEventListener('pointerdown', (e) => {
 });
 window.addEventListener('themechange', hideTalk);
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ barra de ajustes (celular) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── barra de ajustes (celular) ───────────── */
 
-// No celular: uma barra no rodapÃ© (como nos apps) sÃ³ com o essencial â€”
-// tema, mÃºsica (abre o celular da mesa), som das pÃ¡ginas, 360Â° e abertura.
+// No celular: uma barra no rodapé (como nos apps) só com o essencial —
+// tema, música (abre o celular da mesa), som das páginas, 360° e abertura.
 const tabbar = $('#tabbar');
 const tb = (act) => tabbar.querySelector(`[data-act="${act}"]`);
 
@@ -902,7 +952,7 @@ tabbar.addEventListener('click', (e) => {
   syncTabbar();
 });
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ "Visitar a obra": mergulho de cÃ¢mera â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── "Visitar a obra": mergulho de câmera ───────────── */
 
 const portal = createPortal({
   rig,
@@ -920,7 +970,7 @@ const portal = createPortal({
 });
 
 document.addEventListener('click', (e) => {
-  // clicar na foto (prancha) do projeto tambÃ©m mergulha no site
+  // clicar na foto (prancha) do projeto também mergulha no site
   const plate = !e.target.closest('[data-visit]') && e.target.closest('.work .plate');
   const a = e.target.closest('[data-visit]') || (plate && plate.closest('.work').querySelector('[data-visit]'));
   if (!a || e.defaultPrevented) return;
@@ -933,13 +983,13 @@ document.addEventListener('click', (e) => {
   const frame = a.closest('.work')?.querySelector('.photo-frame, .plate-inner');
   portal.go(a.href, frame, a.dataset.title || 'a obra');
 });
-// prÃ©-conecta ao destino quando o ponteiro chega no link
+// pré-conecta ao destino quando o ponteiro chega no link
 document.addEventListener('pointerover', (e) => {
   const a = e.target.closest?.('[data-visit]');
   if (a) portal.warm(a.href);
 });
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ trilha sonora e som das pÃ¡ginas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── trilha sonora e som das páginas ───────────── */
 
 const musicBtn = $('#music');
 const soundBtn = $('#sound');
@@ -948,7 +998,7 @@ function syncMusicUI() {
   const v = Math.round(music.volume * 100);
   musicBtn.classList.toggle('is-off', !music.enabled);
   musicBtn.setAttribute('aria-pressed', String(music.enabled));
-  musicBtn.title = `Trilha sonora â€” volume ${music.muted ? 'mudo' : v} Â· abre o celular`;
+  musicBtn.title = t(`Trilha sonora — volume ${music.muted ? 'mudo' : v} · abre o celular`, `Soundtrack — volume ${music.muted ? 'muted' : v} · opens the phone`);
   syncTabbar();
   phone?.sync();
 }
@@ -965,7 +1015,7 @@ function toggleSound() {
   syncSound();
 }
 
-// o botÃ£o de mÃºsica (no computador e na barra do celular) abre o celular da mesa
+// o botão de música (no computador e na barra do celular) abre o celular da mesa
 musicBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   phone.open();
@@ -982,7 +1032,7 @@ phone = createPhone({
 syncMusicUI();
 syncSound();
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ tema claro (clÃ¡ssico) Ã— escuro (EdiÃ§Ã£o Sombria) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── tema claro (clássico) × escuro (Edição Sombria) ───────────── */
 
 const THEME_COLOR = { light: '#0b0807', dark: '#050506' };
 let switching = false;
@@ -1000,7 +1050,7 @@ async function setTheme(next, origin) {
   document.documentElement.dataset.theme = next;
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[next]);
   try {
-    localStorage.setItem('livro.theme', next);
+    sessionStorage.setItem('livro.theme', next);
   } catch {}
   const fav = document.getElementById('favicon');
   if (fav) fav.href = `favicon-${next}.svg`;
@@ -1016,8 +1066,8 @@ function syncThemeButton() {
   const b = $('#theme');
   const dark = theme() === 'dark';
   b.setAttribute('aria-pressed', String(dark));
-  b.title = dark ? 'EdiÃ§Ã£o Sombria â€” clique para a ediÃ§Ã£o clÃ¡ssica' : 'EdiÃ§Ã£o clÃ¡ssica â€” clique para a EdiÃ§Ã£o Sombria';
-  b.querySelector('.theme-label').textContent = dark ? 'sombria' : 'clÃ¡ssica';
+  b.title = dark ? t('Edição Sombria — clique para a edição clássica', 'Dark Edition — click for the classic edition') : t('Edição clássica — clique para a Edição Sombria', 'Classic edition — click for the Dark Edition');
+  b.querySelector('.theme-label').textContent = dark ? t('sombria', 'dark') : t('clássica', 'classic');
 }
 
 function toggleTheme(origin) {
@@ -1025,9 +1075,34 @@ function toggleTheme(origin) {
 }
 
 $('#theme').addEventListener('click', (e) => toggleTheme({ x: e.clientX, y: e.clientY }));
+
+// o tema do aparelho mudou (ex.: modo escuro automático à noite) e o leitor não escolheu outro
+window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', (e) => {
+  let chosen = null;
+  try {
+    chosen = sessionStorage.getItem('livro.theme');
+  } catch {}
+  if (!chosen) setTheme(e.matches ? 'dark' : 'light');
+});
+
+/* ───────────── idioma: PT ⇄ EN ───────────── */
+
+const langBtn = $('#lang');
+langBtn.setAttribute('aria-checked', String(EN));
+langBtn.classList.toggle('is-en', EN);
+langBtn.addEventListener('click', () => {
+  langBtn.classList.toggle('is-en');
+  setLang(EN ? 'pt' : 'en');
+  // reabre no mesmo ponto, sem a abertura, já no outro idioma
+  try {
+    if (opened) sessionStorage.setItem('livro.back', String(book.page));
+  } catch {}
+  document.body.classList.add('is-switching-lang');
+  setTimeout(() => window.location.reload(), 220);
+});
 syncThemeButton();
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ interaÃ§Ãµes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── interações ───────────── */
 
 function bindControls() {
   ui.next.addEventListener('click', () => book.next());
@@ -1063,8 +1138,8 @@ function bindControls() {
     const copy = e.target.closest('[data-copy]');
     if (copy) {
       navigator.clipboard?.writeText(copy.dataset.copy).then(() => {
-        copy.textContent = 'copiado âœ“';
-        setTimeout(() => (copy.textContent = 'copiar'), 1800);
+        copy.textContent = t('copiado ✓', 'copied ✓');
+        setTimeout(() => (copy.textContent = t('copiar', 'copy')), 1800);
       });
       return;
     }
@@ -1072,7 +1147,7 @@ function bindControls() {
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.target.closest('input, textarea')) return;
+    if (e.target.closest('input, textarea') || modalOpen()) return;
     if (!opened) {
       if (['Enter', ' ', 'ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) {
         e.preventDefault();
@@ -1081,7 +1156,10 @@ function bindControls() {
       return;
     }
     if (e.key === 'Escape' && zoomed()) { resetPZ(); return; }
-    if (e.key === 'Escape' && view.lying) { setLying(false); return; }
+    if (['+', '='].includes(e.key)) { zoomBy(1); return; }
+    if (e.key === '-') { zoomBy(-1); return; }
+    if (e.key === '0') { resetPZ(); return; }
+    if (e.key === 'Escape' && view.double) { setPagesMode(false); return; }
     if (e.key === 'Escape' && spin.rotated) { spin.reset(); return; }
     if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); book.next(); }
     if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); book.prev(); }
@@ -1093,7 +1171,8 @@ function bindControls() {
   let acc = 0;
   let lock = 0;
   window.addEventListener('wheel', (e) => {
-    if (e.ctrlKey) return; // Ctrl + roda = aproximar (tratado na pinÃ§a)
+    if (e.ctrlKey) return; // Ctrl + roda = aproximar (tratado na pinça)
+    if (modalOpen() || e.target.closest?.('#phone-modal, #obj-modal')) return;
     if (!opened) {
       if (e.deltaY > 10) open();
       return;
@@ -1129,7 +1208,7 @@ function bindControls() {
     if (p != null && opened) book.goToPage(p);
   });
 
-  // aba em segundo plano: o navegador Ã s vezes informa medidas falsas â€” ignora
+  // aba em segundo plano: o navegador às vezes informa medidas falsas — ignora
   let rt;
   window.addEventListener('resize', () => {
     if (document.hidden) return;
@@ -1143,12 +1222,14 @@ function relayoutNow(force = false) {
   const key = `${window.innerWidth}x${window.innerHeight}`;
   if (!force && key === laidOut) return;
   laidOut = key;
-  // girou o celular de verdade: a tela deitada jÃ¡ mostra as duas pÃ¡ginas
-  if (view.lying && window.innerWidth > window.innerHeight) {
-    view.lying = false;
-    document.body.classList.remove('is-lying');
-    lieExit.hidden = true;
-    lieHint.hidden = true;
+  // girou o aparelho: mantém o modo escolhido (uma ou duas páginas), muda só o jeito de mostrar
+  if (opened) {
+    applyMode();
+    if (zoomed()) {
+      clampPZ();
+      renderPZ(false);
+    }
+    return;
   }
   book.relayout();
   if (!opened && !openTl) gsap.set(book.el, { x: book.xFor(0) });
@@ -1162,8 +1243,8 @@ function relayoutNow(force = false) {
 
 /**
  * Ao voltar para a aba (depois de abrir um projeto, trocar de app ou de aba):
- * gestos que ficaram "presos" (o dedo saiu da tela em outra aba) sÃ£o
- * desfeitos, o mergulho do portal Ã© encerrado e as medidas, refeitas.
+ * gestos que ficaram "presos" (o dedo saiu da tela em outra aba) são
+ * desfeitos, o mergulho do portal é encerrado e as medidas, refeitas.
  */
 function heal() {
   if (document.hidden) return;
@@ -1180,7 +1261,7 @@ function heal() {
 document.addEventListener('visibilitychange', () => setTimeout(heal, 80));
 window.addEventListener('pageshow', () => setTimeout(heal, 80));
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ paralaxe sutil â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── paralaxe sutil ───────────── */
 
 function enableParallax() {
   if (reduced || !window.matchMedia('(pointer: fine)').matches) return;
@@ -1199,8 +1280,8 @@ function enableParallax() {
   }, { passive: true });
 }
 
-// brilho do ouro acompanha o cursor â€” sÃ³ nas capas, sÃ³ quando estÃ£o Ã  vista,
-// no mÃ¡ximo uma vez por quadro (variÃ¡vel no :root recalcularia a pÃ¡gina inteira)
+// brilho do ouro acompanha o cursor — só nas capas, só quando estão à vista,
+// no máximo uma vez por quadro (variável no :root recalcularia a página inteira)
 const boards = [book.leaves[0], book.leaves[book.N - 1]];
 let mxQueued = false;
 let mxEvent = null;
@@ -1220,12 +1301,90 @@ window.addEventListener('pointermove', (e) => {
   });
 }, { passive: true });
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ inÃ­cio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── textos da interface em inglês ───────────── */
+
+function translateStatic() {
+  if (!EN) return;
+  const T = [
+    // [seletor, texto (ou null), atributos]
+    ['#stage', null, { 'aria-label': 'Book: Matheus Andrade, Full Stack Developer' }],
+    ['.ui-mark', null, { 'aria-label': 'Home: close the book and go back to the cover', title: 'Back to the cover' }],
+    ['.ui-links', null, { 'aria-label': 'Shortcuts' }],
+    ['[data-nav="sumario"]', 'Contents'],
+    ['[data-nav="obras"]', 'Works'],
+    ['[data-nav="epilogo"]', 'Contact'],
+    ['#spin', null, { 'aria-label': 'Rotate the book 360 degrees', title: 'Drag to rotate' }],
+    ['#theme', null, { 'aria-label': 'Switch between light and dark themes' }],
+    ['#sound', null, { 'aria-label': 'Page sounds' }],
+    ['#sound .snd-label', 'sound'],
+    ['#music', null, { 'aria-label': 'Soundtrack' }],
+    ['#music .snd-label', 'music'],
+    ['#replay', null, { 'aria-label': 'Replay the opening', title: 'Replay the opening' }],
+    ['#replay .snd-label', 'opening'],
+    ['#prev', null, { 'aria-label': 'Previous page' }],
+    ['#prev span', 'previous'],
+    ['#next', null, { 'aria-label': 'Next page' }],
+    ['#next span', 'next'],
+    ['#tabbar', null, { 'aria-label': 'Settings' }],
+    ['[data-act="theme"]', null, { 'aria-label': 'Switch edition: classic or dark' }],
+    ['[data-act="theme"] .tb-label', 'theme'],
+    ['[data-act="music"]', null, { 'aria-label': 'Music: open the phone' }],
+    ['[data-act="music"] .tb-label', 'music'],
+    ['[data-act="sound"]', null, { 'aria-label': 'Page sounds' }],
+    ['[data-act="sound"] .tb-label', 'pages'],
+    ['[data-act="spin"]', null, { 'aria-label': 'Rotate the book 360 degrees' }],
+    ['[data-act="replay"]', null, { 'aria-label': 'Replay the opening' }],
+    ['[data-act="replay"] .tb-label', 'opening'],
+    ['.prompt-text', 'Tap to open'],
+    ['.ct-pre', 'a book by'],
+    ['.cine-place', 'Franca, Brazil &nbsp;·&nbsp; MMXXVI', null, true],
+    ['#spin-hint', '360° mode · drag outside the book to rotate · facing you, drag the page to turn it'],
+    ['#spin-exit', null, null, false, (el) => (el.lastChild.textContent = 'back to the book')],
+    ['#skip', 'Skip intro <kbd>Esc</kbd>', null, true],
+    ['#zoom-out', '⤢ original size'],
+    ['#lie-exit', '↺ one page'],
+    ['#lie-hint', '<span class="lh-phone"></span>turn your phone to read both pages', null, true],
+    ['#read-hint', 'swipe to turn · “2 pages” shows both · pinch to zoom'],
+    ['#zoomctl [data-zoom="-1"]', null, { 'aria-label': 'Zoom out' }],
+    ['#zoomctl [data-zoom="0"]', null, { 'aria-label': 'Original size' }],
+    ['#zoomctl [data-zoom="1"]', null, { 'aria-label': 'Zoom in' }],
+    ['#desk-props', null, { 'aria-label': 'Desk objects' }],
+    ['.dp-glasses', null, { 'aria-label': 'Work glasses' }],
+    ['.dp-ring', null, { 'aria-label': 'Coffee ring or candle' }],
+    ['.dp-pen', null, { 'aria-label': 'Fountain pen' }],
+    ['.dp-note', null, { 'aria-label': '“Read me” note' }],
+    ['.dp-whisky', null, { 'aria-label': 'Glass of whisky' }],
+    ['.dp-ashtray', null, { 'aria-label': 'Cigarette in the ashtray' }],
+    ['.dp-lighter', null, { 'aria-label': 'Lighter' }],
+    ['.dp-notepad', null, { 'aria-label': 'Notepad' }],
+    ['.dp-phone', null, { 'aria-label': 'Phone: what is playing' }],
+    ['.om-x', null, { 'aria-label': 'Close' }],
+    ['.om-hint', 'drag to rotate 360°'],
+    ['.om-next', 'another story ↻'],
+    ['.pm-device', null, { 'aria-label': 'Phone — now playing' }],
+    ['.pm-down', null, { 'aria-label': 'Close the phone' }],
+    ['.pm-head small', 'now playing'],
+    ['.pm-seek .sr-only', 'Track position'],
+    ['.pm-restart', null, { 'aria-label': 'Back to the start of the track' }],
+    ['.pm-vol .sr-only', 'Soundtrack volume'],
+    ['.pm-pages span', 'page sounds'],
+    ['.talk-more', 'click again ↻'],
+  ];
+  for (const [sel, text, attrs, html, fn] of T) {
+    document.querySelectorAll(sel).forEach((el) => {
+      if (text != null) el[html ? 'innerHTML' : 'textContent'] = text;
+      if (attrs) for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      fn?.(el);
+    });
+  }
+}
+translateStatic();
+
+/* ───────────── início ───────────── */
 
 bindControls();
 laidOut = `${window.innerWidth}x${window.innerHeight}`;
 updateUI();
-loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]'));
 
 const ready = document.fonts?.ready ?? Promise.resolve();
 Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout(r, 3000))]).then(() => {
@@ -1248,7 +1407,7 @@ Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout
   if (returnPage != null) skipIntro();
 });
 
-// Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas pÃ¡ginas
+// Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas páginas
 document.addEventListener('dragstart', (e) => {
   if (e.target.closest?.('.leaves')) e.preventDefault();
 });

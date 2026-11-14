@@ -93,8 +93,13 @@
   position: relative;
 }
 
+/* camadas internas escuras formam a espessura (filtro é rasterizado uma vez; girar não o recalcula) */
 .om-layer.is-edge {
   filter: brightness(0.45) saturate(0.8);
+}
+
+.om-obj {
+  will-change: transform;
 }
 
 /* o clone do objeto, sem posição nem animação de mesa */

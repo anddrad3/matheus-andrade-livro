@@ -1,4 +1,5 @@
 import { github, diary } from './content.js';
+import { t, LOCALE } from './lang.js';
 
 /**
  * Preenche o "Diário de bordo" com os commits mais recentes do GitHub.
@@ -8,7 +9,7 @@ import { github, diary } from './content.js';
 const CACHE = 'livro.diary.v1';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const fmt = (iso) =>
-  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace(' de ', ' ').replace('.', '');
+  new Date(iso).toLocaleDateString(LOCALE, { day: '2-digit', month: 'short' }).replace(' de ', ' ').replace('.', '');
 
 async function fetchCommits() {
   const api = 'https://api.github.com';
@@ -67,7 +68,7 @@ export async function loadDiary(list, status) {
       )
       .join('');
     if (status) {
-      status.textContent = `atualizado agora · github.com/${github}`;
+      status.textContent = `${t('atualizado agora', 'updated just now')} · github.com/${github}`;
       status.classList.add('is-live');
     }
   } catch {

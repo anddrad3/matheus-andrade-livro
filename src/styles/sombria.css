@@ -113,8 +113,8 @@
     #e4e7ec 80%,
     #5a5d64 100%
   );
-  -webkit-mask: url('../assets/caveira-durer.png') center / contain no-repeat;
-  mask: url('../assets/caveira-durer.png') center / contain no-repeat;
+  -webkit-mask: url('../assets/caveira-durer.webp') center / contain no-repeat;
+  mask: url('../assets/caveira-durer.webp') center / contain no-repeat;
 }
 
 :root[data-theme="dark"] .cover-motto {
