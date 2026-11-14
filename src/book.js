@@ -19,6 +19,8 @@ export class Book {
     this.side = 'right';
     this.d = 2.4; // espaçamento em Z entre folhas (livro fechado = espesso)
     this.dOpen = 0.35;
+    this.dThick = 3.2; // no modo 360° o miolo ganha corpo
+    this.thick = false;
     this.tl = null;
 
     // Constrói as folhas
@@ -152,6 +154,7 @@ export class Book {
       el.setAttribute('aria-hidden', on ? 'false' : 'true');
     });
     this.cull();
+    this.updateBlocks();
   }
 
   /**
@@ -173,6 +176,28 @@ export class Book {
     this.cast.style.setProperty('--edge', `${edge.toFixed(2)}%`);
     this.cast.style.setProperty('--k', (strength * 0.55).toFixed(3));
     this.cast.dataset.side = right ? 'right' : 'left';
+  }
+
+  /* ─────────── espessura (modo 360°) ─────────── */
+
+  setThick(on) {
+    if (this.thick === on) return;
+    this.thick = on;
+    if (this.tl) this.tl.progress(1);
+    this.d = on ? this.dThick : this.dOpen;
+    this.leaves.forEach((leaf, k) => {
+      gsap.to(leaf, { z: this.zFor(k, k < this.s), duration: 0.7, ease: 'power2.inOut' });
+    });
+    document.documentElement.classList.toggle('is-thick', on);
+    this.updateBlocks();
+  }
+
+  /** espessura dos dois blocos de páginas (esquerdo e direito) */
+  updateBlocks() {
+    const root = document.documentElement.style;
+    const t = (n) => (this.thick ? `${(Math.max(0, n) * this.d).toFixed(1)}px` : '0px');
+    root.setProperty('--tl', t(this.s - 1));
+    root.setProperty('--tr', t(this.N - 1 - this.s));
   }
 
   /* ─────────── virar com a mão (arrastar o canto) ─────────── */

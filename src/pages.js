@@ -1,5 +1,6 @@
 import { author, prologue, arsenal, works, formation, epilogue, diary, colophon, index } from './content.js';
 import {
+  wingedSkull,
   guilloche, medallion, corner, rule, fleuron, waxSeal, barcode, arrow, roman,
   handArrow, handCircle, handUnderline, phonePlate, tape,
 } from './ornaments.js';
@@ -32,7 +33,7 @@ export const TABS = CHAPTERS.filter((c) => c.tab).map((c, i, all) => ({
   ...c,
   leaf: Math.floor(c.page / 2),
   pos: +(i / (all.length - 1)).toFixed(3),
-  color: ['#6e1d14', '#1f3a2d', '#5a3a12'][i % 3],
+  color: ['#7a0a0e', '#161618', '#3a3c42'][i % 3],
 }));
 
 export function chapterOf(p) {
@@ -107,7 +108,7 @@ function cover() {
       ${corner('c-tl')}${corner('c-tr')}${corner('c-bl')}${corner('c-br')}
     </div>
     <div class="cover-content">
-      ${fleuron('cover-fleuron foil-stroke')}
+      ${wingedSkull('cover-skull foil-stroke')}
       <p class="cover-kicker foil">Vol. I · ${roman(author.year)}</p>
       <h1 class="cover-title">
         <span class="foil">${esc(author.first)}</span>
@@ -115,7 +116,7 @@ function cover() {
       </h1>
       ${rule('cover-rule foil-stroke')}
       <p class="cover-role foil">${esc(author.role)}</p>
-      ${medallion(author.monogram, { a: 8, b: 3, loops: 36, r: 0.52 }, 'cover-medallion foil-stroke')}
+      <p class="cover-edition foil">Edição Sombria</p>
     </div>
     <div class="cover-glint"></div>
     <div class="cover-sheen"></div>
@@ -144,7 +145,7 @@ function backCover() {
       ${corner('c-tl')}${corner('c-tr')}${corner('c-bl')}${corner('c-br')}
     </div>
     <div class="back-content">
-      ${fleuron('foil-stroke back-fleuron')}
+      ${wingedSkull('foil-stroke back-skull')}
       <p class="back-blurb foil">${esc(author.blurb)}</p>
       ${rule('foil-stroke back-rule')}
       <p class="back-author foil">${esc(author.fullName)}</p>

@@ -16,8 +16,8 @@ export function startAmbient({ canvas, spot, reduced }) {
   {
     const sc = sprite.getContext('2d');
     const g = sc.createRadialGradient(16, 16, 0, 16, 16, 16);
-    g.addColorStop(0, 'rgba(255,214,150,0.5)');
-    g.addColorStop(1, 'rgba(255,214,150,0)');
+    g.addColorStop(0, 'rgba(205,210,225,0.5)');
+    g.addColorStop(1, 'rgba(205,210,225,0)');
     sc.fillStyle = g;
     sc.fillRect(0, 0, 32, 32);
   }
@@ -71,7 +71,7 @@ export function startAmbient({ canvas, spot, reduced }) {
         ctx.drawImage(sprite, m.x - s / 2, m.y - s / 2, s, s);
         ctx.globalAlpha = 1;
       } else {
-        ctx.fillStyle = `rgba(255,226,178,${a})`;
+        ctx.fillStyle = `rgba(215,218,228,${a})`;
         ctx.beginPath();
         ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
         ctx.fill();

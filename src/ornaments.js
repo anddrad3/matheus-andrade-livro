@@ -236,3 +236,45 @@ export function phonePlate() {
 
 /** Fita adesiva (washi) */
 export const tape = (cls = '') => `<span class="tape ${cls}" aria-hidden="true"></span>`;
+
+/**
+ * Caveira alada (desenho original): crânio com asas de penas em leque.
+ * Usa currentColor — herda a prata da capa.
+ */
+export function wingedSkull(cls = '') {
+  const cx = 120;
+  const f = (n) => n.toFixed(1);
+  // duas fileiras de penas: primárias longas e cobertas curtas por cima
+  const row = (count, a0, a1, len0, len1, w0, base) =>
+    Array.from({ length: count }, (_, i) => {
+      const t = i / (count - 1);
+      const ang = (a0 + (a1 - a0) * t) * (Math.PI / 180);
+      const len = len0 + (len1 - len0) * t;
+      const w = w0 * (1 - t * 0.35);
+      const [bx, by] = [base[0] - t * 6, base[1] - t * 8];
+      const tx = bx - Math.cos(ang) * len;
+      const ty = by - Math.sin(ang) * len;
+      const nx = -Math.sin(ang);
+      const ny = Math.cos(ang);
+      const k1 = 0.35;
+      const k2 = 0.8;
+      const p1 = [bx + (tx - bx) * k1, by + (ty - by) * k1];
+      const p2 = [bx + (tx - bx) * k2, by + (ty - by) * k2];
+      return `<path d="M${f(bx)} ${f(by)} C${f(p1[0] + nx * w)} ${f(p1[1] + ny * w)} ${f(p2[0] + nx * w * 0.9)} ${f(p2[1] + ny * w * 0.9)} ${f(tx)} ${f(ty)} C${f(p2[0] - nx * w * 0.35)} ${f(p2[1] - ny * w * 0.35)} ${f(p1[0] - nx * w * 0.4)} ${f(p1[1] - ny * w * 0.4)} ${f(bx)} ${f(by)}Z"/>`;
+    }).reverse().join('');
+  const wing =
+    row(8, -12, 62, 112, 60, 13, [98, 84]) +
+    `<g class="ws-cov">${row(6, 0, 70, 58, 34, 11, [100, 78])}</g>`;
+  return `<svg class="winged-skull ${cls}" viewBox="0 0 240 140" aria-hidden="true">
+    <g class="ws-wing">${wing}</g>
+    <g class="ws-wing" transform="translate(${cx * 2} 0) scale(-1 1)">${wing}</g>
+    <g transform="translate(120 74) scale(1.32) translate(-120 -72)">
+      <path class="ws-skull" fill-rule="evenodd" d="M120 38C139 38 151 51 151 68c0 11-5 18-9 22l-2 9c0 4-4 6-8 6h-24c-4 0-8-2-8-6l-2-9c-4-4-9-11-9-22 0-17 12-30 31-30Z
+        M101 70c0-7 6-10 13-7 4 3 3 13-4 15-5 1-9-3-9-8Z
+        M139 70c0-7-6-10-13-7-4 3-3 13 4 15 5 1 9-3 9-8Z
+        M120 80l-4 8h8Z"/>
+      <path class="ws-teeth" d="M107 96h26M111 91.5v12M115.5 91.5v13M120 91.5v13M124.5 91.5v13M129 91.5v12"/>
+      <path class="ws-crack" d="M129 40l-3 8 4 5-2 6"/>
+    </g>
+  </svg>`;
+}

@@ -2,24 +2,26 @@
    Tokens
    ───────────────────────────────────────────── */
 :root {
-  --night: #0b0807;
-  --night-2: #17110d;
-  --ink: #2b2019;
-  --ink-soft: #5e4c3d;
-  --ink-faint: #85705c;
-  --rubric: #8e2a1c;
-  --paper: #f2e8d4;
-  --paper-2: #eadcc1;
-  --gold: #c09a52;
-  --gold-deep: #7d5f2a;
-  --gold-hi: #f4dc96;
-  --leather: #1f1511;
-  --leather-hi: #3a2820;
-  --cream: #e9dcc2;
+  --night: #050506;
+  --night-2: #0d0d0f;
+  --ink: #141414;
+  --ink-soft: #3d3b3a;
+  --ink-faint: #6f6b66;
+  --rubric: #9b0d12;
+  --paper: #e7e3da;
+  --paper-2: #d8d2c6;
+  --gold: #c3c6cc;
+  --gold-deep: #5c6068;
+  --gold-hi: #f3f5f8;
+  --leather: #0c0c0d;
+  --leather-hi: #1d1d20;
+  --cream: #d8d6d2;
 
   --serif-display: 'Cormorant Garamond', 'Cormorant', Garamond, 'Times New Roman', serif;
   --serif: 'EB Garamond', Garamond, Georgia, serif;
   --script: 'Pinyon Script', 'Snell Roundhand', cursive;
+  --gothic: 'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', serif;
+  --caps: 'Cinzel', 'Trajan Pro', serif;
 
   --pw: 520px;
   --ph: 740px;
@@ -71,7 +73,7 @@ a {
 }
 
 ::selection {
-  background: rgba(192, 154, 82, 0.35);
+  background: rgba(195, 198, 204, 0.35);
   color: inherit;
 }
 
@@ -96,7 +98,7 @@ a {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 42%, rgba(120, 82, 46, 0.32), transparent 70%),
+    radial-gradient(ellipse 70% 55% at 50% 42%, rgba(60, 60, 66, 0.32), transparent 70%),
     radial-gradient(ellipse 120% 90% at 50% 0%, #241912 0%, #120c09 45%, var(--night) 80%);
 }
 
@@ -105,7 +107,7 @@ a {
   content: '';
   position: absolute;
   inset: -10% 10% 0;
-  background: conic-gradient(from 180deg at 50% -8%, transparent 158deg, rgba(255, 214, 160, 0.07) 172deg, rgba(255, 220, 170, 0.1) 180deg, rgba(255, 214, 160, 0.07) 188deg, transparent 202deg);
+  background: conic-gradient(from 180deg at 50% -8%, transparent 158deg, rgba(200, 208, 228, 0.07) 172deg, rgba(215, 222, 240, 0.1) 180deg, rgba(200, 208, 228, 0.07) 188deg, transparent 202deg);
   filter: blur(18px);
   mix-blend-mode: screen;
 }
@@ -125,7 +127,7 @@ a {
   height: 76vmax;
   margin: -38vmax 0 0 -38vmax;
   pointer-events: none;
-  background: radial-gradient(closest-side, rgba(255, 210, 150, 0.06), transparent 70%);
+  background: radial-gradient(closest-side, rgba(190, 200, 225, 0.06), transparent 70%);
   will-change: transform;
 }
 
@@ -174,7 +176,7 @@ a {
   font-style: italic;
   letter-spacing: 0.08em;
   font-size: 1.05rem;
-  color: rgba(233, 220, 194, 0.6);
+  color: rgba(216, 214, 210, 0.6);
 }
 
 @keyframes breathe {

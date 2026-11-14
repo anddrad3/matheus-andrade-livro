@@ -4,6 +4,7 @@ import './styles/book.css';
 import './styles/pages.css';
 import './styles/ui.css';
 import './styles/extras.css';
+import './styles/sombria.css';
 import { installTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS } from './pages.js';
@@ -199,6 +200,7 @@ const spin = createSpin({
   button: $('#spin'),
   hint: $('#spin-hint'),
   canStart: () => opened && !openTl,
+  onChange: (on) => book.setThick(on),
 });
 
 function goHome() {

@@ -14,6 +14,20 @@ export function createSpin({ float, camera, stage, button, hint, canStart, onCha
   let drag = null;
   let moved = false;
   let hintTimer;
+  // liga/desliga do recurso (lembrado). No toque começa desligado,
+  // para o deslize do dedo continuar virando página.
+  const KEY = 'livro.spin';
+  let enabled = !window.matchMedia('(pointer: coarse)').matches;
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) enabled = saved === 'on';
+  } catch {}
+  const syncButton = () => {
+    button.setAttribute('aria-pressed', String(enabled));
+    button.classList.toggle('is-off', !enabled);
+    button.title = enabled ? 'Giro 360° ligado — clique para desligar' : 'Giro 360° desligado — clique para ligar';
+  };
+  syncButton();
 
   const apply = () => {
     gsap.set(float, { rotationX: rx });
@@ -23,7 +37,6 @@ export function createSpin({ float, camera, stage, button, hint, canStart, onCha
   function setActive(on) {
     active = on;
     document.body.classList.toggle('is-spin', on);
-    button.setAttribute('aria-pressed', String(on));
     onChange?.(on);
     clearTimeout(hintTimer);
     hint.classList.toggle('is-shown', on);
@@ -71,15 +84,21 @@ export function createSpin({ float, camera, stage, button, hint, canStart, onCha
 
   button.addEventListener('click', () => {
     if (!canStart()) return;
-    if (active || rx || ry % 360) reset();
-    else {
+    enabled = !enabled;
+    try {
+      localStorage.setItem(KEY, enabled ? 'on' : 'off');
+    } catch {}
+    syncButton();
+    if (enabled) {
       setActive(true);
       showcase();
+    } else {
+      reset();
     }
   });
 
   stage.addEventListener('pointerdown', (e) => {
-    if (!canStart() || e.button !== 0) return;
+    if (!canStart() || e.button !== 0 || !enabled) return;
     if (e.pointerType !== 'mouse' && !active) return;
     if (e.target.closest('a, button, input, textarea, [data-copy]')) return;
     gsap.killTweensOf([float, camera]);
@@ -149,6 +168,9 @@ export function createSpin({ float, camera, stage, button, hint, canStart, onCha
   });
 
   return {
+    get enabled() {
+      return enabled;
+    },
     get active() {
       return active;
     },
