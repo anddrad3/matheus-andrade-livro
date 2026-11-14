@@ -287,13 +287,21 @@ window.addEventListener('pointermove', (e) => {
       if (book.s === 0) dir = 1;
       if (book.s === book.N) dir = -1;
     } else dir = dx < 0 ? 1 : -1;
-    if (!book.dragStart(dir)) {
+    // levantou por cima ou por baixo? (−1 topo … 1 base) — o canto puxado vai à frente
+    const rr = rig.getBoundingClientRect();
+    const tilt = Math.max(-1, Math.min(1, ((g.y - rr.top) / rr.height - 0.5) * 2.2));
+    if (!book.dragStart(dir, tilt)) {
       pageDrag = null;
       return;
     }
     g.live = true;
     g.dir = dir;
     g.th0 = thetaAt(g.x);
+    // completa quando o ponteiro cruza a lombada (como num livro real)
+    if (book.mode === 'desktop' && book.drag?.leaf) {
+      book.drag.commitAt = dir > 0 ? (90 - g.th0) / Math.max(20, 180 - g.th0) : (g.th0 - 90) / Math.max(20, g.th0);
+      book.drag.commitAt = Math.max(0.2, Math.min(0.6, book.drag.commitAt));
+    }
     pageDragged = true;
     document.body.classList.add('is-page-drag');
     g.t = performance.now();
@@ -341,6 +349,8 @@ function replay() {
   if (book.tl) book.tl.progress(1);
   gsap.killTweensOf([camera, float, book.el, book.shadow, book.edges, cine.veil, cine.bars, cine.place, cine.pre, cine.name, cine.light, cine.desk, ...book.leaves]);
   book.drag = null;
+  document.querySelectorAll('.bend').forEach((b) => b.remove());
+  book.leaves.forEach((l) => l.classList.remove('is-bending'));
   opened = false;
   history.replaceState(null, '', window.location.pathname + window.location.search);
   document.body.classList.remove('is-open', 'is-opening', 'can-open');
@@ -376,6 +386,8 @@ propsEl.querySelector('.dp-note').innerHTML = $('.prop-note').innerHTML;
 const cloneIds = (html) => html.replace(/(id="|url\(#)([\w-]+)/g, '$1$2-2');
 propsEl.querySelector('.dp-whisky').innerHTML = cloneIds($('.prop-whisky').innerHTML);
 propsEl.querySelector('.dp-ashtray').innerHTML = cloneIds($('.prop-ashtray').innerHTML);
+propsEl.querySelector('.dp-lighter').innerHTML = cloneIds($('.prop-lighter').innerHTML);
+propsEl.querySelector('.dp-notepad').innerHTML = $('.prop-notepad').innerHTML;
 
 function measureMargins() {
   const m = (window.innerWidth - 2 * book.pw) / 2;
@@ -517,7 +529,9 @@ const portal = createPortal({
 });
 
 document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-visit]');
+  // clicar na foto (prancha) do projeto também mergulha no site
+  const plate = !e.target.closest('[data-visit]') && e.target.closest('.work .plate');
+  const a = e.target.closest('[data-visit]') || (plate && plate.closest('.work').querySelector('[data-visit]'));
   if (!a || e.defaultPrevented) return;
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // nova aba: deixa o navegador
   e.preventDefault();
@@ -645,6 +659,7 @@ function bindControls() {
     const curl = e.target.closest('[data-curl]');
     if (curl && pageDragged) return;
     if (curl && opened) {
+      book.nextTilt = curl.classList.contains('curl-top') ? -0.6 : 0.6; // canto de cima ou de baixo
       curl.dataset.curl === 'next' ? book.next() : book.prev();
       return;
     }
@@ -738,6 +753,11 @@ function enableParallax() {
   const rx = gsap.quickTo(rig, 'rotationX', { duration: 1.4, ease: 'power3.out' });
   const ry = gsap.quickTo(rig, 'rotationY', { duration: 1.4, ease: 'power3.out' });
   window.addEventListener('pointermove', (e) => {
+    if (document.body.classList.contains('is-spin')) {
+      rx(0);
+      ry(0);
+      return;
+    }
     const nx = e.clientX / window.innerWidth - 0.5;
     const ny = e.clientY / window.innerHeight - 0.5;
     rx(-ny * 3);

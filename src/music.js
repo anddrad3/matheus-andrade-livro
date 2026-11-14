@@ -49,7 +49,9 @@ export function createMusic({ getTheme, onChange }) {
 
   function track(theme) {
     if (tracks[theme]) return tracks[theme];
-    const el = new Audio(SRC[theme]);
+    // reaproveita o áudio que já começou a baixar no <head>
+    const early = window.__bgm?.theme === theme ? window.__bgm.el : null;
+    const el = early || new Audio(SRC[theme]);
     el.loop = true;
     el.preload = 'auto';
     el.volume = 0;
@@ -110,7 +112,7 @@ export function createMusic({ getTheme, onChange }) {
       p.then(() => {
         playing = true;
         blocked = false;
-        fade(next, 1, 900);
+        fade(next, 1, 250);
         emit();
       }).catch(() => {
         blocked = true;

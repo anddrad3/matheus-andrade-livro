@@ -1,4 +1,6 @@
 import gsap from 'gsap';
+import { Bend } from './bend.js';
+import { inkify } from './ink.js';
 
 /**
  * Motor do livro.
@@ -143,12 +145,29 @@ export class Book {
    * na lateral do miolo.
    */
   cull(extra = []) {
-    const keep = new Set([this.s - 1, this.s, ...extra]);
+    // folhas com páginas à vista nunca são puladas (senão a revelação não anima)
+    const shown = this.pageEls.filter((el) => el.classList.contains('is-visible')).map((el) => Math.floor(el.dataset.page / 2));
+    const keep = new Set([this.s - 1, this.s, ...shown, ...extra]);
     this.leaves.forEach((leaf, k) => leaf.classList.toggle('is-culled', !keep.has(k)));
   }
 
   updateVisibility(pages = this.visiblePages()) {
     const set = new Set(pages);
+    // páginas que vão aparecer agora: tira do modo "pulado", prepara a escrita
+    // e calcula o estado inicial ANTES de marcar como visível — assim a
+    // transição de escrita/desenho acontece de verdade
+    const incoming = pages.map((p) => this.pageEls[p]).filter((el) => el && !el.classList.contains('is-visible'));
+    if (incoming.length) {
+      const lead = this.inkLead;
+      incoming.forEach((el) => {
+        this.leaves[Math.floor(el.dataset.page / 2)].classList.remove('is-culled');
+        if (!this.reduced) inkify(el);
+        // a escrita começa quando a página fica de fato à mostra
+        const side = el.classList.contains('left') ? 'left' : 'right';
+        el.style.setProperty('--ink0', `${lead ? lead[side] : 160}ms`);
+      });
+      void this.el.offsetWidth;
+    }
     this.pageEls.forEach((el, p) => {
       const on = set.has(p);
       el.classList.toggle('is-visible', on);
@@ -178,6 +197,18 @@ export class Book {
     this.cast.style.setProperty('--edge', `${edge.toFixed(2)}%`);
     this.cast.style.setProperty('--k', (strength * 0.55).toFixed(3));
     this.cast.dataset.side = right ? 'right' : 'left';
+  }
+
+  /* ─────────── folha maleável ─────────── */
+
+  /** cria a curva de papel para a folha k (capas são rígidas e não curvam) */
+  makeBend(leaf, dir, tilt) {
+    if (this.reduced || leaf.classList.contains('is-board')) return null;
+    try {
+      return new Bend(leaf, { dir, tilt, pw: this.pw, strips: this.mode === 'mobile' || (navigator.hardwareConcurrency || 8) <= 4 ? 4 : 7 });
+    } catch {
+      return null;
+    }
   }
 
   /* ─────────── espessura (modo 360°) ─────────── */
@@ -223,16 +254,18 @@ export class Book {
     return this.side === 'right' ? { dir, k: null, t: s, side: 'left' } : { dir, k: s - 1, th0: 180, th1: 0, t: s - 1, side: 'right' };
   }
 
-  dragStart(dir) {
+  dragStart(dir, tilt = 0.45) {
     if (this.reduced || this.drag) return null;
     if (this.tl) this.tl.progress(1);
     const g = this.planFor(dir);
     if (!g) return null;
     if (g.t === this.N) g.side = 'left';
     if (g.t === 0) g.side = 'right';
+    this.inkLead = null;
     this.updateVisibility([...new Set([...this.visiblePages(), ...this.visiblePages(g.t, g.side)])]);
     if (g.k != null) {
       g.leaf = this.leaves[g.k];
+      g.bend = this.makeBend(g.leaf, dir, tilt);
       this.cull([g.k - 1, g.k, g.k + 1, this.s - 1, this.s]);
       gsap.killTweensOf(g.leaf);
       gsap.to(g.leaf, { z: this.N * this.d + 6, duration: 0.25, ease: 'power1.out' });
@@ -259,6 +292,7 @@ export class Book {
       gsap.set(g.leaf, { rotationY: -theta });
       g.leaf.style.setProperty('--lift', Math.sin((theta / 180) * Math.PI).toFixed(3));
       this.castShadow(theta);
+      g.bend?.set(p);
     }
     gsap.set(this.el, { x: g.x0 + (g.x1 - g.x0) * p });
   }
@@ -274,7 +308,7 @@ export class Book {
   dragEnd(v = 0) {
     const g = this.drag;
     if (!g) return Promise.resolve();
-    const commit = g.p + Math.max(-0.35, Math.min(0.35, v * 6)) > 0.5;
+    const commit = g.p + Math.max(-0.35, Math.min(0.35, v * 6)) > (g.commitAt ?? 0.5);
     const target = commit ? 1 : 0;
     const D = 0.22 + Math.abs(target - g.p) * (g.leaf ? 0.6 : 0.4);
     if (commit) {
@@ -293,6 +327,7 @@ export class Book {
         onUpdate: () => this.applyDrag(g, st.p),
         onComplete: () => {
           this.drag = null;
+          g.bend?.destroy();
           if (g.leaf) {
             this.castShadow(null);
             g.leaf.style.setProperty('--lift', 0);
@@ -347,8 +382,13 @@ export class Book {
     const from = this.s;
     const count = Math.abs(t - from);
     const dest = this.visiblePages(t, side);
+    // atraso da escrita: direita aparece quando a folha a descobre; esquerda quando a folha assenta
+    const nFlip = Math.abs(t - this.s);
+    const span = nFlip <= 1 ? 1150 : (nFlip - 1) * Math.min(110, 600 / nFlip) + Math.max(550, 850 - nFlip * 30);
+    this.inkLead = nFlip ? { right: Math.round(span * 0.45), left: Math.round(span * 0.85) } : null;
     // Revela os destinos já no início, para a página surgir enquanto vira
     this.updateVisibility([...new Set([...this.visiblePages(), ...dest])]);
+    this.inkLead = null;
     const lo = Math.min(from, t) - 1;
     const hi = Math.max(from, t);
     const range = [];
@@ -366,6 +406,8 @@ export class Book {
     }
 
     const single = count <= 1;
+    const tilt = this.nextTilt ?? 0.45;
+    this.nextTilt = null;
     const D = single ? 1.15 : Math.max(0.55, 0.85 - count * 0.03);
     const stagger = single ? 0 : Math.min(0.11, 0.6 / count);
     const ease = single ? 'power2.inOut' : 'power1.inOut';
@@ -389,6 +431,7 @@ export class Book {
         const leaf = this.leaves[k];
         const at = j * stagger;
         const rot = flip ? -180 : 0;
+        const bend = single ? this.makeBend(leaf, flip ? 1 : -1, tilt) : null;
         tl.to(
           leaf,
           {
@@ -399,8 +442,12 @@ export class Book {
               const r = gsap.getProperty(leaf, 'rotationY');
               leaf.style.setProperty('--lift', Math.sin((-r / 180) * Math.PI).toFixed(3));
               if (j === 0) this.castShadow(-r);
+              bend?.set(flip ? -r / 180 : 1 + r / 180);
             },
-            onComplete: j === moving.length - 1 ? () => this.castShadow(null) : undefined,
+            onComplete: () => {
+              bend?.destroy();
+              if (j === moving.length - 1) this.castShadow(null);
+            },
           },
           at,
         );

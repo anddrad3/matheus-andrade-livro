@@ -2,11 +2,11 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**.
 
-**Versão 3.2.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
+**Versão 3.3.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
 
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
-Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculos, caneta-tinteiro, bilhete, café (ou vela), copo de whisky e um cigarro no cinzeiro — enquanto a trilha ao piano começa. Ao toque, a capa se abre em 3D e a página vira para o **sumário**.
+Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculos, caneta-tinteiro, bilhete, bloco de notas, café (ou vela), copo de whisky, isqueiro e um cigarro fumegando no cinzeiro — enquanto a trilha ao piano começa. Ao toque, a capa se abre em 3D e a página vira para o **sumário**.
 
 ## Duas edições
 
@@ -31,8 +31,9 @@ Ao entrar, uma **cutscene** desce a câmera até o livro sobre a mesa — óculo
 
 ## Interações
 
-- **Folhear**: arraste a página de qualquer ponto (a folha segue o ponteiro), deslize o dedo no celular, use setas, roda do mouse, abas ou o sumário.
-- **Visitar a obra**: a câmera mergulha na prancha do site até ela ocupar a tela e o site abre na mesma aba.
+- **Folhear**: a folha é **maleável** — arraste de qualquer ponto, levantando por baixo ou por cima, e ela curva como papel; também deslize o dedo no celular, use setas, roda do mouse, abas ou o sumário.
+- **Páginas escritas diante do leitor**: o texto surge palavra a palavra e as imagens são desenhadas a cada página aberta.
+- **Visitar a obra** (ou clicar na foto): a câmera mergulha na prancha do site até ela ocupar a tela e o site abre na mesma aba.
 - **Modo 360°**: gire o livro nas mãos (mouse ou dedo); "voltar ao livro", Esc ou duplo clique para sair.
 - **Objetos da mesa**: clique e cada um conta algo diferente (3 falas por objeto, por tema).
 - **Trilha**: deslizante de volume e mudo; **som de papel** separado.

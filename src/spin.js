@@ -108,8 +108,8 @@ export function createSpin({ float, camera, stage, button, exit, hint, canStart,
         stage.setPointerCapture(e.pointerId);
       } catch {}
     }
-    // mesma sensação em qualquer tela: atravessar a largura ≈ meia volta
-    const k = 180 / Math.max(320, Math.min(window.innerWidth, 1100));
+    // atravessar a largura da tela ≈ uma volta completa
+    const k = 360 / Math.max(320, Math.min(window.innerWidth, 1400));
     const nrx = Math.max(-75, Math.min(75, drag.rx - dy * k));
     const nry = drag.ry + dx * k;
     const now = performance.now();

@@ -699,3 +699,58 @@
 .is-spin .leaf.is-board.is-culled .page {
   content-visibility: visible;
 }
+
+/* ─────────── folha maleável (durante a virada) ─────────── */
+.leaf.is-bending > .face {
+  visibility: hidden;
+}
+
+.bend,
+.bstrip {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.bend {
+  left: 0;
+  width: 100%;
+}
+
+.bstrip {
+  transform-origin: 0 50%;
+}
+
+.bface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.bback {
+  transform: rotateY(180deg);
+}
+
+.bface > .page {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+/* sombra que acompanha a curvatura (mais escuro onde o papel dobra mais) */
+.bshade {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(30, 18, 8, 0.55), rgba(30, 18, 8, 0.15) 60%, rgba(255, 245, 225, 0.12));
+  opacity: var(--sh, 0);
+}
+
+.bback .bshade {
+  background: linear-gradient(to left, rgba(30, 18, 8, 0.55), rgba(30, 18, 8, 0.15) 60%, rgba(255, 245, 225, 0.12));
+}

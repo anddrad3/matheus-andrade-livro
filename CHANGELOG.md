@@ -2,6 +2,21 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [3.3.0] — 2026-11-14
+### Adicionado
+- **Folha maleável**: ao virar, a página curva como papel de verdade (tira de faixas encadeadas); levantada por baixo ou por cima, o canto puxado vai à frente. Vale para arrastar, clicar nos cantos e usar as setas.
+- **Páginas escritas em tempo real**: o texto surge palavra a palavra, na ordem de leitura e no ritmo certo para cada página (~1,7 s); imagens e ornamentos são desenhados como esboço que ganha cor. Nada bloqueia a interação; respeita movimento reduzido.
+- **Isqueiro** e **bloco de notas** na mesa (com falas por tema); fumaça do cigarro **contínua** (três fios defasados).
+- Clicar na **foto do projeto** também faz o mergulho de câmera até o site.
+- **Lombada traseira** com o livro aberto (no 360° as capas não ficam mais soltas).
+### Alterado
+- Arrastar a página completa a virada quando o ponteiro cruza a lombada.
+- 360° mais solto no computador (atravessar a tela = uma volta) e sem paralaxe brigando com o giro.
+- Cards flutuantes (avisos, volume, balões) totalmente opacos.
+### Corrigido
+- Revelação das páginas não animava desde a 3.2 (página marcada visível enquanto ainda "pulada" pelo navegador).
+- **Trilha atrasando**: as faixas tinham 0,6 s e 1,3 s de silêncio no início — cortados; a faixa começa a baixar já no `<head>` e o fade de entrada caiu para 0,25 s.
+
 ## [3.2.0] — 2026-11-14
 ### Adicionado
 - Dois novos objetos na mesa: **copo de whisky** (com gelo no clássico, puro na Sombria) e **cigarro no cinzeiro** com fumaça animada — na cutscene e, depois, clicáveis.

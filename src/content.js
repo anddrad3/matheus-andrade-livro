@@ -263,6 +263,22 @@ export const deskTalk = {
         'O Ministério da Saúde adverte: fumar faz mal. Programar sem pausa também — levanta, Matheus, e vai beber água.',
       ],
     },
+    lighter: {
+      name: 'Isqueiro',
+      lines: [
+        'O isqueiro do Matheus. Acende de primeira — ao contrário do servidor de homologação.',
+        'Tem um “MA” gravado na tampa. Presente de aniversário, e o único dispositivo do Matheus que nunca pediu atualização.',
+        'Clique, chama, fecha. Se todo deploy fosse assim, o Matheus dormia mais cedo.',
+      ],
+    },
+    notepad: {
+      name: 'Bloco de notas',
+      lines: [
+        'A lista do dia do Matheus: ☑ café ☑ commit ☐ dormir. Duas de três já é produtividade.',
+        'Na última página: “ideia de app: um bloqueador de Shorts”. Virou o BloqueiaShorts — o bloquinho funciona.',
+        'Rabiscos de diagrama de banco, uma conjugação em latim e o telefone de uma pizzaria. O Matheus é professor e dev ao mesmo tempo.',
+      ],
+    },
   },
   dark: {
     glasses: {
@@ -311,6 +327,22 @@ export const deskTalk = {
         'Queima devagar, feito servidor sem monitoramento. O Andrade só percebe quando já virou cinza.',
         'O cinzeiro guarda as bitucas de cada madrugada de deploy. Ninguém nunca contou quantas são. Ninguém teria coragem.',
         'A fumaça desenha rostos no escuro. O Andrade jura que um deles era o cliente pedindo “um ajuste rapidinho”.',
+      ],
+    },
+    lighter: {
+      name: 'Isqueiro',
+      lines: [
+        'O isqueiro do Andrade. Já acendeu velas, cigarros e, uma vez, o histórico inteiro de um repositório. Por acidente. Dizem.',
+        'A chama dança sozinha mesmo sem vento. O Andrade prefere não perguntar por quê.',
+        'Tem iniciais gravadas na tampa. Não são as dele.',
+      ],
+    },
+    notepad: {
+      name: 'Bloco de notas',
+      lines: [
+        'Lista do Andrade: ☑ corrigir o bug ☑ enterrar o bug ☐ esquecer o bug.',
+        'Uma página arrancada. No verso, em letra trêmula: “nunca faça deploy na sexta”. O autor fez.',
+        'Anotações de madrugada: nomes de variáveis, prazos e, no canto, uma contagem regressiva que ninguém lembra de ter começado.',
       ],
     },
   },

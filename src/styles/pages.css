@@ -1284,3 +1284,59 @@
   font-size: 2.1em;
   color: var(--ink);
 }
+
+/* ─────────────────────────────────────────────
+   Escrita e desenho em tempo real
+   ───────────────────────────────────────────── */
+/* texto: a tinta aparece palavra a palavra, na ordem de leitura */
+.page .w {
+  opacity: 0;
+  transition: opacity 0.42s ease-out;
+  transition-delay: calc(var(--w, 0ms) + var(--ink0, 160ms));
+}
+
+.page.is-visible .w {
+  opacity: 1;
+}
+
+/* numa página escrita, os blocos de texto não "sobem": quem aparece são as palavras */
+.is-inked .reveal:has(.w) {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* elementos visuais: desenhados da esquerda para a direita, como esboço que ganha cor */
+.is-inked .reveal:not(:has(.w)),
+.is-inked .plate,
+.is-inked .work-facts,
+.is-inked .letter-seal {
+  clip-path: inset(0 100% 0 0);
+  filter: grayscale(1) contrast(1.25) brightness(1.08);
+  transition:
+    clip-path 0.95s cubic-bezier(0.65, 0, 0.3, 1),
+    filter 0.9s ease,
+    opacity 0.6s ease,
+    transform 0.6s ease;
+  transition-delay: calc(var(--i, 0) * 70ms + var(--ink0, 160ms)), calc(var(--i, 0) * 70ms + var(--ink0, 160ms) + 700ms), calc(var(--i, 0) * 70ms + var(--ink0, 160ms)), calc(var(--i, 0) * 70ms + var(--ink0, 160ms));
+}
+
+.is-inked.is-visible .reveal:not(:has(.w)),
+.is-inked.is-visible .plate,
+.is-inked.is-visible .work-facts,
+.is-inked.is-visible .letter-seal {
+  clip-path: inset(0 -2% 0 0);
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page .w {
+    opacity: 1;
+  }
+
+  .is-inked .reveal,
+  .is-inked .plate {
+    clip-path: none !important;
+    filter: none !important;
+  }
+}

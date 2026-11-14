@@ -910,21 +910,26 @@ body.is-spin .dp {
   animation-delay: 0.85s;
 }
 
-/* fumaça: sobe, ondula e some (só transform/opacidade: barato) */
+/* fumaça contínua: três fios defasados (sempre há um subindo) — só transform/opacidade */
 .as-smoke path {
   transform-box: fill-box;
   transform-origin: 50% 100%;
-  animation: smoke 4.2s ease-in-out infinite;
+  animation: smoke 3.6s linear infinite;
 }
 
 .as-smoke path:nth-child(2) {
-  animation-delay: -2.1s;
+  animation-delay: -1.2s;
+}
+
+.as-smoke path:nth-child(3) {
+  animation-delay: -2.4s;
 }
 
 @keyframes smoke {
-  0% { opacity: 0; transform: translateY(6px) scaleY(0.7); }
-  25% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(-16px) scaleY(1.15) skewX(8deg); }
+  0% { opacity: 0; transform: translateY(8px) scaleY(0.6) skewX(0deg); }
+  15% { opacity: 0.95; }
+  60% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-26px) scaleY(1.25) skewX(10deg); }
 }
 
 .as-ember {
@@ -954,3 +959,108 @@ body.is-spin .dp {
     animation: none;
   }
 }
+
+/* ─────────── isqueiro e bloco de notas ─────────── */
+.prop-lighter {
+  width: calc(var(--pw) * 0.13);
+  margin-left: calc(var(--pw) * 0.6);
+  margin-top: calc(var(--ph) * 0.42);
+  rotate: -18deg;
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.55));
+}
+
+.prop-notepad {
+  width: calc(var(--pw) * 0.3);
+  margin-left: calc(var(--pw) * -1.36);
+  margin-top: calc(var(--ph) * 0.24);
+  rotate: -9deg;
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.5));
+}
+
+.dp-lighter {
+  --w: min(56px, calc(var(--m) * 0.22));
+  right: calc(var(--m) * 0.66);
+  top: 70vh;
+  width: var(--w);
+  rotate: -18deg;
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.55));
+  animation-delay: 1s;
+}
+
+.dp-notepad {
+  --w: min(112px, calc(var(--m) * 0.46));
+  left: calc(var(--m) * 0.58);
+  top: 63vh;
+  width: var(--w);
+  rotate: -9deg;
+  filter: drop-shadow(-3px 8px 6px rgba(0, 0, 0, 0.5));
+  animation-delay: 1.15s;
+}
+
+/* Sombria: isqueiro preto fosco, bloco com capa preta e tinta vermelha */
+:root[data-theme='dark'] [id^='lt-body'] stop:nth-child(odd) { stop-color: #111113; }
+:root[data-theme='dark'] [id^='lt-body'] stop:nth-child(even) { stop-color: #3a3b40; }
+:root[data-theme='dark'] .prop-lighter text,
+:root[data-theme='dark'] .dp-lighter text { fill: rgba(200, 204, 212, 0.7); }
+:root[data-theme='dark'] .prop-notepad rect:nth-of-type(2),
+:root[data-theme='dark'] .dp-notepad rect:nth-of-type(2) { fill: #111; }
+:root[data-theme='dark'] .np-ink { stroke: #b0121a; }
+
+/* cards flutuantes sempre opacos (nada de livro aparecendo por trás) */
+#spin-hint,
+.music-hint,
+.vol-pop,
+.portal-label,
+.talk {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#spin-hint,
+.music-hint,
+.portal-label {
+  background: #120c09 !important;
+}
+
+.vol-pop {
+  background: #140e0a !important;
+}
+
+:root[data-theme='dark'] #spin-hint,
+:root[data-theme='dark'] .music-hint,
+:root[data-theme='dark'] .portal-label,
+:root[data-theme='dark'] .vol-pop {
+  background: #0a0a0b !important;
+}
+
+.talk,
+:root[data-theme='dark'] .talk {
+  background-color: #f3ead6;
+}
+
+:root[data-theme='dark'] .talk {
+  background-color: #111113;
+}
+
+/* fotos dos projetos: clique para mergulhar no site */
+.is-work:has(.is-visit) .plate {
+  cursor: zoom-in;
+}
+
+.is-work:has(.is-visit) .plate .photo-frame {
+  transition: transform 0.5s var(--ease-out), box-shadow 0.5s;
+}
+
+.is-work:has(.is-visit) .plate:hover .photo-frame {
+  transform: scale(1.02) rotate(-0.3deg);
+}
+
+/* arrumação da mesa com 8 objetos (esquerda: óculos, whisky, bloco, café/vela; direita: caneta, cinzeiro, isqueiro, bilhete) */
+.dp-glasses { top: 11vh; }
+.dp-whisky { top: 35vh; left: calc(var(--m) * 0.4); }
+.dp-notepad { top: 57vh; left: calc(var(--m) * 0.5); }
+.dp-ring { bottom: 4vh; left: calc(var(--m) * 0.1); }
+.dp-pen { top: 18vh; }
+.dp-ashtray { top: 49vh; }
+.dp-lighter { top: 66vh; right: calc(var(--m) * 0.42); }
+.dp-note { bottom: 3vh; }
