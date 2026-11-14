@@ -66,23 +66,56 @@ const float = $('#float');
 const camera = $('#camera');
 const cover = book.leaves[0];
 
+const cine = {
+  veil: $('.cine-veil'),
+  bars: document.querySelectorAll('.cine-bar'),
+  place: $('.cine-place'),
+  pre: $('.ct-pre'),
+  name: $('.ct-name'),
+  light: $('.desk-light'),
+  desk: $('.desk'),
+};
+
 function setClosedPose() {
-  gsap.set(camera, { rotationX: 62, rotationZ: -26, rotationY: 6, z: -900, y: 140, opacity: 0 });
+  // plano aéreo: bem alto, quase de cima, girado sobre a mesa
+  gsap.set(camera, { rotationX: 6, rotationZ: -42, rotationY: 0, z: -3000, y: 40, opacity: 1 });
+  gsap.set(cine.light, { opacity: 0 });
 }
 
 let floatTween;
 let enterTl = null;
+let autoOpen = null;
+/** cutscene: a luz acende, a câmera desce da altura até o livro sobre a mesa */
 function enter() {
   setClosedPose();
-  const tl = gsap.timeline({ delay: 0.25 });
+  const tl = gsap.timeline({ delay: 0.2 });
   enterTl = tl;
-  tl.to(camera, { opacity: 1, duration: 1.2, ease: 'power1.out' }, 0)
-    .to(camera, { rotationX: 34, rotationZ: -11, rotationY: 4, z: -260, y: 24, duration: 2.6, ease: 'expo.out' }, 0)
+  tl
+    // a luminária acende, hesitando
+    .to(cine.light, { keyframes: [
+      { opacity: 0.5, duration: 0.08 }, { opacity: 0.05, duration: 0.12 },
+      { opacity: 0.8, duration: 0.07 }, { opacity: 0.3, duration: 0.18 },
+      { opacity: 1, duration: 0.6, ease: 'power2.out' },
+    ] }, 0.3)
+    .to(cine.veil, { opacity: 0, duration: 2.2, ease: 'power2.inOut' }, 0.35)
+    // grua: desce e gira em direção ao livro
+    .to(camera, { z: -1250, rotationZ: -24, rotationX: 18, y: 30, duration: 3.4, ease: 'power1.inOut' }, 0.2)
+    .to(camera, { z: -260, rotationZ: -11, rotationX: 34, rotationY: 4, y: 24, duration: 2.8, ease: 'power3.out' }, 3.6)
+    // letreiros
+    .to(cine.place, { opacity: 1, duration: 1.2, ease: 'power1.out' }, 1.0)
+    .fromTo(cine.pre, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 1.1, ease: 'power2.out' }, 1.9)
+    .fromTo(cine.name, { opacity: 0, y: 14, letterSpacing: '0.12em' }, { opacity: 1, y: 0, letterSpacing: '0.02em', duration: 1.8, ease: 'power3.out' }, 2.1)
+    .to([cine.pre, cine.name], { opacity: 0, y: -10, duration: 1, ease: 'power2.in' }, 4.3)
+    .to(cine.place, { opacity: 0, duration: 0.8 }, 5.2)
+    // as faixas de cinema recolhem
+    .to(cine.bars, { scaleY: 0, duration: 1.2, ease: 'power3.inOut' }, 5.5)
     .add(() => {
       if (opened || openTl) return;
       floatTween = gsap.to(float, { y: -10, rotationZ: 0.8, rotationX: 2, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
       document.body.classList.add('can-open');
-    }, 1.2);
+      // se a pessoa não interagir, o livro se abre sozinho
+      autoOpen = gsap.delayedCall(3.2, () => !opened && !openTl && open());
+    }, 6.1);
   return tl;
 }
 
@@ -95,6 +128,7 @@ function open() {
   sound.open();
   floatTween?.kill();
   enterTl?.kill();
+  autoOpen?.kill();
 
   const tl = gsap.timeline({ onComplete: finish });
   openTl = tl;
@@ -112,7 +146,13 @@ function open() {
     .to(cover, { z: 0, duration: 1.1, ease: 'power1.in' }, 1.45)
     .to(book.el, { x: book.xFor(1, 'right'), duration: 2, ease: 'power3.inOut' }, 0.55)
     .to(book.shadow, { scaleX: 1, xPercent: 0, duration: 2, ease: 'power3.inOut' }, 0.55)
-    .to(book.edges, { opacity: 0, duration: 1.2, ease: 'power1.inOut' }, 1.2);
+    .to(book.edges, { opacity: 0, duration: 1.2, ease: 'power1.inOut' }, 1.2)
+    // encerra a cutscene: faixas, letreiros e a mesa 3D dão lugar ao fundo
+    .to(cine.veil, { opacity: 0, duration: 0.6 }, 0)
+    .to(cine.bars, { scaleY: 0, duration: 0.9, ease: 'power3.inOut' }, 0)
+    .to([cine.place, cine.pre, cine.name], { opacity: 0, duration: 0.5 }, 0)
+    .to(cine.light, { opacity: 1, duration: 0.5 }, 0)
+    .to(cine.desk, { opacity: 0, duration: 1.4, ease: 'power1.inOut' }, 1.0);
 
   // o bloco de páginas "assenta"
   book.leaves.slice(1).forEach((leaf, i) => {
@@ -333,6 +373,4 @@ Promise.race([ready, new Promise((r) => setTimeout(r, 2500))]).then(() => {
     return;
   }
   enter();
-  // se a pessoa não interagir, o livro se abre sozinho
-  setTimeout(() => !opened && !openTl && open(), 6500);
 });
