@@ -52,3 +52,9 @@ npm run dev
 
 Vite · JavaScript puro · GSAP · CSS 3D transforms · SVG procedural · Canvas 2D
 Tipografia: Cormorant Garamond, EB Garamond, Pinyon Script e Caveat.
+
+## Créditos de mídia
+
+- **Caveira da Edição Sombria** — *Brasão com Caveira*, Albrecht Dürer (1503). Domínio público (CC0), Metropolitan Museum of Art.
+- **Trilha do tema claro** (`public/music/aria-bach-piano.mp3`) — *Ária* da Suíte Orquestral nº 3, BWV 1068, J. S. Bach. Partitura Bach-Gesellschaft do [Mutopia Project](https://www.mutopiaproject.org/) (CC BY-SA 3.0), renderizada num piano amostrado [Salamander Grand Piano](https://archive.org/details/SalamanderGrandPianoV3) de Alexander Holm (CC BY 3.0). O áudio resultante é distribuído sob CC BY-SA 3.0.
+- **Trilha do tema escuro** (`public/music/lacrimosa-piano.mp3`) — *Lacrimosa* do Réquiem K. 626, W. A. Mozart, na transcrição de S. Thalberg (Op. 70, nº 5A), interpretada por Lệ Xuân — [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mozart,_Requiem_in_D_minor,_%27Lacrimosa%27_%E2%80%93_piano_arrangement.ogg), CC BY-SA 4.0. Convertida para MP3.

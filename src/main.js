@@ -8,9 +8,12 @@ import './styles/spin3d.css';
 import './styles/theme.css';
 import './styles/theme-dark-auto.css';
 import './styles/sombria.css';
+import './styles/interface.css';
 import { installTextures, applyTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
-import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS } from './pages.js';
+import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS, CHAPTERS } from './pages.js';
+import { deskTalk } from './content.js';
+import { createMusic } from './music.js';
 import { Book } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
@@ -22,6 +25,7 @@ const $ = (s) => document.querySelector(s);
 const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
 const texturesReady = installTextures(theme());
 const sound = createSound();
+const music = createMusic({ getTheme: () => theme() });
 startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
 const book = new Book({
@@ -182,6 +186,7 @@ function finish() {
   book.side = 'right';
   document.body.classList.remove('is-opening');
   document.body.classList.add('is-open');
+  measureMargins();
   const target = pageForHash(window.location.hash) ?? 4;
   book.goToPage(target).then(() => updateUI());
   updateUI();
@@ -213,48 +218,86 @@ function goHome() {
   book.goTo(0).then(() => updateUI());
 }
 
-/* ───────────── virar a página com a mão ───────────── */
+/* ───────────── virar a página com a mão (estilo iPad) ───────────── */
 
-// Arrastar a partir de um canto da página: a folha segue o ponteiro.
-// Soltar depois da metade (ou num gesto rápido) completa a virada.
+// Computador: pegue a página em qualquer ponto e arraste — a folha segue o ponteiro.
+// Celular: deslize o dedo — a página acompanha. Soltar depois da metade (ou num
+// gesto rápido) completa; antes disso, a página volta.
 let pageDrag = null;
 let pageDragged = false;
-document.addEventListener('pointerdown', (e) => {
-  const curl = e.target.closest('[data-curl]');
-  if (!curl || !opened || e.button !== 0 || spin.rotated) return;
-  pageDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, dir: curl.dataset.curl === 'next' ? 1 : -1, live: false, theta: 0, t: 0, v: 0 };
-  pageDragged = false;
-});
+const NO_DRAG = 'input, textarea, [data-copy], #ui, #menu, #desk-props, #talk';
 
-function thetaAt(clientX) {
+// se o gesto virou arrasto, o clique no fim (num link, aba ou canto) não conta
+document.addEventListener('click', (e) => {
+  if (pageDragged && e.target.closest('.leaf')) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
+function spineX() {
   const r = rig.getBoundingClientRect();
   const scale = r.width / (2 * book.pw);
-  const spineX = r.left + r.width / 2 + gsap.getProperty(book.el, 'x') * scale;
-  const dx = (clientX - spineX) / (book.pw * scale);
+  return { x: r.left + r.width / 2 + gsap.getProperty(book.el, 'x') * scale, scale };
+}
+
+function thetaAt(clientX) {
+  const { x, scale } = spineX();
+  const dx = (clientX - x) / (book.pw * scale);
   return (Math.acos(Math.max(-1, Math.min(1, dx))) * 180) / Math.PI;
 }
+
+document.addEventListener('pointerdown', (e) => {
+  if (!opened || openTl || e.button !== 0 || spin.rotated || spin.active) return;
+  if (e.target.closest(NO_DRAG)) return;
+  const mobile = book.mode === 'mobile';
+  if (!e.target.closest('.leaf') && !(mobile && e.target.closest('#stage'))) return;
+  e.__page = true; // o giro 360° não pega este gesto
+  pageDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, live: false, p: 0, t: 0, v: 0 };
+  pageDragged = false;
+}, true);
 
 window.addEventListener('pointermove', (e) => {
   const g = pageDrag;
   if (!g || e.pointerId !== g.id) return;
+  const dx = e.clientX - g.x;
+  const dy = e.clientY - g.y;
   if (!g.live) {
-    if (Math.hypot(e.clientX - g.x, e.clientY - g.y) < 6) return;
-    if (!book.dragStart(g.dir)) {
+    if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
+    if (Math.abs(dy) > Math.abs(dx) * 1.3) {
+      pageDrag = null; // gesto vertical: não é virar página
+      return;
+    }
+    let dir;
+    if (book.mode === 'desktop') {
+      dir = g.x > spineX().x ? 1 : -1; // pegou a página da direita → avança
+      if (book.s === 0) dir = 1;
+      if (book.s === book.N) dir = -1;
+    } else dir = dx < 0 ? 1 : -1;
+    if (!book.dragStart(dir)) {
       pageDrag = null;
       return;
     }
     g.live = true;
+    g.dir = dir;
+    g.th0 = thetaAt(g.x);
     pageDragged = true;
     document.body.classList.add('is-page-drag');
-    g.theta = g.dir > 0 ? 0 : 180;
     g.t = performance.now();
   }
-  const th = thetaAt(e.clientX);
+  let p;
+  if (book.mode === 'desktop' && book.drag?.leaf) {
+    // a borda da folha acompanha o ponteiro, partindo de onde ele pegou
+    const th = thetaAt(e.clientX);
+    p = g.dir > 0 ? (th - g.th0) / Math.max(20, 180 - g.th0) : (g.th0 - th) / Math.max(20, g.th0);
+  } else {
+    p = (-g.dir * dx) / (window.innerWidth * (book.drag?.leaf ? 0.78 : 0.6));
+  }
   const now = performance.now();
-  g.v = ((th - g.theta) / Math.max(1, now - g.t)) * 16;
-  g.theta = th;
+  g.v = ((p - g.p) / Math.max(1, now - g.t)) * 16;
+  g.p = p;
   g.t = now;
-  book.dragMove(th);
+  book.dragMove(p);
 });
 
 function endPageDrag(e) {
@@ -263,13 +306,194 @@ function endPageDrag(e) {
   pageDrag = null;
   if (!g.live) return;
   document.body.classList.remove('is-page-drag');
-  // se parou antes de soltar, não há impulso
-  const v = performance.now() - g.t > 90 ? 0 : g.v;
+  const v = performance.now() - g.t > 90 ? 0 : g.v; // parou antes de soltar: sem impulso
   book.dragEnd(v).then(() => updateUI());
   setTimeout(() => (pageDragged = false), 80);
 }
 window.addEventListener('pointerup', endPageDrag);
 window.addEventListener('pointercancel', endPageDrag);
+
+/* ───────────── reiniciar a abertura ───────────── */
+
+function replay() {
+  closeMenu();
+  hideTalk();
+  enterTl?.kill();
+  openTl?.kill();
+  openTl = null;
+  floatTween?.kill();
+  autoOpen?.kill();
+  spin.resetNow();
+  book.setThick(false);
+  if (book.tl) book.tl.progress(1);
+  gsap.killTweensOf([camera, float, book.el, book.shadow, book.edges, cine.veil, cine.bars, cine.place, cine.pre, cine.name, cine.light, cine.desk, ...book.leaves]);
+  book.drag = null;
+  opened = false;
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+  document.body.classList.remove('is-open', 'is-opening', 'can-open');
+  // livro fechado e encorpado de novo
+  book.d = 2.4;
+  book.s = 0;
+  book.side = 'right';
+  book.leaves.forEach((l) => l.style.setProperty('--lift', 0));
+  book.applyStatic();
+  book.castShadow(null);
+  gsap.set(book.edges, { opacity: 1 });
+  gsap.set(float, { y: 0, rotationX: 0, rotationZ: 0 });
+  gsap.set(cine.veil, { opacity: 1 });
+  gsap.set(cine.bars, { scaleY: 1 });
+  gsap.set([cine.place, cine.pre, cine.name], { opacity: 0 });
+  gsap.set(cine.desk, { opacity: 1 });
+  updateUI();
+  enter();
+}
+$('#replay').addEventListener('click', replay);
+
+/* ───────────── objetos da mesa: clique e eles falam ───────────── */
+
+const propsEl = $('#desk-props');
+const talkEl = $('#talk');
+const talkIndex = {};
+let talkTimer;
+
+// as peças são as mesmas da cutscene (ids dos degradês renomeados)
+propsEl.querySelector('.dp-glasses').innerHTML = $('.prop-glasses').innerHTML;
+propsEl.querySelector('.dp-pen').innerHTML = $('.prop-pen').innerHTML.replace(/pen-g\b/g, 'pen-g2').replace(/pen-au\b/g, 'pen-au2');
+propsEl.querySelector('.dp-note').innerHTML = $('.prop-note').innerHTML;
+
+function measureMargins() {
+  const m = (window.innerWidth - 2 * book.pw) / 2;
+  document.documentElement.style.setProperty('--m', `${Math.max(0, m)}px`);
+  document.documentElement.classList.toggle('no-props', book.mode === 'mobile' || m < 96);
+}
+
+function talk(prop, anchor) {
+  const t = theme();
+  const d = deskTalk[t][prop];
+  const key = `${t}:${prop}`;
+  const i = (talkIndex[key] = ((talkIndex[key] ?? -1) + 1) % d.lines.length);
+  talkEl.querySelector('.talk-name').textContent = d.name;
+  talkEl.querySelector('.talk-text').textContent = d.lines[i];
+  talkEl.querySelector('.talk-more').textContent = window.matchMedia('(pointer: coarse)').matches ? 'toque de novo ↻' : 'clique de novo ↻';
+  talkEl.hidden = false;
+  talkEl.classList.remove('is-shown');
+  talkEl.style.left = talkEl.style.top = '';
+  talkEl.classList.toggle('is-docked', !anchor);
+  if (anchor) {
+    const r = anchor.getBoundingClientRect();
+    const w = talkEl.offsetWidth;
+    const h = talkEl.offsetHeight;
+    const left = r.left + r.width / 2 < window.innerWidth / 2 ? r.right + 14 : r.left - 14 - w;
+    const top = Math.max(76, Math.min(window.innerHeight - h - 90, r.top + r.height / 2 - h / 2));
+    talkEl.style.left = `${Math.max(12, Math.min(window.innerWidth - w - 12, left))}px`;
+    talkEl.style.top = `${top}px`;
+  }
+  requestAnimationFrame(() => talkEl.classList.add('is-shown'));
+  sound.flip(1);
+  clearTimeout(talkTimer);
+  talkTimer = setTimeout(hideTalk, 9000);
+}
+
+function hideTalk() {
+  clearTimeout(talkTimer);
+  talkEl.classList.remove('is-shown');
+  setTimeout(() => !talkEl.classList.contains('is-shown') && (talkEl.hidden = true), 300);
+}
+
+propsEl.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-prop]');
+  if (b) talk(b.dataset.prop, b);
+});
+document.addEventListener('pointerdown', (e) => {
+  if (!talkEl.hidden && !e.target.closest('#talk, [data-prop], [data-talk]')) hideTalk();
+});
+window.addEventListener('themechange', hideTalk);
+
+/* ───────────── menu (celular) ───────────── */
+
+const menu = $('#menu');
+const menuBtn = $('#menu-btn');
+const MENU_ITEMS = [
+  ...CHAPTERS.map((c) => ({ label: c.label, page: c.page })),
+  { label: 'Carta e contato', page: 18 },
+  { label: 'Diário de bordo', page: 19 },
+].sort((a, b) => a.page - b.page);
+menu.querySelector('.menu-chapters').innerHTML =
+  '<li><button type="button" data-home data-menu-close>Capa</button></li>' +
+  MENU_ITEMS.map((it) => `<li><button type="button" data-goto="${it.page}" data-menu-close>${it.label}</button></li>`).join('');
+
+function renderMenuProps() {
+  menu.querySelector('.menu-props').innerHTML = Object.entries(deskTalk[theme()])
+    .map(([k, d]) => `<button type="button" data-talk="${k}">${d.name}</button>`)
+    .join('');
+}
+
+function syncMenuStates() {
+  const st = {
+    theme: theme() === 'dark' ? 'sombria' : 'clássica',
+    music: music.enabled ? 'ligada' : 'desligada',
+    sound: sound.enabled ? 'ligado' : 'desligado',
+    spin: spin.enabled ? 'ligado' : 'desligado',
+  };
+  menu.querySelectorAll('[data-state]').forEach((el) => (el.textContent = st[el.dataset.state] ?? ''));
+}
+
+function openMenu() {
+  renderMenuProps();
+  syncMenuStates();
+  menu.hidden = false;
+  menuBtn.setAttribute('aria-expanded', 'true');
+  requestAnimationFrame(() => menu.classList.add('is-open'));
+}
+
+function closeMenu() {
+  if (menu.hidden) return;
+  menu.classList.remove('is-open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  setTimeout(() => !menu.classList.contains('is-open') && (menu.hidden = true), 320);
+}
+
+menuBtn.addEventListener('click', () => (menu.hidden ? openMenu() : closeMenu()));
+menu.addEventListener('click', (e) => {
+  const proxy = e.target.closest('[data-proxy]');
+  if (proxy) {
+    const id = proxy.dataset.proxy;
+    if (id === 'replay') {
+      replay();
+      return;
+    }
+    $(`#${id}`).click();
+    setTimeout(syncMenuStates, 400);
+    return;
+  }
+  const tk = e.target.closest('[data-talk]');
+  if (tk) {
+    closeMenu();
+    setTimeout(() => talk(tk.dataset.talk, null), 250);
+    return;
+  }
+  if (e.target.closest('[data-menu-close]')) closeMenu();
+});
+window.addEventListener('themechange', () => {
+  if (!menu.hidden) {
+    renderMenuProps();
+    syncMenuStates();
+  }
+});
+
+/* ───────────── trilha sonora ───────────── */
+
+const musicBtn = $('#music');
+function syncMusic() {
+  musicBtn.setAttribute('aria-pressed', String(music.enabled));
+  musicBtn.classList.toggle('is-off', !music.enabled);
+  musicBtn.title = music.enabled ? 'Trilha sonora ligada — clique para desligar' : 'Trilha sonora desligada — clique para ligar';
+}
+musicBtn.addEventListener('click', () => {
+  music.toggle();
+  syncMusic();
+});
+syncMusic();
 
 /* ───────────── tema claro (clássico) × escuro (Edição Sombria) ───────────── */
 
@@ -411,12 +635,8 @@ function bindControls() {
   window.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
-    if (performance.now() - tt > 700 || spin.active || pageDragged) return;
-    if (!opened) {
-      if (Math.abs(dx) > 40 || dy < -40) open();
-      return;
-    }
-    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) dx < 0 ? book.next() : book.prev();
+    if (performance.now() - tt > 700 || opened) return;
+    if (Math.abs(dx) > 40 || dy < -40) open();
   }, { passive: true });
 
   window.addEventListener('hashchange', () => {
@@ -430,6 +650,7 @@ function bindControls() {
     rt = setTimeout(() => {
       book.relayout();
       if (!opened && !openTl) gsap.set(book.el, { x: book.xFor(0) });
+      measureMargins();
       updateUI();
     }, 120);
   });
@@ -494,4 +715,9 @@ Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout
     return;
   }
   enter();
+});
+
+// Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas páginas
+document.addEventListener('dragstart', (e) => {
+  if (e.target.closest?.('.leaves')) e.preventDefault();
 });

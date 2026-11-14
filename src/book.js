@@ -200,75 +200,102 @@ export class Book {
     root.setProperty('--tr', t(this.N - 1 - this.s));
   }
 
-  /* ─────────── virar com a mão (arrastar o canto) ─────────── */
+  /* ─────────── virar com a mão (estilo iPad) ─────────── */
 
   /**
-   * Começa a virar a folha seguindo o ponteiro.
-   * dir = 1 (canto direito → próxima) ou −1 (canto esquerdo → anterior).
+   * Plano do gesto: qual folha gira (ou nenhuma, só deslizar no celular),
+   * de que ângulo a que ângulo e qual espelho/lado é o destino.
+   * dir = 1 → avançar; −1 → voltar.
    */
-  dragStart(dir) {
-    if (this.mode !== 'desktop' || this.reduced) return false;
-    if (this.tl) this.tl.progress(1);
-    const k = dir > 0 ? this.s : this.s - 1;
-    if (k < 0 || k >= this.N) return false;
-    const leaf = this.leaves[k];
-    const t = this.s + dir;
-    this.updateVisibility([...new Set([...this.visiblePages(), ...this.visiblePages(t, dir > 0 ? 'left' : 'right')])]);
-    this.cull([k - 1, k, k + 1]);
-    gsap.killTweensOf(leaf);
-    gsap.to(leaf, { z: this.N * this.d + 6, duration: 0.25, ease: 'power1.out' });
-    this.drag = { dir, k, leaf, theta: dir > 0 ? 0 : 180 };
-    return true;
+  planFor(dir) {
+    const { s, N } = this;
+    if (this.mode === 'desktop' || s === 0 || s === N) {
+      if (dir > 0) return s >= N ? null : { dir, k: s, th0: 0, th1: 180, t: s + 1, side: 'left' };
+      return s <= 0 ? null : { dir, k: s - 1, th0: 180, th1: 0, t: s - 1, side: 'right' };
+    }
+    // celular, no meio do livro: lado esquerdo ↔ direito do mesmo espelho é só deslizar
+    if (dir > 0) return this.side === 'left' ? { dir, k: null, t: s, side: 'right' } : { dir, k: s, th0: 0, th1: 180, t: s + 1, side: 'left' };
+    return this.side === 'right' ? { dir, k: null, t: s, side: 'left' } : { dir, k: s - 1, th0: 180, th1: 0, t: s - 1, side: 'right' };
   }
 
-  /** theta: ângulo da folha, 0 = deitada à direita, 180 = deitada à esquerda */
-  dragMove(theta) {
+  dragStart(dir) {
+    if (this.reduced || this.drag) return null;
+    if (this.tl) this.tl.progress(1);
+    const g = this.planFor(dir);
+    if (!g) return null;
+    if (g.t === this.N) g.side = 'left';
+    if (g.t === 0) g.side = 'right';
+    this.updateVisibility([...new Set([...this.visiblePages(), ...this.visiblePages(g.t, g.side)])]);
+    if (g.k != null) {
+      g.leaf = this.leaves[g.k];
+      this.cull([g.k - 1, g.k, g.k + 1, this.s - 1, this.s]);
+      gsap.killTweensOf(g.leaf);
+      gsap.to(g.leaf, { z: this.N * this.d + 6, duration: 0.25, ease: 'power1.out' });
+    }
+    gsap.killTweensOf(this.el);
+    g.x0 = gsap.getProperty(this.el, 'x');
+    g.x1 = this.xFor(g.t, g.side);
+    g.p = 0;
+    this.drag = g;
+    return g;
+  }
+
+  /** p ∈ [0, 1]: quanto do gesto já foi feito */
+  dragMove(p) {
     const g = this.drag;
     if (!g) return;
-    g.theta = Math.max(0, Math.min(180, theta));
-    gsap.set(g.leaf, { rotationY: -g.theta });
-    g.leaf.style.setProperty('--lift', Math.sin((g.theta / 180) * Math.PI).toFixed(3));
-    this.castShadow(g.theta);
+    g.p = Math.max(0, Math.min(1, p));
+    this.applyDrag(g, g.p);
   }
 
-  /** solta: completa a virada se passou da metade (ou se foi um gesto rápido) */
-  dragEnd(velocity = 0) {
+  applyDrag(g, p) {
+    if (g.leaf) {
+      const theta = g.th0 + (g.th1 - g.th0) * p;
+      gsap.set(g.leaf, { rotationY: -theta });
+      g.leaf.style.setProperty('--lift', Math.sin((theta / 180) * Math.PI).toFixed(3));
+      this.castShadow(theta);
+    }
+    gsap.set(this.el, { x: g.x0 + (g.x1 - g.x0) * p });
+  }
+
+  /** ângulo da folha (0 = deitada à direita) → progresso do gesto */
+  progressFromTheta(theta) {
+    const g = this.drag;
+    if (!g || !g.leaf) return 0;
+    return (theta - g.th0) / (g.th1 - g.th0);
+  }
+
+  /** solta: completa se passou da metade (ou se foi um gesto rápido); v = progresso por quadro */
+  dragEnd(v = 0) {
     const g = this.drag;
     if (!g) return Promise.resolve();
-    this.drag = null;
-    const projected = g.theta + Math.max(-40, Math.min(40, velocity * 5));
-    const commit = g.dir > 0 ? projected > 90 : projected < 90;
-    const flipped = g.dir > 0 ? commit : !commit;
-    const target = flipped ? 180 : 0;
-    const D = 0.25 + (Math.abs(target - g.theta) / 180) * 0.55;
+    const commit = g.p + Math.max(-0.35, Math.min(0.35, v * 6)) > 0.5;
+    const target = commit ? 1 : 0;
+    const D = 0.22 + Math.abs(target - g.p) * (g.leaf ? 0.6 : 0.4);
     if (commit) {
-      const from = this.s;
-      this.s += g.dir;
-      this.side = g.dir > 0 ? 'left' : 'right';
+      this.s = g.t;
+      this.side = g.side;
       this.onChange?.(this);
-      this.onFlip?.(1, g.dir);
-      if (this.s === 0 || from === 0 || this.s === this.N || from === this.N) {
-        gsap.to(this.el, { x: this.xFor(), duration: D + 0.2, ease: 'power2.out' });
-        gsap.to(this.shadow, { ...this.shadowFor(this.s), duration: D + 0.2, ease: 'power2.out' });
-      }
+      if (g.leaf) this.onFlip?.(1, g.dir);
+      gsap.to(this.shadow, { ...this.shadowFor(this.s), duration: D + 0.2, ease: 'power2.out' });
     }
     return new Promise((resolve) => {
-      const state = { theta: g.theta };
-      gsap.to(state, {
-        theta: target,
+      const st = { p: g.p };
+      gsap.to(st, {
+        p: target,
         duration: D,
         ease: 'power2.out',
-        onUpdate: () => {
-          gsap.set(g.leaf, { rotationY: -state.theta });
-          g.leaf.style.setProperty('--lift', Math.sin((state.theta / 180) * Math.PI).toFixed(3));
-          this.castShadow(state.theta);
-        },
+        onUpdate: () => this.applyDrag(g, st.p),
         onComplete: () => {
-          this.castShadow(null);
-          g.leaf.style.setProperty('--lift', 0);
-          gsap.to(g.leaf, { z: this.zFor(g.k, flipped), duration: 0.2, ease: 'power1.in' });
+          this.drag = null;
+          if (g.leaf) {
+            this.castShadow(null);
+            g.leaf.style.setProperty('--lift', 0);
+            const flipped = g.k < this.s;
+            gsap.to(g.leaf, { z: this.zFor(g.k, flipped), duration: 0.2, ease: 'power1.in' });
+          }
           this.updateVisibility();
-          resolve();
+          resolve(commit);
         },
       });
     });

@@ -20,7 +20,7 @@
       (function () {
         var t = null;
         try { t = localStorage.getItem('livro.theme'); } catch (e) {}
-        if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t !== 'light' && t !== 'dark') t = 'dark'; // padrão: Edição Sombria
         document.documentElement.dataset.theme = t;
       })();
     </script>
@@ -79,7 +79,10 @@
           <button id="spin" class="ui-sound ui-spin" type="button" aria-label="Girar o livro em 360 graus" aria-pressed="false" title="Arraste para girar"><svg class="spin-ico" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M18.6 14.9l2.4.3-.9 2.2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="6" width="6" height="12" rx=".6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><span>360°</span></button>
           <button id="theme" class="ui-sound ui-theme" type="button" aria-label="Alternar tema claro e escuro"><svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 4.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6Z" fill="currentColor"/></svg><span class="snd-label theme-label">tema</span></button>
           <button id="sound" class="ui-sound" type="button" aria-label="Som das páginas" aria-pressed="true"><span class="snd-bars"><i></i><i></i><i></i><i></i></span><span class="snd-label">som</span></button>
+          <button id="music" class="ui-sound ui-music" type="button" aria-label="Trilha sonora" aria-pressed="false" title="Trilha sonora"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.5V6l10-2v11.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="6.6" cy="17.6" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="16.6" cy="15.6" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="snd-label">música</span></button>
+          <button id="replay" class="ui-sound ui-replay" type="button" aria-label="Reiniciar a abertura" title="Reiniciar a abertura"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M4 3.8v4.4h4.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 9.2v5.6l4.6-2.8Z" fill="currentColor"/></svg><span class="snd-label">abertura</span></button>
         </nav>
+        <button id="menu-btn" class="ui-menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu"><span class="mb-lines"><i></i><i></i><i></i></span><em>menu</em></button>
       </header>
       <footer class="ui-bottom">
         <button id="prev" class="ui-arrow" type="button" aria-label="Página anterior">
@@ -119,6 +122,38 @@
 
     <div class="grain" aria-hidden="true"></div>
     <div id="theme-veil" aria-hidden="true"></div>
+
+    <!-- objetos da mesa (depois da abertura): clique e eles falam -->
+    <div id="desk-props" aria-label="Objetos da mesa">
+      <button class="dp dp-glasses" type="button" data-prop="glasses" aria-label="Óculos de trabalho"></button>
+      <button class="dp dp-ring" type="button" data-prop="ring" aria-label="Marca de café ou vela"><i class="dp-flame"></i></button>
+      <button class="dp dp-pen" type="button" data-prop="pen" aria-label="Caneta-tinteiro"></button>
+      <button class="dp dp-note" type="button" data-prop="note" aria-label="Bilhete leia-me"></button>
+    </div>
+    <div id="talk" class="talk" role="status" aria-live="polite" hidden>
+      <p class="talk-name"></p>
+      <p class="talk-text"></p>
+      <span class="talk-more">clique de novo ↻</span>
+    </div>
+
+    <!-- menu do celular -->
+    <div id="menu" class="menu-sheet" hidden>
+      <div class="menu-scrim" data-menu-close></div>
+      <div class="menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="menu-head"><span class="menu-title">Sumário</span><button class="menu-close" type="button" data-menu-close aria-label="Fechar menu">✕</button></div>
+        <ol class="menu-chapters"></ol>
+        <p class="menu-sub">Objetos da mesa</p>
+        <div class="menu-props"></div>
+        <p class="menu-sub">Ajustes</p>
+        <div class="menu-toggles">
+          <button type="button" data-proxy="theme"><span class="mt-ico">◐</span><span class="mt-label">tema</span><span class="mt-state" data-state="theme"></span></button>
+          <button type="button" data-proxy="music"><span class="mt-ico">♪</span><span class="mt-label">música</span><span class="mt-state" data-state="music"></span></button>
+          <button type="button" data-proxy="sound"><span class="mt-ico">♫</span><span class="mt-label">som das páginas</span><span class="mt-state" data-state="sound"></span></button>
+          <button type="button" data-proxy="spin"><span class="mt-ico">⟳</span><span class="mt-label">girar 360°</span><span class="mt-state" data-state="spin"></span></button>
+          <button type="button" data-proxy="replay"><span class="mt-ico">↺</span><span class="mt-label">reiniciar abertura</span><span class="mt-state"></span></button>
+        </div>
+      </div>
+    </div>
     <div id="live" class="sr-only" aria-live="polite"></div>
 
     <noscript>

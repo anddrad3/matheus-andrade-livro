@@ -98,9 +98,10 @@ export function createSpin({ float, camera, stage, button, hint, canStart, onCha
   });
 
   stage.addEventListener('pointerdown', (e) => {
-    if (!canStart() || e.button !== 0 || !enabled) return;
+    if (!canStart() || e.button !== 0 || !enabled || e.__page) return;
     if (e.pointerType !== 'mouse' && !active) return;
-    if (e.target.closest('a, button, input, textarea, [data-copy]')) return;
+    if (e.target.closest('#ui, #menu, #desk-props, #talk, input, textarea, [data-copy]')) return;
+    if (e.target.closest('a, button') && !e.target.closest('.leaf')) return;
     gsap.killTweensOf([float, camera]);
     drag = { x: e.clientX, y: e.clientY, rx, ry, t: performance.now(), vx: 0, vy: 0, id: e.pointerId };
     moved = false;
@@ -178,5 +179,14 @@ export function createSpin({ float, camera, stage, button, hint, canStart, onCha
       return active || Math.abs(rx) > 0.5 || Math.abs(ry % 360) > 0.5;
     },
     reset,
+    /** volta ao lugar sem animação (ex.: reiniciar a abertura) */
+    resetNow() {
+      gsap.killTweensOf([float, camera]);
+      drag = null;
+      rx = 0;
+      ry = 0;
+      apply();
+      if (active) setActive(false);
+    },
   };
 }

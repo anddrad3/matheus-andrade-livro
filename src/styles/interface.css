@@ -1,0 +1,544 @@
+/* ─────────────────────────────────────────────
+   Interface: botões novos, menu do celular, objetos da mesa,
+   balão de fala, gestos de toque e desempenho do 360°
+   ───────────────────────────────────────────── */
+
+/* ícones dos botões novos */
+.ui-music svg,
+.ui-replay svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--gold);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.ui-replay:hover svg {
+  transform: rotate(-200deg);
+}
+
+.ui-music {
+  position: relative;
+}
+
+.ui-music.is-off {
+  color: rgba(233, 220, 194, 0.4);
+}
+
+.ui-music.is-off svg {
+  opacity: 0.45;
+}
+
+.ui-music.is-off::after {
+  content: '';
+  position: absolute;
+  left: -0.1rem;
+  top: 50%;
+  width: 1.4rem;
+  height: 1.5px;
+  background: #c0392b;
+  transform: rotate(-35deg);
+}
+
+/* barra de cima no computador: rótulos somem se faltar espaço */
+@media (max-width: 1280px) {
+  [data-mode='desktop'] .ui-links .snd-label {
+    display: none;
+  }
+}
+
+/* ─────────── gestos ─────────── */
+/* o livro é arrastável: o navegador não deve rolar/zoom no meio do gesto */
+body.is-open #stage {
+  touch-action: none;
+}
+
+.leaves {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.is-page-drag,
+.is-page-drag * {
+  cursor: grabbing !important;
+}
+
+.is-open .leaf .page {
+  cursor: grab;
+}
+
+/* 360°: congela a rasterização durante o giro e alivia o que não importa */
+.is-spin #float,
+.is-spin #camera {
+  will-change: transform;
+}
+
+.is-dragging #dust,
+.is-dragging #spot {
+  visibility: hidden;
+}
+
+/* ─────────── menu do celular ─────────── */
+.ui-menu-btn {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.2rem;
+  color: var(--cream);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.ui-menu-btn em {
+  font-style: normal;
+}
+
+.mb-lines {
+  display: grid;
+  gap: 4px;
+}
+
+.mb-lines i {
+  display: block;
+  width: 20px;
+  height: 1.5px;
+  background: var(--gold);
+  transition: transform 0.35s var(--ease-out), opacity 0.35s;
+}
+
+.mb-lines i:nth-child(2) {
+  width: 14px;
+}
+
+.ui-menu-btn[aria-expanded='true'] .mb-lines i:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.ui-menu-btn[aria-expanded='true'] .mb-lines i:nth-child(2) { opacity: 0; }
+.ui-menu-btn[aria-expanded='true'] .mb-lines i:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+[data-mode='mobile'] .ui-links {
+  display: none;
+}
+
+[data-mode='mobile'] .ui-menu-btn {
+  display: inline-flex;
+}
+
+.menu-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.menu-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.menu-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 84vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.1rem 1.25rem calc(1.4rem + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(to bottom, rgba(255, 220, 160, 0.05), transparent 30%),
+    var(--tex-leather),
+    #1e1510;
+  background-size: auto, 320px 320px, auto;
+  background-blend-mode: normal, overlay, normal;
+  border-top: 1px solid rgba(192, 154, 82, 0.55);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.6);
+  border-radius: 14px 14px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.38s var(--ease-out);
+  color: var(--cream);
+}
+
+.menu-sheet.is-open .menu-scrim { opacity: 1; }
+.menu-sheet.is-open .menu-panel { transform: none; }
+
+.menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.menu-title {
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.7rem;
+  color: var(--gold-hi);
+}
+
+.menu-close {
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--gold);
+  font-size: 1.05rem;
+}
+
+.menu-chapters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: cap;
+}
+
+.menu-chapters li + li {
+  border-top: 1px dotted rgba(192, 154, 82, 0.3);
+}
+
+.menu-chapters button {
+  width: 100%;
+  text-align: left;
+  padding: 0.72rem 0.2rem;
+  font-family: var(--serif-display);
+  font-size: 1.18rem;
+  color: var(--cream);
+}
+
+.menu-chapters button:active {
+  color: var(--gold-hi);
+}
+
+.menu-sub {
+  margin: 1.2rem 0 0.55rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.menu-props {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.menu-props button {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgba(192, 154, 82, 0.45);
+  border-radius: 99px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--cream);
+}
+
+.menu-toggles {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.menu-toggles button {
+  display: grid;
+  grid-template-columns: 1.8rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.62rem 0.2rem;
+  text-align: left;
+  color: var(--cream);
+  font-family: var(--serif);
+  font-size: 1.02rem;
+}
+
+.mt-ico {
+  color: var(--gold);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.mt-state {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ─────────── objetos da mesa ─────────── */
+#desk-props {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  display: none;
+}
+
+body.is-open #desk-props {
+  display: block;
+}
+
+:root.no-props #desk-props {
+  display: none !important;
+}
+
+.dp {
+  position: absolute;
+  pointer-events: auto;
+  padding: 0;
+  cursor: pointer;
+  transition: filter 0.35s ease, scale 0.35s var(--ease-out);
+  animation: dp-in 1s var(--ease-out) both;
+}
+
+.dp:hover,
+.dp:focus-visible {
+  scale: 1.05;
+}
+
+.dp svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.dp-glasses {
+  --w: min(190px, calc(var(--m) * 0.78));
+  left: calc(var(--m) * 0.11);
+  top: 17vh;
+  width: var(--w);
+  rotate: -14deg;
+  filter: drop-shadow(-4px 10px 6px rgba(0, 0, 0, 0.55));
+  animation-delay: 0.1s;
+}
+
+.dp-ring {
+  --w: min(150px, calc(var(--m) * 0.6));
+  left: calc(var(--m) * 0.24);
+  bottom: 17vh;
+  width: var(--w);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, transparent 80%, rgba(70, 36, 12, 0.5) 88%, rgba(70, 36, 12, 0.2) 93%, transparent 100%);
+  rotate: 20deg;
+  animation-delay: 0.25s;
+}
+
+.dp-flame {
+  display: none;
+}
+
+.dp-pen {
+  --w: min(240px, var(--m));
+  left: calc(100% - var(--m) * 0.42 - var(--w) / 2);
+  top: 30vh;
+  width: var(--w);
+  rotate: -64deg;
+  filter: drop-shadow(-6px 8px 6px rgba(0, 0, 0, 0.6));
+  animation-delay: 0.4s;
+}
+
+.dp-note {
+  --w: min(170px, calc(var(--m) * 0.72));
+  right: calc(var(--m) * 0.13);
+  bottom: 15vh;
+  width: var(--w);
+  aspect-ratio: 1.4;
+  padding: 0.5em 0.7em;
+  text-align: left;
+  font-size: calc(var(--w) * 0.12);
+  font-family: var(--hand-font);
+  color: var(--hand);
+  background: var(--tex-paper), #efe4c9;
+  background-size: 400px 400px, auto;
+  box-shadow: -0.3em 0.6em 1em rgba(0, 0, 0, 0.55);
+  rotate: 7deg;
+  animation-delay: 0.55s;
+}
+
+.dp-note span {
+  display: block;
+  font-size: 1.6em;
+  line-height: 1;
+}
+
+.dp-note svg {
+  position: absolute;
+  left: 18%;
+  bottom: 10%;
+  width: 46%;
+  transform: scaleY(-1) rotate(10deg);
+}
+
+@keyframes dp-in {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ─────────── balão de fala ─────────── */
+.talk {
+  position: fixed;
+  z-index: 60;
+  width: min(310px, calc(100vw - 32px));
+  margin: 0;
+  padding: 1rem 1.15rem 0.75rem;
+  background: var(--tex-paper), #f3ead6;
+  background-size: 300px 300px, auto;
+  color: #2b2019;
+  border-radius: 3px;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(125, 95, 42, 0.25);
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity 0.28s ease, translate 0.35s var(--ease-out);
+  pointer-events: auto;
+}
+
+.talk.is-shown {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.talk.is-docked {
+  left: 16px !important;
+  right: 16px;
+  width: auto;
+  top: auto !important;
+  bottom: calc(118px + env(safe-area-inset-bottom));
+}
+
+.talk-name {
+  margin: 0 0 0.4rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8e2a1c;
+}
+
+.talk-text {
+  margin: 0;
+  font-family: var(--serif-display);
+  font-style: italic;
+  font-size: 1.12rem;
+  line-height: 1.35;
+}
+
+.talk-more {
+  display: block;
+  margin-top: 0.55rem;
+  text-align: right;
+  font-family: var(--hand-font);
+  font-size: 0.95rem;
+  color: #27478a;
+}
+
+/* ─────────── Edição Sombria ─────────── */
+:root[data-theme='dark'] .ui-music.is-off {
+  color: rgba(216, 214, 210, 0.4);
+}
+
+:root[data-theme='dark'] .menu-panel {
+  background:
+    linear-gradient(to bottom, rgba(200, 210, 230, 0.04), transparent 30%),
+    var(--tex-leather),
+    #0b0b0c;
+  background-size: auto, 320px 320px, auto;
+  border-top-color: rgba(195, 198, 204, 0.45);
+}
+
+:root[data-theme='dark'] .menu-title {
+  font-family: var(--gothic);
+  font-style: normal;
+  color: #eef0f3;
+}
+
+:root[data-theme='dark'] .menu-chapters li + li {
+  border-top-color: rgba(195, 198, 204, 0.2);
+}
+
+:root[data-theme='dark'] .menu-props button {
+  border-color: rgba(209, 28, 36, 0.55);
+}
+
+:root[data-theme='dark'] .mt-state,
+:root[data-theme='dark'] .menu-sub {
+  color: #d11c24;
+}
+
+/* vela no lugar da marca de café */
+:root[data-theme='dark'] .dp-ring {
+  --w: min(110px, calc(var(--m) * 0.45));
+  background:
+    radial-gradient(circle at 50% 50%, #1a1a1c 0 52%, #0a0a0b 66%, transparent 67%),
+    radial-gradient(circle at 50% 50%, transparent 66%, rgba(155, 13, 18, 0.9) 67% 71%, transparent 72%);
+  box-shadow: 0 0 calc(var(--w) * 1.1) calc(var(--w) * 0.25) rgba(255, 120, 40, 0.16);
+  rotate: 0deg;
+}
+
+:root[data-theme='dark'] .dp-ring::after {
+  content: '';
+  position: absolute;
+  inset: -22%;
+  background:
+    radial-gradient(circle at 18% 70%, rgba(130, 8, 12, 0.85) 0 4%, transparent 5%),
+    radial-gradient(circle at 86% 22%, rgba(130, 8, 12, 0.8) 0 3%, transparent 4%),
+    radial-gradient(circle at 78% 84%, rgba(130, 8, 12, 0.7) 0 2.5%, transparent 3.5%);
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .dp-flame {
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #fff6d0 0 6%, #ffb347 10%, rgba(255, 110, 30, 0.85) 15%, transparent 22%);
+  animation: flame 2.6s ease-in-out infinite;
+}
+
+@keyframes flame {
+  0%, 100% { opacity: 0.92; scale: 1; }
+  20% { opacity: 1; scale: 1.08; }
+  37% { opacity: 0.8; scale: 0.95; }
+  55% { opacity: 1; scale: 1.04; }
+  78% { opacity: 0.86; scale: 0.98; }
+}
+
+:root[data-theme='dark'] .dp-note {
+  background: var(--tex-paper), #18181a;
+  color: #d11c24;
+  box-shadow: -0.3em 0.6em 1em rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(195, 198, 204, 0.25);
+}
+
+:root[data-theme='dark'] .talk {
+  background: var(--tex-paper), #111113;
+  color: #e6e3dc;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.75),
+    inset 0 0 0 1px rgba(195, 198, 204, 0.3);
+}
+
+:root[data-theme='dark'] .talk-name {
+  font-family: var(--caps);
+  color: #d11c24;
+}
+
+:root[data-theme='dark'] .talk-more {
+  color: #c3c6cc;
+}
+
+:root[data-theme='dark'] .dp-glasses [stroke="#b8924c"] { stroke: #a3a7ae; }
+:root[data-theme='dark'] .dp-glasses g { fill: rgba(225, 228, 235, 0.07); }
+:root[data-theme='dark'] .dp-pen [stroke="#5a3d10"] { stroke: #2d2f34; }
+:root[data-theme='dark'] .dp-note path { stroke: #d11c24; }
+
+/* nas páginas, links e imagens não são "arrastáveis" pelo navegador */
+.leaves a,
+.leaves img,
+.leaves svg {
+  -webkit-user-drag: none;
+}
