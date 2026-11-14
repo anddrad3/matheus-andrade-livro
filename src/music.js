@@ -106,6 +106,22 @@ export function createMusic({ getTheme }) {
   });
 
   return {
+    /** silencia aos poucos (ex.: ao sair para outro site) */
+    duck(secs = 1.2) {
+      if (!ctx || !master) return;
+      const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(master.gain.value, t);
+      master.gain.linearRampToValueAtTime(0, t + secs);
+    },
+    /** volta ao volume normal */
+    unduck(secs = 1.5) {
+      if (!ctx || !master) return;
+      const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(master.gain.value, t);
+      master.gain.linearRampToValueAtTime(1, t + secs);
+    },
     get enabled() {
       return enabled;
     },

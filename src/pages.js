@@ -323,7 +323,7 @@ function workPage(item, i, p, side) {
         <div><dt>Técnica</dt><dd>${item.stack.map(esc).join(' · ')}</dd></div>
       </dl>
       <div class="work-links reveal" style="--i:${revealIndex++}">
-        ${item.site ? `<a class="work-link" href="${item.site}" target="_blank" rel="noopener">${esc(item.siteLabel ?? 'Visitar a obra')} ${arrow}</a>` : ''}
+        ${item.site ? `<a class="work-link is-visit" href="${item.site}" data-visit data-title="${esc(item.title)}">${esc(item.siteLabel ?? 'Visitar a obra')} ${arrow}</a>` : ''}
         <a class="work-link is-code" href="${item.repo}" target="_blank" rel="noopener">Ler o código ${arrow}</a>
       </div>
     </article>`,

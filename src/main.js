@@ -9,11 +9,13 @@ import './styles/theme.css';
 import './styles/theme-dark-auto.css';
 import './styles/sombria.css';
 import './styles/interface.css';
+import './styles/texture.css';
 import { installTextures, applyTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS, CHAPTERS } from './pages.js';
 import { deskTalk } from './content.js';
 import { createMusic } from './music.js';
+import { createPortal } from './portal.js';
 import { Book } from './book.js';
 import { createSound } from './sound.js';
 import { loadDiary } from './diary.js';
@@ -70,6 +72,15 @@ function updateUI(b = book) {
 /* ───────────── abertura ───────────── */
 
 let opened = false;
+// voltou de uma obra visitada: reabre direto na mesma página, sem cutscene
+let returnPage = null;
+try {
+  const back = sessionStorage.getItem('livro.back');
+  if (back != null) {
+    returnPage = Number(back);
+    sessionStorage.removeItem('livro.back');
+  }
+} catch {}
 const rig = $('#rig');
 const float = $('#float');
 const camera = $('#camera');
@@ -187,7 +198,8 @@ function finish() {
   document.body.classList.remove('is-opening');
   document.body.classList.add('is-open');
   measureMargins();
-  const target = pageForHash(window.location.hash) ?? 4;
+  const target = returnPage ?? pageForHash(window.location.hash) ?? 4;
+  returnPage = null;
   book.goToPage(target).then(() => updateUI());
   updateUI();
   enableParallax();
@@ -481,6 +493,42 @@ window.addEventListener('themechange', () => {
   }
 });
 
+/* ───────────── "Visitar a obra": mergulho de câmera ───────────── */
+
+const portal = createPortal({
+  rig,
+  reduced,
+  beforeLeave: () => {
+    try {
+      sessionStorage.setItem('livro.back', String(book.page));
+    } catch {}
+    music.duck(1.2);
+    hideTalk();
+  },
+  onReturn: () => {
+    try {
+      sessionStorage.removeItem('livro.back');
+    } catch {}
+    music.unduck();
+  },
+});
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-visit]');
+  if (!a || e.defaultPrevented) return;
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // nova aba: deixa o navegador
+  e.preventDefault();
+  e.stopPropagation();
+  if (spin.rotated) spin.resetNow();
+  const frame = a.closest('.work')?.querySelector('.photo-frame, .plate-inner');
+  portal.go(a.href, frame, a.dataset.title || 'a obra');
+});
+// pré-conecta ao destino quando o ponteiro chega no link
+document.addEventListener('pointerover', (e) => {
+  const a = e.target.closest?.('[data-visit]');
+  if (a) portal.warm(a.href);
+});
+
 /* ───────────── trilha sonora ───────────── */
 
 const musicBtn = $('#music');
@@ -715,6 +763,7 @@ Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout
     return;
   }
   enter();
+  if (returnPage != null) skipIntro();
 });
 
 // Firefox ignora -webkit-user-drag: impede o arrasto nativo de links/imagens nas páginas

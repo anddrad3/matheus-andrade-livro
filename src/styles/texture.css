@@ -1,0 +1,167 @@
+/* ─────────────────────────────────────────────
+   Refinamento de texturas: papel, lombada, volume do miolo.
+   Só degradês estáticos (pintados uma vez) — nenhum custo por quadro.
+   ───────────────────────────────────────────── */
+
+/* ── papel envelhecido: borda tostada, luz que vem de cima, manchas de foxing ── */
+.paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(255, 250, 235, 0.22), transparent 32%),
+    radial-gradient(ellipse 135% 118% at 50% 42%, transparent 56%, rgba(120, 78, 32, 0.09) 84%, rgba(96, 60, 22, 0.17) 100%),
+    radial-gradient(circle at 88% 8%, rgba(130, 84, 34, 0.07) 0 0.8%, transparent 1.25%),
+    radial-gradient(circle at 93% 79%, rgba(130, 84, 34, 0.05) 0 0.6%, transparent 1%),
+    radial-gradient(circle at 81% 93%, rgba(130, 84, 34, 0.06) 0 1%, transparent 1.5%);
+}
+
+.paper.left::before {
+  background:
+    linear-gradient(to bottom, rgba(255, 250, 235, 0.22), transparent 32%),
+    radial-gradient(ellipse 135% 118% at 50% 42%, transparent 56%, rgba(120, 78, 32, 0.09) 84%, rgba(96, 60, 22, 0.17) 100%),
+    radial-gradient(circle at 10% 11%, rgba(130, 84, 34, 0.06) 0 0.7%, transparent 1.15%),
+    radial-gradient(circle at 6% 71%, rgba(130, 84, 34, 0.05) 0 0.9%, transparent 1.35%),
+    radial-gradient(circle at 17% 94%, rgba(130, 84, 34, 0.05) 0 0.6%, transparent 1%);
+}
+
+/* ── lombada: sombra profunda, crista de luz onde o papel curva, borda externa ── */
+.paper.right .paper-shade {
+  background:
+    linear-gradient(to right, rgba(40, 24, 10, 0.4) 0%, rgba(40, 24, 10, 0.17) 1.5%, rgba(255, 248, 228, 0.12) 3.1%, rgba(40, 24, 10, 0.06) 5.6%, transparent 13%),
+    radial-gradient(ellipse 22% 70% at 100% 50%, rgba(60, 38, 18, 0.07), transparent 70%),
+    linear-gradient(to left, rgba(60, 38, 18, 0.12), transparent 2%),
+    linear-gradient(to bottom, rgba(60, 38, 18, 0.06), transparent 3%, transparent 96%, rgba(60, 38, 18, 0.1));
+}
+
+.paper.left .paper-shade {
+  background:
+    linear-gradient(to left, rgba(40, 24, 10, 0.4) 0%, rgba(40, 24, 10, 0.17) 1.5%, rgba(255, 248, 228, 0.12) 3.1%, rgba(40, 24, 10, 0.06) 5.6%, transparent 13%),
+    radial-gradient(ellipse 22% 70% at 0% 50%, rgba(60, 38, 18, 0.07), transparent 70%),
+    linear-gradient(to right, rgba(60, 38, 18, 0.12), transparent 2%),
+    linear-gradient(to bottom, rgba(60, 38, 18, 0.06), transparent 3%, transparent 96%, rgba(60, 38, 18, 0.1));
+}
+
+/* ── volume: as folhas de baixo aparecem na borda externa, como um miolo de verdade ── */
+.leaf:not(.is-board) .page.paper.right {
+  box-shadow:
+    inset -1px 0 0 rgba(120, 95, 65, 0.22),
+    1px 0 0 #efe5cf,
+    2px 0.5px 0 #d6c7a6,
+    3px 0.5px 0 #ece1c8,
+    4px 1px 0 #cdbd9c,
+    5px 1px 0 #e6dbc1,
+    6px 1.5px 2px rgba(50, 30, 12, 0.4);
+}
+
+.leaf:not(.is-board) .page.paper.left {
+  box-shadow:
+    inset 1px 0 0 rgba(120, 95, 65, 0.22),
+    -1px 0 0 #efe5cf,
+    -2px 0.5px 0 #d6c7a6,
+    -3px 0.5px 0 #ece1c8,
+    -4px 1px 0 #cdbd9c,
+    -5px 1px 0 #e6dbc1,
+    -6px 1.5px 2px rgba(50, 30, 12, 0.4);
+}
+
+/* ─────────── Edição Sombria ─────────── */
+
+/* papel osso: borda acinzentada e manchas frias, sem amarelar */
+:root[data-theme='dark'] .paper::before {
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), transparent 30%),
+    radial-gradient(ellipse 135% 118% at 50% 42%, transparent 55%, rgba(30, 28, 26, 0.1) 84%, rgba(20, 18, 16, 0.2) 100%),
+    radial-gradient(circle at 88% 8%, rgba(60, 50, 44, 0.07) 0 0.8%, transparent 1.25%),
+    radial-gradient(circle at 81% 93%, rgba(60, 50, 44, 0.06) 0 1%, transparent 1.5%);
+}
+
+:root[data-theme='dark'] .paper.left::before {
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), transparent 30%),
+    radial-gradient(ellipse 135% 118% at 50% 42%, transparent 55%, rgba(30, 28, 26, 0.1) 84%, rgba(20, 18, 16, 0.2) 100%),
+    radial-gradient(circle at 10% 11%, rgba(60, 50, 44, 0.06) 0 0.7%, transparent 1.15%),
+    radial-gradient(circle at 17% 94%, rgba(60, 50, 44, 0.05) 0 0.6%, transparent 1%);
+}
+
+:root[data-theme='dark'] .paper.right .paper-shade {
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.18) 1.5%, rgba(255, 255, 255, 0.1) 3.1%, rgba(0, 0, 0, 0.06) 5.6%, transparent 13%),
+    radial-gradient(ellipse 22% 70% at 100% 50%, rgba(0, 0, 0, 0.07), transparent 70%),
+    linear-gradient(to left, rgba(0, 0, 0, 0.12), transparent 2%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.06), transparent 3%, transparent 96%, rgba(0, 0, 0, 0.1));
+}
+
+:root[data-theme='dark'] .paper.left .paper-shade {
+  background:
+    linear-gradient(to left, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.18) 1.5%, rgba(255, 255, 255, 0.1) 3.1%, rgba(0, 0, 0, 0.06) 5.6%, transparent 13%),
+    radial-gradient(ellipse 22% 70% at 0% 50%, rgba(0, 0, 0, 0.07), transparent 70%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.12), transparent 2%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.06), transparent 3%, transparent 96%, rgba(0, 0, 0, 0.1));
+}
+
+:root[data-theme='dark'] .leaf:not(.is-board) .page.paper.right {
+  box-shadow:
+    inset -1px 0 0 rgba(0, 0, 0, 0.25),
+    1px 0 0 #e9e6df,
+    2px 0.5px 0 #c9c4ba,
+    3px 0.5px 0 #e2ded6,
+    4px 1px 0 #bdb7ac,
+    5px 1px 0 #dcd7ce,
+    6px 1.5px 2px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme='dark'] .leaf:not(.is-board) .page.paper.left {
+  box-shadow:
+    inset 1px 0 0 rgba(0, 0, 0, 0.25),
+    -1px 0 0 #e9e6df,
+    -2px 0.5px 0 #c9c4ba,
+    -3px 0.5px 0 #e2ded6,
+    -4px 1px 0 #bdb7ac,
+    -5px 1px 0 #dcd7ce,
+    -6px 1.5px 2px rgba(0, 0, 0, 0.55);
+}
+
+/* páginas negras de abertura: carvão com fibra, brilho de luz rasante e moldura gravada */
+:root[data-theme='dark'] .paper.is-opener::before {
+  background:
+    radial-gradient(ellipse 70% 55% at 34% 18%, rgba(255, 255, 255, 0.055), transparent 62%),
+    radial-gradient(ellipse 50% 40% at 75% 90%, rgba(155, 13, 18, 0.05), transparent 70%),
+    var(--tex-mottle),
+    radial-gradient(ellipse 125% 105% at 50% 48%, transparent 48%, rgba(0, 0, 0, 0.6) 100%);
+  background-size: 100% 100%, 100% 100%, 600px 600px, 100% 100%;
+  opacity: 0.5;
+}
+
+:root[data-theme='dark'] .paper.is-opener .paper-shade::after {
+  content: '';
+  position: absolute;
+  inset: 3.4% 4.6% 3.4% 5.6%;
+  border: 1px solid rgba(195, 198, 204, 0.13);
+  outline: 1px solid rgba(195, 198, 204, 0.06);
+  outline-offset: 4px;
+}
+
+/* fundo: a vela também aquece a mesa, e a lua desenha um facho — sem bloco preto chapado */
+:root[data-theme='dark'] #backdrop::after {
+  background:
+    radial-gradient(ellipse 34% 30% at 9% 80%, rgba(255, 130, 50, 0.075), transparent 70%),
+    conic-gradient(from 180deg at 50% -8%, transparent 160deg, rgba(200, 208, 228, 0.05) 172deg, rgba(215, 222, 240, 0.075) 180deg, rgba(200, 208, 228, 0.05) 188deg, transparent 200deg);
+}
+
+/* ─────────── marca e favicon: o dourado aprovado vale nos dois temas ─────────── */
+:root[data-theme='dark'] .ui-mark {
+  border-color: rgba(192, 154, 82, 0.45);
+  outline-color: rgba(192, 154, 82, 0.2);
+}
+
+:root[data-theme='dark'] .ui-mark:hover {
+  border-color: #c09a52;
+  outline-color: rgba(192, 154, 82, 0.5);
+}
+
+:root[data-theme='dark'] .ui-mono {
+  color: #c09a52;
+}

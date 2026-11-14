@@ -542,3 +542,98 @@ body.is-open #desk-props {
 .leaves svg {
   -webkit-user-drag: none;
 }
+
+/* ─────────── "Visitar a obra": portal de câmera ─────────── */
+#portal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+#portal.is-on {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.portal-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(8, 5, 4, 0.75), #050302 75%);
+  opacity: 0;
+}
+
+.portal-img {
+  position: absolute;
+  overflow: hidden;
+  background-color: #0b0807;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  will-change: left, top, width, height;
+}
+
+.portal-img.is-drawn {
+  display: grid;
+  place-items: center;
+  background: var(--tex-paper), var(--paper);
+  background-size: 300px 300px, auto;
+}
+
+.portal-inner {
+  width: 70%;
+  max-width: 70vh;
+}
+
+.portal-inner svg {
+  width: 100%;
+  height: auto;
+}
+
+.portal-label {
+  position: absolute;
+  left: 50%;
+  bottom: max(2.2rem, calc(env(safe-area-inset-bottom) + 1.2rem));
+  translate: -50% 0;
+  margin: 0;
+  padding: 0.55rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #f4dc96;
+  background: rgba(12, 8, 6, 0.72);
+  border: 1px solid rgba(192, 154, 82, 0.45);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+}
+
+.portal-label i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: portal-dot 1s ease-in-out infinite;
+}
+
+.portal-label i:nth-of-type(2) { animation-delay: 0.15s; }
+.portal-label i:nth-of-type(3) { animation-delay: 0.3s; }
+
+@keyframes portal-dot {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+:root[data-theme='dark'] .portal-label {
+  color: #e4e7ec;
+  border-color: rgba(195, 198, 204, 0.4);
+  background: rgba(6, 6, 7, 0.78);
+}
+
+:root[data-theme='dark'] .portal-veil {
+  background: radial-gradient(ellipse at 50% 50%, rgba(5, 5, 6, 0.75), #000 75%);
+}
