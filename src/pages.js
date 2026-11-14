@@ -70,6 +70,7 @@ function paper(p, side, inner, { head = true, cls = '', notes = '' } = {}) {
     ${notes}
     ${folioOf(p) ? `<footer class="folio"><span class="folio-mark">·</span>${folioOf(p)}<span class="folio-mark">·</span></footer>` : ''}
     <button class="curl curl-${side === 'left' ? 'prev' : 'next'}" tabindex="-1" aria-hidden="true" data-curl="${side === 'left' ? 'prev' : 'next'}"></button>
+    <button class="curl curl-top curl-${side === 'left' ? 'prev' : 'next'}" tabindex="-1" aria-hidden="true" data-curl="${side === 'left' ? 'prev' : 'next'}"></button>
   </div>`;
 }
 

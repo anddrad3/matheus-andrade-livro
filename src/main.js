@@ -207,6 +207,64 @@ function goHome() {
   book.goTo(0).then(() => updateUI());
 }
 
+/* ───────────── virar a página com a mão ───────────── */
+
+// Arrastar a partir de um canto da página: a folha segue o ponteiro.
+// Soltar depois da metade (ou num gesto rápido) completa a virada.
+let pageDrag = null;
+let pageDragged = false;
+document.addEventListener('pointerdown', (e) => {
+  const curl = e.target.closest('[data-curl]');
+  if (!curl || !opened || e.button !== 0 || spin.rotated) return;
+  pageDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, dir: curl.dataset.curl === 'next' ? 1 : -1, live: false, theta: 0, t: 0, v: 0 };
+  pageDragged = false;
+});
+
+function thetaAt(clientX) {
+  const r = rig.getBoundingClientRect();
+  const scale = r.width / (2 * book.pw);
+  const spineX = r.left + r.width / 2 + gsap.getProperty(book.el, 'x') * scale;
+  const dx = (clientX - spineX) / (book.pw * scale);
+  return (Math.acos(Math.max(-1, Math.min(1, dx))) * 180) / Math.PI;
+}
+
+window.addEventListener('pointermove', (e) => {
+  const g = pageDrag;
+  if (!g || e.pointerId !== g.id) return;
+  if (!g.live) {
+    if (Math.hypot(e.clientX - g.x, e.clientY - g.y) < 6) return;
+    if (!book.dragStart(g.dir)) {
+      pageDrag = null;
+      return;
+    }
+    g.live = true;
+    pageDragged = true;
+    document.body.classList.add('is-page-drag');
+    g.theta = g.dir > 0 ? 0 : 180;
+    g.t = performance.now();
+  }
+  const th = thetaAt(e.clientX);
+  const now = performance.now();
+  g.v = ((th - g.theta) / Math.max(1, now - g.t)) * 16;
+  g.theta = th;
+  g.t = now;
+  book.dragMove(th);
+});
+
+function endPageDrag(e) {
+  const g = pageDrag;
+  if (!g || (e && e.pointerId !== g.id)) return;
+  pageDrag = null;
+  if (!g.live) return;
+  document.body.classList.remove('is-page-drag');
+  // se parou antes de soltar, não há impulso
+  const v = performance.now() - g.t > 90 ? 0 : g.v;
+  book.dragEnd(v).then(() => updateUI());
+  setTimeout(() => (pageDragged = false), 80);
+}
+window.addEventListener('pointerup', endPageDrag);
+window.addEventListener('pointercancel', endPageDrag);
+
 /* ───────────── interações ───────────── */
 
 function bindControls() {
@@ -239,6 +297,7 @@ function bindControls() {
       return;
     }
     const curl = e.target.closest('[data-curl]');
+    if (curl && pageDragged) return;
     if (curl && opened) {
       curl.dataset.curl === 'next' ? book.next() : book.prev();
       return;
@@ -305,7 +364,7 @@ function bindControls() {
   window.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
-    if (performance.now() - tt > 700 || spin.active) return;
+    if (performance.now() - tt > 700 || spin.active || pageDragged) return;
     if (!opened) {
       if (Math.abs(dx) > 40 || dy < -40) open();
       return;

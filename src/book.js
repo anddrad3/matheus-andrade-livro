@@ -175,6 +175,80 @@ export class Book {
     this.cast.dataset.side = right ? 'right' : 'left';
   }
 
+  /* ─────────── virar com a mão (arrastar o canto) ─────────── */
+
+  /**
+   * Começa a virar a folha seguindo o ponteiro.
+   * dir = 1 (canto direito → próxima) ou −1 (canto esquerdo → anterior).
+   */
+  dragStart(dir) {
+    if (this.mode !== 'desktop' || this.reduced) return false;
+    if (this.tl) this.tl.progress(1);
+    const k = dir > 0 ? this.s : this.s - 1;
+    if (k < 0 || k >= this.N) return false;
+    const leaf = this.leaves[k];
+    const t = this.s + dir;
+    this.updateVisibility([...new Set([...this.visiblePages(), ...this.visiblePages(t, dir > 0 ? 'left' : 'right')])]);
+    this.cull([k - 1, k, k + 1]);
+    gsap.killTweensOf(leaf);
+    gsap.to(leaf, { z: this.N * this.d + 6, duration: 0.25, ease: 'power1.out' });
+    this.drag = { dir, k, leaf, theta: dir > 0 ? 0 : 180 };
+    return true;
+  }
+
+  /** theta: ângulo da folha, 0 = deitada à direita, 180 = deitada à esquerda */
+  dragMove(theta) {
+    const g = this.drag;
+    if (!g) return;
+    g.theta = Math.max(0, Math.min(180, theta));
+    gsap.set(g.leaf, { rotationY: -g.theta });
+    g.leaf.style.setProperty('--lift', Math.sin((g.theta / 180) * Math.PI).toFixed(3));
+    this.castShadow(g.theta);
+  }
+
+  /** solta: completa a virada se passou da metade (ou se foi um gesto rápido) */
+  dragEnd(velocity = 0) {
+    const g = this.drag;
+    if (!g) return Promise.resolve();
+    this.drag = null;
+    const projected = g.theta + Math.max(-40, Math.min(40, velocity * 5));
+    const commit = g.dir > 0 ? projected > 90 : projected < 90;
+    const flipped = g.dir > 0 ? commit : !commit;
+    const target = flipped ? 180 : 0;
+    const D = 0.25 + (Math.abs(target - g.theta) / 180) * 0.55;
+    if (commit) {
+      const from = this.s;
+      this.s += g.dir;
+      this.side = g.dir > 0 ? 'left' : 'right';
+      this.onChange?.(this);
+      this.onFlip?.(1, g.dir);
+      if (this.s === 0 || from === 0 || this.s === this.N || from === this.N) {
+        gsap.to(this.el, { x: this.xFor(), duration: D + 0.2, ease: 'power2.out' });
+        gsap.to(this.shadow, { ...this.shadowFor(this.s), duration: D + 0.2, ease: 'power2.out' });
+      }
+    }
+    return new Promise((resolve) => {
+      const state = { theta: g.theta };
+      gsap.to(state, {
+        theta: target,
+        duration: D,
+        ease: 'power2.out',
+        onUpdate: () => {
+          gsap.set(g.leaf, { rotationY: -state.theta });
+          g.leaf.style.setProperty('--lift', Math.sin((state.theta / 180) * Math.PI).toFixed(3));
+          this.castShadow(state.theta);
+        },
+        onComplete: () => {
+          this.castShadow(null);
+          g.leaf.style.setProperty('--lift', 0);
+          gsap.to(g.leaf, { z: this.zFor(g.k, flipped), duration: 0.2, ease: 'power1.in' });
+          this.updateVisibility();
+          resolve();
+        },
+      });
+    });
+  }
+
   /* ─────────── navegação ─────────── */
 
   canNext() {
@@ -206,6 +280,7 @@ export class Book {
   }
 
   goTo(t, side = this.side) {
+    if (this.drag) return Promise.resolve();
     t = Math.max(0, Math.min(this.N, t));
     if (t === 0) side = 'right';
     if (t === this.N) side = 'left';

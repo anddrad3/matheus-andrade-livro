@@ -657,3 +657,36 @@
 .is-spin .leaf.is-culled {
   visibility: visible;
 }
+
+/* cantos de cima (mesma dobra, espelhada) */
+.curl-top {
+  top: 0;
+  bottom: auto;
+}
+
+.curl-top::before {
+  top: 0;
+  bottom: auto;
+}
+
+.curl-next.curl-top::before {
+  background: linear-gradient(45deg, #d6c4a0 0%, #f4ecdb 32%, #e4d5b6 50%, #ddcdae 50%);
+  box-shadow: -4px 4px 8px -2px rgba(40, 25, 10, 0.3);
+}
+
+.curl-prev.curl-top::before {
+  background: linear-gradient(-45deg, #d6c4a0 0%, #f4ecdb 32%, #e4d5b6 50%, #ddcdae 50%);
+  box-shadow: 4px 4px 8px -2px rgba(40, 25, 10, 0.3);
+}
+
+/* o canto convida a pegar */
+.is-open .curl {
+  cursor: grab;
+  touch-action: none;
+}
+
+.is-page-drag,
+.is-page-drag * {
+  cursor: grabbing !important;
+  user-select: none;
+}
