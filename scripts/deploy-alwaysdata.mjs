@@ -8,7 +8,7 @@
 import { execFileSync, execSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 
 const HOST = process.env.AD_HOST ?? 'matityahu@ssh-matityahu.alwaysdata.net';
 const DIR = process.env.AD_DIR ?? 'www/dev-matheus-andrade';
@@ -29,7 +29,9 @@ execSync('npm run build', { stdio: 'inherit' });
 
 console.log(`› enviando para ${HOST}:${DIR}`);
 run('ssh', [...sshOpts, HOST, `rm -rf ~/${tmp} && mkdir -p ~/${tmp}`]);
-run('scp', [...sshOpts, '-r', '-q', 'dist/index.html', 'dist/assets', `${HOST}:${tmp}/`]);
+// envia tudo o que o build gerou (index.html, assets/, plates/…)
+const entries = readdirSync('dist').map((f) => `dist/${f}`);
+run('scp', [...sshOpts, '-r', '-q', ...entries, `${HOST}:${tmp}/`]);
 run('ssh', [...sshOpts, HOST, `rm -rf ~/${DIR}.__antigo && (test -d ~/${DIR} && mv ~/${DIR} ~/${DIR}.__antigo || true) && mv ~/${tmp} ~/${DIR} && rm -rf ~/${DIR}.__antigo`]);
 
 console.log(`✓ publicado: ${URL}`);

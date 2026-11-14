@@ -1,4 +1,4 @@
-import { github } from './content.js';
+import { github, diary } from './content.js';
 
 /**
  * Preenche o "Diário de bordo" com os commits mais recentes do GitHub.
@@ -47,7 +47,17 @@ export async function loadDiary(list, status) {
       } catch {}
     }
     if (!data.length) return;
-    list.innerHTML = data
+    // se o limite da API cortou alguns repositórios, completa com o registro impresso
+    const have = new Set(data.map((c) => c.repo));
+    const merged = [
+      ...data,
+      ...diary.fallback
+        .filter((c) => !have.has(c.repo))
+        .map((c) => ({ ...c, date: `${c.date}T12:00:00Z`, url: `https://github.com/${github}/${c.repo}` })),
+    ]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 5);
+    list.innerHTML = merged
       .map(
         (c) => `<li>
           <span class="d-date">${fmt(c.date)}</span>
