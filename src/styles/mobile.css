@@ -639,7 +639,7 @@ body.is-pinching #rig {
   -webkit-tap-highlight-color: transparent;
 }
 
-.lang-toggle span {
+.lang-toggle.is-live span {
   transition: color 0.3s;
 }
 

@@ -572,7 +572,8 @@
   transform-origin: 50% 0;
   display: block;
   cursor: pointer;
-  transition: height 0.6s var(--ease-out);
+  /* cresce por escala (GPU), não por altura (que refaz o layout a cada quadro) */
+  transition: transform 0.6s var(--ease-out);
   filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.45));
 }
 
@@ -587,7 +588,8 @@
 
 .ribbon:hover,
 .ribbon:focus-visible {
-  height: calc(var(--ph) * 0.09);
+  /* 0,07 → 0,09 da altura da página, a partir do topo (transform-origin 50% 0) */
+  transform: translateZ(calc(var(--T) * 0.5)) scaleY(1.2857);
 }
 
 /* ─────────────────────────────────────────────

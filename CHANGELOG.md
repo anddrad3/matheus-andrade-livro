@@ -2,6 +2,17 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.5.0] — 2026-11-15
+### Desempenho (relatório completo do PageSpeed, celular e computador)
+- **Payload inicial 2,2 MB → 0,6 MB**: a trilha (1,5 MB) não é mais baixada inteira para tocar muda enquanto o navegador bloqueia o som. Ao abrir, só o cabeçalho do MP3 (poucos KB); o arquivo vem em streaming no mesmo toque que liga a música e a cena (que entram juntas, do começo). Se o navegador já libera o som, toca na hora como antes.
+- **Entrega de imagens**: texturas recomprimidas com o canal alfa com perdas (grão, papel e manchas são só alfa) e sem alfa inútil nas opacas (madeira, couro) — 618 → 399 KB no total, visual idêntico. Novo `scripts/compress-textures.mjs` (roda junto com `npm run textures`).
+- **CSS não usado**: o CSS do celular da mesa e do card dos objetos saiu do arquivo principal e vem junto com os seus módulos (114 → 105 KB).
+- **Animações não compostas**: o marcador de fita cresce por escala (GPU) em vez de altura; o interruptor PT/EN e os botões da interface (ainda invisíveis antes de o livro abrir) não rodam transições de cor ao carregar.
+- **Causas da troca de layout**: título do cinema e texto da entrada com altura de linha fixa e a mesma pilha de fontes antes e depois do CSS — a chegada das fontes web não desloca mais nada (CLS 0,001 → 0).
+### Segurança (Práticas recomendadas)
+- **Content-Security-Policy** gerada no build (`vite.config.js`): só rodam os scripts do próprio site e os scripts embutidos com hash SHA-256 na política; os `onload` inline das folhas de estilo viraram scripts.
+- `.htaccess`: **HSTS**, **COOP** (`same-origin`), proteção contra clickjacking (`X-Frame-Options` + `frame-ancestors`), `X-Content-Type-Options` e `Referrer-Policy`.
+
 ## [4.4.1] — 2026-11-15
 ### Desempenho
 - **Entrega de imagens**: caveira da capa como máscara por luminância (imagem em tons de cinza com compressão normal): 142 → 60 KB, visual idêntico. Texturas de papel em 200 px exibidas a 300 px: 79 → 37 KB, mesma granulação.

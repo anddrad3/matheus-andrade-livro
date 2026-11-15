@@ -10,9 +10,8 @@ import './styles/theme-dark-auto.css';
 import './styles/sombria.css';
 import './styles/interface.css';
 import './styles/texture.css';
-import './styles/objmodal.css';
 import './styles/mobile.css';
-import './styles/phone.css';
+// objmodal.css e phone.css vêm junto com os seus módulos (sob demanda)
 import { installTextures, applyTextures, preloadTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS, CHAPTERS } from './pages.js';
@@ -35,7 +34,9 @@ const sound = createSound();
 const music = createMusic({ getTheme: () => theme(), onChange: () => syncMusicUI() });
 let phone = null; // o celular da mesa (criado mais abaixo)
 // GSAP lê o estilo de cada elemento no primeiro toque: lê todos de uma vez, antes
-// de qualquer escrita (um recálculo de estilo só, em vez de um por elemento)
+// de qualquer escrita (um recálculo de estilo só, em vez de um por elemento).
+// Aqui, cedo, quase tudo ainda está oculto (display: none até o CSS chegar) e a
+// leitura sai barata (~30 ms no celular); depois do CSS e das fontes custaria 10× mais.
 ['#rig', '#float', '#camera', '#book', '.book-shadow', '.edges', '#flash', '.cine-veil', '.cine-place', '.ct-pre', '.ct-name', '.desk-light', '.desk', '#stage']
   .forEach((s) => document.querySelectorAll(s).forEach((el) => gsap.getProperty(el, 'x')));
 if (!isPhone()) startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
@@ -1092,6 +1093,8 @@ const langBtn = $('#lang');
 langBtn.setAttribute('aria-checked', String(EN));
 langBtn.classList.toggle('is-en', EN);
 langBtn.addEventListener('click', () => {
+  // a transição de cor só existe no clique (ao carregar, o estado entra direto: sem animação)
+  langBtn.classList.add('is-live');
   langBtn.classList.toggle('is-en');
   setLang(EN ? 'pt' : 'en');
   // reabre no mesmo ponto, sem a abertura, já no outro idioma

@@ -53,7 +53,8 @@ export function createMusic({ getTheme, onChange }) {
     const early = window.__bgm?.theme === theme ? window.__bgm.el : null;
     const el = early || new Audio(SRC[theme]);
     el.loop = true;
-    el.preload = 'auto';
+    // só o cabeçalho até a hora de tocar; ao tocar, o navegador baixa em streaming
+    el.preload = 'metadata';
     el.volume = 0;
     const t = { el, level: 0, gain: null, theme };
     tracks[theme] = t;
@@ -127,8 +128,6 @@ export function createMusic({ getTheme, onChange }) {
       emit();
     }).catch(() => {
       blocked = true;
-      t.el.muted = true;
-      t.el.play().catch(() => {});
       waitForGesture();
     });
   }
@@ -147,10 +146,10 @@ export function createMusic({ getTheme, onChange }) {
     }
     current = next;
     if (blocked) {
-      next.el.muted = true;
+      // som ainda bloqueado: a faixa fica pronta (sem baixar o arquivo inteiro para
+      // tocar muda) e entra, do começo, no mesmo toque que dá a partida na abertura
       next.level = 1;
       render();
-      next.el.play().then(() => (playing = true)).catch(() => {});
     } else {
       audible();
     }

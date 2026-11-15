@@ -1049,6 +1049,8 @@ body:not(.is-open):not(.is-opening) #backdrop {
   text-transform: uppercase;
   color: rgba(233, 220, 194, 0.8);
   opacity: 0;
+  /* altura de linha fixa: a linha não muda de altura quando a fonte web chega (CLS 0) */
+  line-height: 1.31;
 }
 
 .ct-name {
@@ -1059,6 +1061,7 @@ body:not(.is-open):not(.is-opening) #backdrop {
   color: #f1dfae;
   letter-spacing: 0.02em;
   opacity: 0;
+  line-height: 1.21;
 }
 
 .is-open #cine {

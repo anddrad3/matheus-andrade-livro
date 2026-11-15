@@ -75,7 +75,13 @@
   font-family: var(--caps);
 }
 
+/* mesma altura de linha que a fonte teria em "normal" (sem salto quando ela chega) */
+:root[data-theme="dark"] .ct-pre {
+  line-height: 1.35;
+}
+
 :root[data-theme="dark"] .ct-name {
+  line-height: 1.29;
   font-family: var(--gothic);
   font-style: normal;
   font-weight: 400;

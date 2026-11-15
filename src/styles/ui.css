@@ -14,6 +14,12 @@
   opacity: 1;
 }
 
+/* antes de o livro abrir a interface está invisível: os botões assumem o estado
+   inicial (som, tema, 360°…) direto, sem transições de cor rodando à toa */
+body:not(.is-open) #ui * {
+  transition: none !important;
+}
+
 .is-open #ui > * {
   pointer-events: auto;
 }

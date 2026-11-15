@@ -14,7 +14,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- fontes sem bloquear a primeira pintura -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Caveat:wght@500;600&family=Pirata+One&family=Cinzel:wght@400;600&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Caveat:wght@500;600&family=Pirata+One&family=Cinzel:wght@400;600&display=swap" media="print" onload="this.media='all'" />
+    <!-- folha inserida por script: não bloqueia a pintura e dispensa atributo onload (a CSP só aceita scripts com hash) -->
+    <script>(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Caveat:wght@500;600&family=Pirata+One&family=Cinzel:wght@400;600&display=swap';document.head.appendChild(l);})();</script>
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Caveat:wght@500;600&family=Pirata+One&family=Cinzel:wght@400;600&display=swap" /></noscript>
     <script>
       (function () {
@@ -50,15 +51,14 @@
           window.__css = function () {
             d.classList.add('css');
             r();
-            // a trilha começa a baixar e a tocar (muda) logo depois do CSS (sem disputar a rede
-            // com o que pinta a tela); o som entra assim que o navegador deixar
+            // a trilha já deixa pronto só o cabeçalho (poucos KB); o arquivo em si
+            // (1,5 MB) só é baixado quando o som vai de fato tocar — em streaming
             try {
               if (!window.__bgm && localStorage.getItem('livro.music') !== 'off') {
-                var a = new Audio(t === 'dark' ? 'music/lacrimosa-piano.mp3' : 'music/aria-bach-piano.mp3');
-                a.preload = 'auto';
+                var a = new Audio();
+                a.preload = 'metadata';
                 a.loop = true;
-                a.muted = true;
-                a.play().catch(function () {});
+                a.src = t === 'dark' ? 'music/lacrimosa-piano.mp3' : 'music/aria-bach-piano.mp3';
                 window.__bgm = { theme: t, el: a };
               }
             } catch (e) {}
@@ -78,6 +78,9 @@
       .loader-orn, .loader-text, .loader-gate { display: block; height: 1.7rem; line-height: 1.7rem; font-family: Georgia, serif; }
       .loader-orn { font-size: 1.6rem; color: #c09a52; }
       .loader-text { font-style: italic; letter-spacing: 0.08em; font-size: 1.05rem; color: rgba(233, 220, 194, 0.7); }
+      /* caixa da largura da tela, texto centrado dentro dela: quando a fonte web chega e a
+         frase muda de largura, a caixa não sai do lugar (nenhum deslocamento de layout) */
+      .loader-text, .loader-gate { width: 100vw; text-align: center; font-family: 'Cormorant Garamond', 'Cormorant', Garamond, 'Times New Roman', serif; }
       .loader-gate { display: none; }
     </style>
   </head>

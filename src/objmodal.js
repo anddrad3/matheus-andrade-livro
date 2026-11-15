@@ -1,4 +1,5 @@
 import gsap from 'gsap';
+import './styles/objmodal.css'; // só baixa quando o card é preparado
 
 /**
  * Card do objeto da mesa: o objeto aparece grande, com espessura (camadas

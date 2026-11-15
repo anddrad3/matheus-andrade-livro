@@ -1,7 +1,7 @@
 {
   "name": "matheus-andrade-livro",
   "private": true,
-  "version": "4.4.1",
+  "version": "4.5.0",
   "description": "Portfólio de dev em forma de livro — abertura 3D, páginas que viram e capítulos.",
   "type": "module",
   "scripts": {
@@ -9,13 +9,14 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "node scripts/deploy-alwaysdata.mjs",
-    "textures": "node scripts/build-textures.mjs"
+    "textures": "node scripts/build-textures.mjs && node scripts/compress-textures.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.1"
   },
   "devDependencies": {
-    "vite": "^8.3.8",
-    "playwright-core": "^1.65.1"
+    "playwright-core": "^1.65.1",
+    "sharp": "^0.34.4",
+    "vite": "^8.3.8"
   }
 }
