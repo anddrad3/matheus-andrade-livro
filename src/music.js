@@ -155,25 +155,38 @@ export function createMusic({ getTheme, onChange }) {
     }
   }
 
+  // Só estes eventos liberam som num toque: no celular, "pointerdown"/"touchstart"
+  // NÃO contam como gesto (Chrome do Android e Safari do iPhone) — tocar ali era
+  // recusado e, no iPhone, o contexto de áudio nascia suspenso (mudo para sempre).
+  const GESTURES = ['pointerup', 'touchend', 'click', 'keydown'];
   let waiting = false;
   function waitForGesture() {
     if (waiting) return;
     waiting = true;
-    const go = () => {
+    const go = (e) => {
+      if (e.type === 'keydown' && (e.key === 'Tab' || e.key === 'Escape')) return; // não liberam som
       waiting = false;
-      ['pointerdown', 'keydown', 'touchend', 'click'].forEach((ev) => window.removeEventListener(ev, go, true));
-      if (!volumeWorks && !ctx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (AC) {
-          ctx = new AC();
-          Object.values(tracks).forEach(attach);
-        }
-      }
-      ctx?.resume?.();
+      GESTURES.forEach((ev) => window.removeEventListener(ev, go, true));
+      unlockCtx();
       if (blocked) audible();
     };
-    ['pointerdown', 'keydown', 'touchend', 'click'].forEach((ev) => window.addEventListener(ev, go, true));
+    GESTURES.forEach((ev) => window.addEventListener(ev, go, true));
   }
+
+  /** iOS: o volume passa pelo Web Audio, que precisa nascer/acordar dentro de um gesto */
+  function unlockCtx() {
+    if (!volumeWorks && !ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        ctx = new AC();
+        Object.values(tracks).forEach(attach);
+      }
+    }
+    if (ctx && ctx.state !== 'running') ctx.resume?.().catch?.(() => {});
+  }
+  // se o contexto ainda estiver suspenso (ou o iOS o suspender ao voltar do fundo),
+  // qualquer toque seguinte o acorda
+  GESTURES.forEach((ev) => window.addEventListener(ev, () => ctx && ctx.state !== 'running' && unlockCtx(), true));
 
   // começa mudo (já tocando desde o <head>) e descobre se pode ligar o som
   // a trilha começa depois do CSS principal (não disputa a rede com a primeira pintura)

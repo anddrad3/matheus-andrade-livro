@@ -2,6 +2,15 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.5.1] — 2026-11-15
+### Corrigido
+- **Música no celular**: o som tentava começar no `pointerdown`, que num toque de dedo *não* libera áudio (Chrome do Android e Safari do iPhone só liberam em `pointerup`/`touchend`/`click`); no iPhone o contexto de áudio ainda nascia suspenso e a trilha ficava muda. Agora a música entra no gesto certo e qualquer toque seguinte acorda o áudio se ele estiver suspenso.
+### Desempenho (travadas no celular, medidas com a CPU 4× mais lenta)
+- **Toque inicial**: a tela congelava ~1,2 s logo após o toque — a cena inteira era rasterizada de uma vez, porque antes ficava invisível atrás de camadas pretas opacas. Agora ela é pré-desenhada sob o monograma enquanto ele espera (loader e véu a 99,6%, diferença invisível); as primeiras folhas também são montadas ali, não no meio da cena. Pior quadro da cutscene: 1.200 → ~100 ms.
+- **Troca de cena para o site**: as medidas dos objetos da mesa saíram do `:root` (cada escrita recalculava o estilo dos ~2.000 elementos) para o próprio `#desk-props` — 350 → ~150 ms.
+- **Abrir o livro**: sem leituras de estilo forçadas pelo GSAP (`will-change` e origem das transformações escritas direto) e sem medir o palco à toa no meio do mergulho; o ruído do som de papel é calculado no tempo ocioso, não no clique.
+- **Revertido da 4.5.0**: o CSS do celular e do card dos objetos voltou ao arquivo principal — inserir folhas novas depois recalculava o estilo da página inteira (travada de ~1,7 s no celular alguns segundos após abrir o livro).
+
 ## [4.5.0] — 2026-11-15
 ### Desempenho (relatório completo do PageSpeed, celular e computador)
 - **Payload inicial 2,2 MB → 0,6 MB**: a trilha (1,5 MB) não é mais baixada inteira para tocar muda enquanto o navegador bloqueia o som. Ao abrir, só o cabeçalho do MP3 (poucos KB); o arquivo vem em streaming no mesmo toque que liga a música e a cena (que entram juntas, do começo). Se o navegador já libera o som, toca na hora como antes.

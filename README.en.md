@@ -4,7 +4,7 @@
 
 Portfolio of **Matheus da Silva Andrade** — full stack developer, teacher and researcher — shaped as a **deluxe-edition book**, in Portuguese and English.
 
-**Version 4.5.0** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
+**Version 4.5.1** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
 
 🔗 **Live:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
@@ -56,7 +56,8 @@ The site follows the **visitor’s device**: light theme → classic edition, da
 - Page turns no longer recalculate the style of hundreds of words every frame; the incoming page is written only after the leaf settles (nothing is painted mid-turn); the cast shadow and the paper curve only move GPU layers.
 - No filter recomputed by the GPU every frame: no blur on the scene-change flash or the background light beam; object shadows kept off animated layers.
 - Images and soundtrack cached for a year (`public/.htaccess`); soundtracks as 80 kbps mono MP3, streamed only when sound is about to play (on load, just the header); the other theme’s engravings and the GitHub logbook only load when needed.
-- Textures as WebP with lossy-compressed alpha (`scripts/compress-textures.mjs`); the desk phone’s and object card’s CSS ships with their modules.
+- Textures as WebP with lossy-compressed alpha (`scripts/compress-textures.mjs`).
+- Opening without stutter on phones: the scene is pre-rendered under the monogram while it waits for the tap; no CSS variable written on `:root` during animations (it would restyle the whole page); no forced style reads mid-scene.
 - Security: CSP with a hash for every inline script (generated at build time), HSTS, COOP and clickjacking protection (`public/.htaccess`).
 
 ## Editing the content

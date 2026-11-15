@@ -13,23 +13,32 @@ export function createSound() {
     enabled = localStorage.getItem(KEY) !== 'off';
   } catch {}
 
+  // um segundo de ruído rosa reaproveitável — calculado no tempo ocioso logo ao
+  // carregar (antes era no toque que abre o livro: ~50 ms de travada no celular)
+  let samples = null;
+  function pinkNoise() {
+    if (samples) return samples;
+    samples = new Float32Array(48000);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < samples.length; i++) {
+      const w = Math.random() * 2 - 1;
+      b0 = 0.997 * b0 + w * 0.029591;
+      b1 = 0.985 * b1 + w * 0.032534;
+      b2 = 0.95 * b2 + w * 0.048056;
+      samples[i] = (b0 + b1 + b2 + w * 0.1848) * 0.6;
+    }
+    return samples;
+  }
+  (window.requestIdleCallback || ((f) => setTimeout(f, 1500)))(pinkNoise);
+
   function ensure() {
     if (ctx) return ctx;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
     ctx = new AC();
-    // um segundo de ruído rosa reaproveitável
-    const len = ctx.sampleRate;
-    noise = ctx.createBuffer(1, len, ctx.sampleRate);
-    const d = noise.getChannelData(0);
-    let b0 = 0, b1 = 0, b2 = 0;
-    for (let i = 0; i < len; i++) {
-      const w = Math.random() * 2 - 1;
-      b0 = 0.997 * b0 + w * 0.029591;
-      b1 = 0.985 * b1 + w * 0.032534;
-      b2 = 0.95 * b2 + w * 0.048056;
-      d[i] = (b0 + b1 + b2 + w * 0.1848) * 0.6;
-    }
+    const data = pinkNoise();
+    noise = ctx.createBuffer(1, data.length, ctx.sampleRate);
+    noise.getChannelData(0).set(data);
     return ctx;
   }
 

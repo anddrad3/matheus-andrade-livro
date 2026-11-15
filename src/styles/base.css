@@ -181,6 +181,11 @@ a {
   50% { opacity: 0.35; transform: scale(0.94); }
 }
 
+/* 99,6%: igual ao olho, mas não "opaco" para o navegador, que já desenha a cena atrás */
+#loader.is-warm {
+  opacity: 0.996;
+}
+
 .is-ready #loader {
   opacity: 0;
   visibility: hidden;

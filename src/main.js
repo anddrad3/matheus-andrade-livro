@@ -10,8 +10,11 @@ import './styles/theme-dark-auto.css';
 import './styles/sombria.css';
 import './styles/interface.css';
 import './styles/texture.css';
+import './styles/objmodal.css';
 import './styles/mobile.css';
-// objmodal.css e phone.css vêm junto com os seus módulos (sob demanda)
+// phone.css fica no CSS principal: inserir uma folha nova depois (com o módulo)
+// obrigava o navegador a recalcular o estilo da página inteira — travada de >1 s no celular
+import './styles/phone.css';
 import { installTextures, applyTextures, preloadTextures } from './textures.js';
 import { startAmbient } from './ambient.js';
 import { buildPages, chapterOf, folioOf, pageForHash, hashForPage, pageLabel, TABS, CHAPTERS } from './pages.js';
@@ -119,6 +122,15 @@ const cine = {
   desk: $('.desk'),
 };
 
+/**
+ * Origem da transformação escrita direto no estilo. Via gsap.set, o GSAP lê antes a
+ * origem atual (getComputedStyle) — e essa leitura força o navegador a recalcular o
+ * estilo da página inteira no meio da animação (40–80 ms por vez no celular).
+ */
+function setOrigin(el, origin) {
+  el.style.transformOrigin = origin;
+}
+
 function setClosedPose() {
   // plano aéreo: bem alto, quase de cima, girado sobre a mesa
   gsap.set(camera, { rotationX: 6, rotationZ: -42, rotationY: 0, z: -3000, y: 40, opacity: 1 });
@@ -128,6 +140,8 @@ function setClosedPose() {
 let floatTween;
 let enterTl = null;
 let levitate = null;
+let warmedScene = false; // a cena já foi pré-desenhada sob o monograma (warmScene)
+let enteredOnce = false;
 /** cutscene: a luz acende, a câmera desce da altura até o livro sobre a mesa */
 function enter() {
   setClosedPose();
@@ -138,11 +152,18 @@ function enter() {
   // "pintura nova e grande" e atrasava o LCP para o fim da cena
   // capa e contracapa já; o miolo em duas etapas pequenas, com o livro ainda longe
   // (pintar páginas grandes no fim da cena atrasaria o LCP; tudo de uma vez travaria o início)
-  book.cull([0, book.N - 1]);
-  setTimeout(() => !opened && book.cull([0, 1, book.N - 1]), 900);
-  setTimeout(() => !opened && book.cull([0, 1, 2, book.N - 1]), 1500);
-  gsap.set(book.el, { rotationY: -180, transformOrigin: '75% 50%' });
-  requestAnimationFrame(() => requestAnimationFrame(() => gsap.set(book.el, { rotationY: 0 })));
+  if (warmedScene && !enteredOnce) {
+    // primeira abertura: o pré-desenho (warmScene) já montou tudo sob o monograma
+    book.cull([0, 1, 2, book.N - 1]);
+  } else {
+    book.cull([0, book.N - 1]);
+    setTimeout(() => !opened && book.cull([0, 1, book.N - 1]), 900);
+    setTimeout(() => !opened && book.cull([0, 1, 2, book.N - 1]), 1500);
+    gsap.set(book.el, { rotationY: -180 });
+    setOrigin(book.el, '75% 50%');
+    requestAnimationFrame(() => requestAnimationFrame(() => gsap.set(book.el, { rotationY: 0 })));
+  }
+  enteredOnce = true;
   const tl = gsap.timeline({ delay: 0.2 });
   enterTl = tl;
   tl
@@ -167,7 +188,7 @@ function enter() {
     .add(() => {
       if (opened || openTl) return;
       // o livro levita sobre a mesa, girando de leve no ar (a mesa fica parada)
-      gsap.set(book.el, { transformOrigin: '75% 50%' });
+      setOrigin(book.el, '75% 50%');
       levitate = gsap.timeline({ repeat: -1, yoyo: true })
         .to(book.el, { z: 70, rotationZ: -4, rotationX: 4, duration: 2.2, ease: 'sine.inOut' })
         .to(book.el, { z: 95, rotationZ: 3, rotationX: -2, duration: 2.2, ease: 'sine.inOut' });
@@ -241,7 +262,9 @@ function open() {
   document.body.classList.remove('can-open');
   document.body.classList.add('is-opening');
   prepareOpen();
-  gsap.set(rig, { willChange: 'transform' });
+  // escrita direta: via gsap.set o GSAP lia o valor atual antes, forçando o navegador a
+  // recalcular o estilo da página inteira no instante do toque (~55 ms no celular)
+  rig.style.willChange = 'transform';
   sound.unlock();
   sound.flip(5); // sopro de páginas enquanto gira
   floatTween?.kill();
@@ -260,13 +283,13 @@ function open() {
     .to(float, { y: 0, rotationZ: 0, rotationX: 0, duration: 0.8, ease: 'power2.out' }, 0);
 
   // 1 · a volta completa no ar (gira em torno do centro do livro fechado)
-  gsap.set(book.el, { transformOrigin: '75% 50%' });
+  setOrigin(book.el, '75% 50%');
   // giro com aceleração suave e chegada desacelerada (sem "tranco" no fim)
   tl.to(camera, { rotationX: 14, rotationZ: 0, rotationY: 0, z: -160, y: 0, duration: 1.15, ease: 'sine.inOut' }, 0)
     .to(book.el, { rotationY: -360, rotationZ: 0, rotationX: 0, z: 150, duration: 1.2, ease: 'expo.inOut' }, 0)
     .to(book.shadow, { opacity: 0.25, duration: 0.6 }, 0)
     .add(() => sound.open(), 0.95)
-    .add(() => gsap.set(book.el, { rotationY: 0, transformOrigin: '50% 50%' }), 1.2); // 360° = identidade
+    .add(() => { gsap.set(book.el, { rotationY: 0 }); setOrigin(book.el, '50% 50%'); }, 1.2); // 360° = identidade
 
   // 2 · a capa abre de supetão; o miolo assenta; o livro centraliza
   tl.to(cover, {
@@ -289,10 +312,10 @@ function open() {
   }, 1.2);
 
   // 3 · a câmera mergulha na página da direita até a estrela de luz tomar a tela
+  // (sem medir o rig nem deixar o GSAP ler a origem atual: cada leitura forçava um
+  // recálculo de layout de ~45 ms bem no meio do mergulho)
   tl.add(() => {
-    const rr = rig.getBoundingClientRect();
-    gsap.set(rig, { transformOrigin: `${75}% ${45}%` });
-    void rr;
+    rig.style.transformOrigin = '75% 45%';
   }, 1.2)
     .to(camera, { rotationX: 0, z: 0, duration: 0.9, ease: 'sine.inOut' }, 1.15)
     .to(book.el, { z: 0, duration: 0.9, ease: 'sine.inOut' }, 1.15)
@@ -309,8 +332,10 @@ function finish() {
   book.s = 1;
   book.side = 'right';
   // corte escondido pela luz: câmera e livro voltam ao enquadramento de leitura
-  gsap.set(rig, { scale: 1, clearProps: 'transformOrigin' });
-  gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0, transformOrigin: '50% 50%' });
+  gsap.set(rig, { scale: 1 });
+  rig.style.transformOrigin = '';
+  gsap.set(book.el, { rotationY: 0, rotationX: 0, rotationZ: 0, z: 0 });
+  setOrigin(book.el, '50% 50%');
   gsap.set(camera, { rotationX: 0, rotationY: 0, rotationZ: 0, z: 0, y: 0 });
   if (skipping) gsap.set(flash, { opacity: 0 });
   // a troca de cena (pesada) acontece com a luz parada cobrindo tudo; a luz só
@@ -330,7 +355,7 @@ function finish() {
   }
   const target = returnPage ?? pageForHash(window.location.hash) ?? 4;
   returnPage = null;
-  gsap.set(rig, { willChange: 'auto' });
+  rig.style.willChange = 'auto'; // escrita direta (via GSAP custava uma leitura forçada de ~65 ms)
   prepared = false;
   updateUI();
   enableParallax();
@@ -842,6 +867,13 @@ $('.prop-ashtray').insertAdjacentHTML('beforeend', SMOKE);
  *  - celular em pé: uma faixa acima e outra abaixo da página.
  * Sem espaço suficiente (ou com o livro deitado/aproximado), os objetos saem.
  */
+// As medidas dos objetos (--m, --bt…) ficam no próprio #desk-props, não no :root:
+// variável no :root é herdada pelos ~2.000 elementos da página e cada escrita
+// recalculava o estilo de todos (≈150 ms no celular, bem na troca de cena).
+const deskPropsEl = $('#desk-props');
+function setPropVar(name, value) {
+  if (deskPropsEl.style.getPropertyValue(name) !== value) deskPropsEl.style.setProperty(name, value);
+}
 function layoutProps() {
   const W = window.innerWidth;
   const H = window.innerHeight;
@@ -851,7 +883,7 @@ function layoutProps() {
   if (book.orient === 'land') {
     const rail = book.mode === 'desktop' ? 0 : parseFloat(st.getPropertyValue('--rail')) || 0;
     const m = (W - rail - (book.spread ? 2 : 1) * book.pw) / 2;
-    st.setProperty('--m', `${Math.max(0, m)}px`);
+    setPropVar('--m', `${Math.max(0, m)}px`);
     hide = hide || m < (book.mode === 'desktop' ? 96 : 64);
   } else {
     const top = 58;
@@ -859,13 +891,13 @@ function layoutProps() {
     const bookTop = H / 2 - (book.lift ?? 0) - book.ph / 2;
     const bt = Math.max(0, bookTop - top);
     const bb = Math.max(0, H - nav - (bookTop + book.ph));
-    st.setProperty('--btop', `${top}px`);
-    st.setProperty('--bt', `${bt.toFixed(1)}px`);
-    st.setProperty('--bb', `${bb.toFixed(1)}px`);
-    st.setProperty('--m', '0px');
+    setPropVar('--btop', `${top}px`);
+    setPropVar('--bt', `${bt.toFixed(1)}px`);
+    setPropVar('--bb', `${bb.toFixed(1)}px`);
+    setPropVar('--m', '0px');
     hide = hide || Math.min(bt, bb) < 54;
   }
-  root.classList.toggle('no-props', hide);
+  if (root.classList.contains('no-props') !== hide) root.classList.toggle('no-props', hide);
 }
 
 const modalOpen = () => !!objModal?.isOpen || !!phone?.isOpen;
@@ -1420,7 +1452,33 @@ cssReady.then(() => Promise.race([Promise.all([ready, texturesReady]), new Promi
  * começa direto com a trilha. Senão, o monograma pede um toque — e esse mesmo
  * toque liga a música e dá a partida na cena, para as duas começarem juntas.
  */
+/**
+ * Pré-desenha a cena enquanto o monograma espera (o toque, ou o teste de som).
+ * A câmera ficava invisível e atrás de duas camadas pretas opacas (loader e véu):
+ * o navegador não desenhava nada, e no toque rasterizava mesa, livro, objetos e
+ * texturas de uma vez — ~1 s de tela congelada no celular. Aqui a cena já fica
+ * montada por baixo, na pose inicial, com o loader e o véu a 99,6% (diferença
+ * invisível, mas deixam de ser "opacos" e o navegador desenha o que há atrás).
+ */
+function warmScene() {
+  if (warmedScene || reduced) return;
+  warmedScene = true;
+  setClosedPose();
+  gsap.set(cine.veil, { opacity: 0.996 });
+  loaderEl.classList.add('is-warm');
+  book.cull([0, book.N - 1]);
+  // verso do livro por dois quadros: contracapa, lombada e corte também ficam desenhados
+  gsap.set(book.el, { rotationY: -180 });
+  setOrigin(book.el, '75% 50%');
+  requestAnimationFrame(() => requestAnimationFrame(() => gsap.set(book.el, { rotationY: 0 })));
+  // as primeiras folhas (guardas e folha de rosto) uma de cada vez — montá-las custava
+  // ~250 ms cada e acontecia no meio da cena; aqui ninguém vê
+  setTimeout(() => !enteredOnce && book.cull([0, 1, book.N - 1]), 250);
+  setTimeout(() => !enteredOnce && book.cull([0, 1, 2, book.N - 1]), 500);
+}
+
 async function startWithMusic() {
+  warmScene();
   const go = () => {
     loaderEl.classList.remove('is-gate');
     document.body.classList.add('is-ready');

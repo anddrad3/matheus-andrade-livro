@@ -1,7 +1,5 @@
 import gsap from 'gsap';
 import { EN } from './lang.js';
-import './styles/phone.css'; // só baixa quando o celular é preparado
-
 /**
  * O celular da mesa: abre num app de música mostrando a faixa que está tocando
  * (uma por edição), com a gravura de Doré da Divina Comédia como capa — o Céu
