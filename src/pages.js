@@ -3,7 +3,7 @@ import {
   guilloche, medallion, corner, rule, fleuron, waxSeal, barcode, arrow, roman,
   handArrow, handCircle, handUnderline, phonePlate, tape,
 } from './ornaments.js';
-import { t, LOCALE } from './lang.js';
+import { t, longDate, shortDate } from './lang.js';
 
 /**
  * Mapa do livro — 12 folhas, 24 faces.
@@ -405,7 +405,7 @@ function contactText() {
     18,
     'right',
     `<article class="letter">
-      ${rv('p', 'letter-date', `${esc(author.city)}, ${new Date().toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' })}`)}
+      ${rv('p', 'letter-date', `${esc(author.city)}, ${longDate()}`)}
       ${rv('p', 'letter-salutation', t('Caro leitor,', 'Dear reader,'))}
       ${rv('p', 'letter-body', t('Para projetos freelance, colaborações em educação e tecnologia, ou uma boa conversa sobre código e pesquisa, escreva para:', 'For freelance projects, collaborations in education and technology, or a good conversation about code and research, write to:'))}
       <div class="letter-email reveal" style="--i:${revealIndex++}">
@@ -426,7 +426,7 @@ function contactText() {
 }
 
 function diaryPage() {
-  const fmt = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(LOCALE, { day: '2-digit', month: 'short' }).replace(' de ', ' ').replace('.', '');
+  const fmt = (d) => shortDate(new Date(`${d}T12:00:00`));
   return paper(
     19,
     'left',

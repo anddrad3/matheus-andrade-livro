@@ -4,7 +4,7 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**, em português e inglês.
 
-**Versão 4.3.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
+**Versão 4.4.0** · histórico completo no [CHANGELOG](CHANGELOG.md).
 
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 
@@ -51,7 +51,8 @@ O site segue o **aparelho de quem visita**: tema claro → edição clássica, t
 ## Desempenho
 
 - Sem salto de layout ao carregar (CLS 0): o palco só aparece depois de medido; imagens com `width`/`height`.
-- Primeira pintura sem depender de JavaScript nem de fontes externas (monograma em fonte do sistema); fontes do Google carregadas sem bloquear.
+- Primeira pintura sem depender de JavaScript, de fontes externas nem do CSS principal: o estilo da tela de entrada vem embutido no HTML e o CSS principal carrega sem bloquear (plugin em `vite.config.js`); fontes do Google também sem bloquear.
+- Só o idioma em uso é baixado (`content.pt.js` ou `content.en.js`); o celular da mesa, o card dos objetos e o diário só carregam quando usados; texturas da abertura pré-carregadas pelo `<head>`.
 - Virar páginas sem recalcular o estilo de centenas de palavras a cada quadro; a página que chega é escrita só depois que a folha assenta (nada é pintado no meio da virada); sombra projetada e curva da folha só movem camadas na GPU.
 - Nenhum filtro refeito pela GPU a cada quadro: sem desfoque no clarão da troca de cena nem no feixe de luz do fundo; sombras dos objetos fora das camadas animadas.
 - Imagens e trilha com cache de um ano (`public/.htaccess`); trilhas em MP3 mono de 80 kbps; gravuras do outro tema e o diário do GitHub só carregam quando necessários.

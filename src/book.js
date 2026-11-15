@@ -5,6 +5,7 @@ import { view, vw, vh, isPhone } from './view.js';
 
 /** margem segura de baixo (barra de gestos do iPhone/Android) */
 function safeBottom() {
+  if (!document.documentElement.classList.contains('css')) return 0; // ainda sem CSS: nada a medir
   const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab'));
   return Number.isFinite(v) ? v : 0;
 }
@@ -167,6 +168,12 @@ export class Book {
   }
 
   applyStatic() {
+    // um único recálculo de estilo em vez de um por folha (leituras antes das escritas)
+    if (!this.warmed) {
+      this.warmed = true;
+      this.leaves.forEach((leaf) => gsap.getProperty(leaf, 'rotationY'));
+      gsap.getProperty(this.el, 'x');
+    }
     this.leaves.forEach((leaf, k) => {
       const flipped = k < this.s;
       gsap.set(leaf, { rotationY: flipped ? -180 : 0, z: this.zFor(k, flipped), transformOrigin: '0% 50%' });

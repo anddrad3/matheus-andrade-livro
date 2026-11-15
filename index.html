@@ -37,19 +37,49 @@
           if (md) md.content = 'Portfolio of Matheus da Silva Andrade — full stack developer, teacher and researcher. A book about code, education and academic research.';
         }
         try { document.getElementById('favicon').href = 'favicon-' + t + '.svg'; } catch (e) {}
-        // a trilha começa a baixar e a tocar (muda) já aqui; o som entra assim que o navegador deixar
-        try {
-          if (localStorage.getItem('livro.music') !== 'off') {
-            var a = new Audio(t === 'dark' ? 'music/lacrimosa-piano.mp3' : 'music/aria-bach-piano.mp3');
-            a.preload = 'auto';
-            a.loop = true;
-            a.muted = true;
-            a.play().catch(function () {});
-            window.__bgm = { theme: t, el: a };
-          }
-        } catch (e) {}
+        // texturas da cena de abertura do tema certo: já começam a baixar
+        ['wood', 'leather'].forEach(function (n) {
+          var k = document.createElement('link');
+          k.rel = 'preload';
+          k.as = 'image';
+          k.href = 'tex/' + t + '-' + n + '.webp';
+          document.head.appendChild(k);
+        });
+        // CSS principal sem bloquear: o resto do site espera por ele
+        window.__cssReady = new Promise(function (r) {
+          window.__css = function () {
+            d.classList.add('css');
+            r();
+            // a trilha começa a baixar e a tocar (muda) logo depois do CSS (sem disputar a rede
+            // com o que pinta a tela); o som entra assim que o navegador deixar
+            try {
+              if (!window.__bgm && localStorage.getItem('livro.music') !== 'off') {
+                var a = new Audio(t === 'dark' ? 'music/lacrimosa-piano.mp3' : 'music/aria-bach-piano.mp3');
+                a.preload = 'auto';
+                a.loop = true;
+                a.muted = true;
+                a.play().catch(function () {});
+                window.__bgm = { theme: t, el: a };
+              }
+            } catch (e) {}
+          };
+        });
       })();
     </script>
+    <!-- estilo mínimo da tela de entrada: pinta na hora, sem esperar o CSS principal -->
+    <style>
+      html, body { margin: 0; background: #0b0807; }
+      html:not(.css) body > :not(#loader):not(script):not(noscript) { display: none !important; }
+      #loader { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 0.8rem; z-index: 60; background: #0b0807; color: #e9dcc2; transition: opacity 1s ease, visibility 1s; }
+      .loader-mono { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 300; font-size: min(44vw, 30vh); line-height: 1; letter-spacing: 0.02em; color: rgba(192, 154, 82, 0.9); }
+      .loader-mono i { font-style: normal; opacity: 0.5; margin: 0 0.04em; }
+      :root[data-theme='dark'] .loader-mono { font-style: normal; font-variant: small-caps; color: #d9dce2; }
+      :root[data-theme='dark'] .loader-mono i { color: #d11c24; opacity: 1; }
+      .loader-orn, .loader-text, .loader-gate { display: block; height: 1.7rem; line-height: 1.7rem; font-family: Georgia, serif; }
+      .loader-orn { font-size: 1.6rem; color: #c09a52; }
+      .loader-text { font-style: italic; letter-spacing: 0.08em; font-size: 1.05rem; color: rgba(233, 220, 194, 0.7); }
+      .loader-gate { display: none; }
+    </style>
   </head>
   <body>
     <div id="backdrop" aria-hidden="true"></div>

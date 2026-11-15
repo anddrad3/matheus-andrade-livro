@@ -26,6 +26,21 @@ export const t = (pt, en) => (EN ? en : pt);
 /** locale para datas */
 export const LOCALE = EN ? 'en-US' : 'pt-BR';
 
+const MONTHS = EN
+  ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  : ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+/** "14 de novembro de 2026" / "November 14, 2026" */
+export const longDate = (d = new Date()) =>
+  EN ? `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}` : `${d.getDate()} de ${MONTHS[d.getMonth()]} de ${d.getFullYear()}`;
+
+/** "14 nov" / "Nov 14" */
+export const shortDate = (d) => {
+  const m = MONTHS[d.getMonth()].slice(0, 3);
+  const day = String(d.getDate()).padStart(2, '0');
+  return EN ? `${m} ${day}` : `${day} ${m}`;
+};
+
 export function setLang(next) {
   try {
     localStorage.setItem(K, next);

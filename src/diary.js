@@ -1,5 +1,5 @@
 import { github, diary } from './content.js';
-import { t, LOCALE } from './lang.js';
+import { t, shortDate } from './lang.js';
 
 /**
  * Preenche o "Diário de bordo" com os commits mais recentes do GitHub.
@@ -9,7 +9,7 @@ import { t, LOCALE } from './lang.js';
 const CACHE = 'livro.diary.v1';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const fmt = (iso) =>
-  new Date(iso).toLocaleDateString(LOCALE, { day: '2-digit', month: 'short' }).replace(' de ', ' ').replace('.', '');
+  shortDate(new Date(iso));
 
 async function fetchCommits() {
   const api = 'https://api.github.com';

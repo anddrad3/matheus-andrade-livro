@@ -2,6 +2,17 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.4.0] — 2026-11-15
+### Desempenho (itens laranja/vermelhos do PageSpeed)
+- **Sem solicitações que bloqueiam a renderização**: o CSS principal (25 KB) carrega sem bloquear; o estilo da tela de entrada vem embutido no HTML, então a página pinta na hora. O resto do site espera o CSS chegar (nada de conteúdo sem estilo, nada “pulando”).
+- **Árvore de dependência da rede**: texturas da abertura pré-carregadas já no `<head>`; o texto do idioma em uso é pedido em paralelo com o JS; a trilha só começa a baixar depois do CSS (não disputa a rede com a primeira pintura).
+- **JavaScript não usado**: o livro baixa só o idioma em uso (o outro nunca chega); celular da mesa, card dos objetos e diário viraram módulos carregados quando usados (e adiantados no tempo ocioso).
+- **CSS não usado**: removidas as regras do menu antigo, do painel de volume, do aviso de música e dos botões de zoom.
+- **Entrega de imagens**: guardas marmorizadas −40% e texturas de manchas −15 a −20%.
+- **Reflow forçado / tarefas longas**: leituras de estilo do GSAP agrupadas antes das escritas; data da carta sem `Intl` (a primeira formatação custava ~50 ms no celular); margem segura medida só com o CSS aplicado; poeira em canvas desligada no celular (ficava escondida, mas desenhando 30×/s — também alivia as travadas).
+### Acessibilidade
+- Contraste: o “toque para abrir o livro” não pisca mais em opacidade (só a nota ♪ se move).
+
 ## [4.3.0] — 2026-11-14
 ### Alterado
 - **Roda do mouse = zoom**: no computador a roda aproxima e afasta o livro em torno do cursor (antes folheava). Com o livro fechado, rolar para baixo ainda abre.

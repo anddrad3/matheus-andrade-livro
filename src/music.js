@@ -177,19 +177,22 @@ export function createMusic({ getTheme, onChange }) {
   }
 
   // começa mudo (já tocando desde o <head>) e descobre se pode ligar o som
+  // a trilha começa depois do CSS principal (não disputa a rede com a primeira pintura)
+  const cssReady = import.meta.env.DEV ? Promise.resolve() : window.__cssReady || Promise.resolve();
   blocked = true;
-  play();
   // o navegador deixa tocar com som sem um toque? (a abertura espera por isso)
-  let autoplayOk = Promise.resolve(false);
-  if (volumeWorks && !muted) {
-    autoplayOk = canAutoplay();
-    autoplayOk.then((ok) => {
-      if (ok) audible();
-      else waitForGesture();
-    });
-  } else {
+  const autoplayOk = cssReady.then(() => {
+    play();
+    if (volumeWorks && !muted) {
+      return canAutoplay().then((ok) => {
+        if (ok) audible();
+        else waitForGesture();
+        return ok;
+      });
+    }
     waitForGesture(); // iOS: o Web Audio exige um gesto
-  }
+    return false;
+  });
 
   window.addEventListener('themechange', (e) => {
     if (!muted) play(e.detail);

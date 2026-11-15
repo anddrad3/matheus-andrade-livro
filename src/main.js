@@ -20,12 +20,9 @@ import { deskTalk } from './content.js';
 import { createMusic } from './music.js';
 import { createPortal } from './portal.js';
 import { inkify } from './ink.js';
-import { createObjModal } from './objmodal.js';
-import { createPhone } from './phone.js';
-import { view, vw, vpt, vrect } from './view.js';
+import { view, vw, vpt, vrect, isPhone } from './view.js';
 import { Book, setLift } from './book.js';
 import { createSound } from './sound.js';
-import { loadDiary } from './diary.js';
 import { createSpin } from './spin.js';
 import { t, EN, setLang } from './lang.js';
 
@@ -37,7 +34,11 @@ const texturesReady = installTextures(theme());
 const sound = createSound();
 const music = createMusic({ getTheme: () => theme(), onChange: () => syncMusicUI() });
 let phone = null; // o celular da mesa (criado mais abaixo)
-startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
+// GSAP lê o estilo de cada elemento no primeiro toque: lê todos de uma vez, antes
+// de qualquer escrita (um recálculo de estilo só, em vez de um por elemento)
+['#rig', '#float', '#camera', '#book', '.book-shadow', '.edges', '#flash', '.cine-veil', '.cine-place', '.ct-pre', '.ct-name', '.desk-light', '.desk', '#stage']
+  .forEach((s) => document.querySelectorAll(s).forEach((el) => gsap.getProperty(el, 'x')));
+if (!isPhone()) startAmbient({ canvas: $('#dust'), spot: $('#spot'), reduced });
 
 const book = new Book({
   el: $('#book'),
@@ -80,7 +81,7 @@ function updateUI(b = book) {
   // diário de bordo: só busca no GitHub quando o leitor se aproxima dele
   if (!diaryLoaded && b.s >= 8) {
     diaryLoaded = true;
-    loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]'));
+    import('./diary.js').then(({ loadDiary }) => loadDiary(document.querySelector('[data-diary]'), document.querySelector('[data-diary-status]')));
   }
   const hash = hashForPage(pages[pages.length - 1]);
   const url = hash ? `#${hash}` : window.location.pathname + window.location.search;
@@ -333,6 +334,7 @@ function finish() {
   updateUI();
   enableParallax();
   setTimeout(warmAssets, 1800); // depois que o livro assentar
+  setTimeout(() => (window.requestIdleCallback || setTimeout)(() => { getObjModal(); getPhone(); }), 2500);
   // deixa a luz se dissolver e a cena assentar antes de virar para o sumário
   gsap.delayedCall(wasSkipping ? 0 : 0.85, () => {
     book.noBendOnce = true;
@@ -765,8 +767,8 @@ window.addEventListener('pointercancel', endPageDrag);
 
 function replay() {
   hideTalk();
-  objModal.close();
-  phone.close();
+  objModal?.close();
+  phone?.close();
   cancelPageDrag();
   touches.clear();
   exitLyingNow();
@@ -865,15 +867,27 @@ function layoutProps() {
   root.classList.toggle('no-props', hide);
 }
 
-const modalOpen = () => objModal.isOpen || !!phone?.isOpen;
+const modalOpen = () => !!objModal?.isOpen || !!phone?.isOpen;
 
-const objModal = createObjModal({ getTheme: () => theme(), talk: deskTalk, onOpen: () => sound.flip(1) });
+// card dos objetos e celular: baixados só quando usados pela primeira vez
+// (e adiantados no tempo ocioso depois que o livro abre)
+let objModal = null;
+let objModalP = null;
+const getObjModal = () =>
+  (objModalP ??= import('./objmodal.js').then(({ createObjModal }) => (objModal = createObjModal({ getTheme: () => theme(), talk: deskTalk, onOpen: () => sound.flip(1) }))));
+let phoneP = null;
+const getPhone = () =>
+  (phoneP ??= import('./phone.js').then(({ createPhone }) => {
+    phone = createPhone({ music, sound, getTheme: () => theme(), switchTheme: () => toggleTheme(null), onSound: syncSound });
+    return phone;
+  }));
+const openPhone = () => getPhone().then((ph) => ph.open());
 
 // clicar num objeto abre o card dele (girável em 360°)
 function talk(prop) {
   hideTalk();
-  if (prop === 'phone') return phone.open();
-  objModal.open(prop);
+  if (prop === 'phone') return openPhone();
+  getObjModal().then((m) => m.open(prop));
 }
 
 function talkBubble(prop, anchor) {
@@ -939,7 +953,7 @@ tabbar.addEventListener('click', (e) => {
   if (act === 'theme') {
     const r = b.getBoundingClientRect();
     toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
-  } else if (act === 'music') phone.open();
+  } else if (act === 'music') openPhone();
   else if (act === 'sound') toggleSound();
   else if (act === 'spin') $('#spin').click();
   else if (act === 'replay') replay();
@@ -1012,17 +1026,10 @@ function toggleSound() {
 // o botão de música (no computador e na barra do celular) abre o celular da mesa
 musicBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  phone.open();
+  openPhone();
 });
 soundBtn.addEventListener('click', toggleSound);
 
-phone = createPhone({
-  music,
-  sound,
-  getTheme: () => theme(),
-  switchTheme: () => toggleTheme(null),
-  onSound: syncSound,
-});
 syncMusicUI();
 syncSound();
 
@@ -1378,8 +1385,14 @@ laidOut = `${window.innerWidth}x${window.innerHeight}`;
 updateUI();
 
 const loaderEl = $('#loader');
+// o CSS principal chega sem bloquear a primeira pintura; o livro espera por ele
+const cssReady = import.meta.env.DEV ? Promise.resolve() : window.__cssReady || Promise.resolve();
+cssReady.then(() => {
+  document.documentElement.classList.add('css');
+  if (book.mode === 'mobile') relayoutNow(true); // margem da barra de gestos (vem do CSS)
+});
 const ready = document.fonts?.ready ?? Promise.resolve();
-Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout(r, 3000))]).then(() => {
+cssReady.then(() => Promise.race([Promise.all([ready, texturesReady]), new Promise((r) => setTimeout(r, 3000))])).then(() => {
   if (reduced) {
     document.body.classList.add('is-ready');
     gsap.set(camera, { opacity: 1 });
