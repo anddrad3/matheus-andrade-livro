@@ -2,6 +2,10 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.4.1] — 2026-11-15
+### Desempenho
+- **Entrega de imagens**: caveira da capa como máscara por luminância (imagem em tons de cinza com compressão normal): 142 → 60 KB, visual idêntico. Texturas de papel em 200 px exibidas a 300 px: 79 → 37 KB, mesma granulação.
+
 ## [4.4.0] — 2026-11-15
 ### Desempenho (itens laranja/vermelhos do PageSpeed)
 - **Sem solicitações que bloqueiam a renderização**: o CSS principal (25 KB) carrega sem bloquear; o estilo da tela de entrada vem embutido no HTML, então a página pinta na hora. O resto do site espera o CSS chegar (nada de conteúdo sem estilo, nada “pulando”).

@@ -113,8 +113,11 @@
     #e4e7ec 80%,
     #5a5d64 100%
   );
-  -webkit-mask: url('../assets/caveira-durer.webp') center / contain no-repeat;
-  mask: url('../assets/caveira-durer.webp') center / contain no-repeat;
+  /* máscara por luminância (branco = visível): imagem opaca em tons de cinza
+     comprime 2,4× melhor que a transparência sem perda */
+  -webkit-mask: url('../assets/caveira-durer-lum.webp') center / contain no-repeat;
+  -webkit-mask-source-type: luminance;
+  mask: url('../assets/caveira-durer-lum.webp') center / contain no-repeat luminance;
 }
 
 :root[data-theme="dark"] .cover-motto {
