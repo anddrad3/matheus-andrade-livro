@@ -2,6 +2,10 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.5.2] — 2026-11-16
+### Corrigido
+- **Música muda no iPhone**: no iOS a trilha passava pelo Web Audio (o único jeito de controlar o volume lá), e o iOS silencia o Web Audio quando o iPhone está no modo silencioso (chave lateral) — um `<audio>` comum continuaria tocando. Agora a página se declara “reprodução de mídia” (`navigator.audioSession.type = 'playback'`, Safari 17+) e o som toca mesmo no silencioso — inclusive o som de papel das páginas. Em iOS mais antigo a trilha toca direto pelo `<audio>` (volume pelos botões do aparelho; o volume zero do site ainda silencia).
+
 ## [4.5.1] — 2026-11-15
 ### Corrigido
 - **Música no celular**: o som tentava começar no `pointerdown`, que num toque de dedo *não* libera áudio (Chrome do Android e Safari do iPhone só liberam em `pointerup`/`touchend`/`click`); no iPhone o contexto de áudio ainda nascia suspenso e a trilha ficava muda. Agora a música entra no gesto certo e qualquer toque seguinte acorda o áudio se ele estiver suspenso.

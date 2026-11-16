@@ -42,6 +42,15 @@ export function createMusic({ getTheme, onChange }) {
   const probe = new Audio();
   probe.volume = 0.5;
   const volumeWorks = Math.abs(probe.volume - 0.5) < 0.01;
+  // ...mas o iOS SILENCIA o Web Audio com o iPhone no modo silencioso (a chave lateral),
+  // enquanto um <audio> tocado direto continua soando. No Safari 17+ a página se
+  // declara "reprodução de mídia" e o Web Audio passa a tocar como música. Em iOS mais
+  // antigo, a trilha toca direto pelo <audio> (volume pelos botões do aparelho).
+  const useGain = !volumeWorks && 'audioSession' in navigator;
+  try {
+    // vale para a página toda: também os sons de papel (Web Audio) tocam no silencioso
+    if ('audioSession' in navigator) navigator.audioSession.type = 'playback';
+  } catch {}
   let ctx = null;
 
   const tracks = {}; // tema -> { el, level, gain }
@@ -76,7 +85,11 @@ export function createMusic({ getTheme, onChange }) {
     for (const t of Object.values(tracks)) {
       const v = Math.max(0, Math.min(1, t.level * master));
       if (t.gain) t.gain.gain.value = v;
-      else t.el.volume = v;
+      else {
+        t.el.volume = v;
+        // iOS antigo (sem Web Audio): o volume não muda, mas o "zero" ainda silencia
+        if (!volumeWorks) t.el.muted = master === 0;
+      }
     }
   }
 
@@ -175,7 +188,7 @@ export function createMusic({ getTheme, onChange }) {
 
   /** iOS: o volume passa pelo Web Audio, que precisa nascer/acordar dentro de um gesto */
   function unlockCtx() {
-    if (!volumeWorks && !ctx) {
+    if (useGain && !ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (AC) {
         ctx = new AC();
