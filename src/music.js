@@ -112,19 +112,20 @@ export function createMusic({ getTheme, onChange }) {
     onChange?.({ volume, muted, playing, blocked });
   }
 
-  /** pergunta ao navegador se pode tocar COM som, sem tocar na faixa que já corre muda */
+  /**
+   * O navegador deixa tocar COM som sem um toque? Pergunta tocando a própria trilha.
+   * (Antes era um WAV mudo de 10 ms — vários navegadores de Android, como o da Xiaomi,
+   * aceitam esse teste e recusam a música de verdade: o site pulava o "toque para
+   * abrir" e a cena começava muda, com a música esperando um toque que ninguém dava.)
+   * A recusa chega em milissegundos, antes de baixar o arquivo; se em 600 ms não veio
+   * recusa, a trilha está liberada (só carregando) e já entra junto com a abertura.
+   */
   function canAutoplay() {
-    // WAV silencioso de 10 ms: o navegador decide pelo "muted", não pelo conteúdo
-    const n = 441;
-    const buf = new ArrayBuffer(44 + n * 2);
-    const v = new DataView(buf);
-    const str = (o, t) => [...t].forEach((c, k) => v.setUint8(o + k, c.charCodeAt(0)));
-    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVEfmt ');
-    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-    v.setUint32(24, 44100, true); v.setUint32(28, 88200, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
-    str(36, 'data'); v.setUint32(40, n * 2, true);
-    const probe = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })));
-    return probe.play().then(() => (probe.pause(), true)).catch(() => false);
+    if (navigator.getAutoplayPolicy) {
+      const pol = navigator.getAutoplayPolicy('mediaelement');
+      if (pol !== 'allowed') return Promise.resolve(false);
+    }
+    return Promise.race([audible(), new Promise((r) => setTimeout(() => r(!blocked && !muted), 600))]);
   }
 
   /** liga o som da faixa atual (só quando permitido) com entrada suave */
@@ -132,7 +133,7 @@ export function createMusic({ getTheme, onChange }) {
   // só a mais recente decide o resultado
   let attempt = 0;
   function audible() {
-    if (muted || !current) return;
+    if (muted || !current) return Promise.resolve(false);
     const t = current;
     const my = ++attempt;
     blocked = false;
@@ -141,20 +142,22 @@ export function createMusic({ getTheme, onChange }) {
       render();
     }
     t.el.muted = false;
-    t.el.play().then(() => {
+    return t.el.play().then(() => {
       // qualquer tentativa que der certo vale (uma segunda só refaz a entrada suave
       // a partir do nível atual — sem salto)
-      if (current !== t) return;
+      if (current !== t) return true;
       playing = true;
       stopWaiting();
       fade(t, 1, 250);
       emit();
+      return true;
     }).catch(() => {
       // recusada: só conta se for a última tentativa e nada estiver tocando
-      if (my !== attempt || !t.el.paused) return;
+      if (my !== attempt || !t.el.paused) return !t.el.paused;
       blocked = true;
       waitForGesture();
       emit();
+      return false;
     });
   }
 
@@ -236,8 +239,7 @@ export function createMusic({ getTheme, onChange }) {
     play();
     if (volumeWorks && !muted) {
       return canAutoplay().then((ok) => {
-        if (ok) audible();
-        else waitForGesture();
+        if (!ok) waitForGesture();
         return ok;
       });
     }

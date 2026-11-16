@@ -1486,7 +1486,7 @@ async function startWithMusic() {
     if (returnPage != null) skipIntro();
   };
   let ok = music.muted;
-  if (!ok) ok = await Promise.race([music.autoplay, new Promise((r) => setTimeout(() => r(false), 700))]);
+  if (!ok) ok = await Promise.race([music.autoplay, new Promise((r) => setTimeout(() => r(false), 900))]);
   if (ok) return go();
   loaderEl.classList.add('is-gate');
   loaderEl.setAttribute('aria-hidden', 'false');

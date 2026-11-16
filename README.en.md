@@ -4,7 +4,7 @@
 
 Portfolio of **Matheus da Silva Andrade** — full stack developer, teacher and researcher — shaped as a **deluxe-edition book**, in Portuguese and English.
 
-**Version 4.5.3** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
+**Version 4.5.4** · full history in the [CHANGELOG](CHANGELOG.md) (in Portuguese).
 
 🔗 **Live:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 

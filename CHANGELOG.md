@@ -2,6 +2,10 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.5.4] — 2026-11-16
+### Corrigido
+- **Site abria sem música (e sem o “toque para abrir”) em alguns Android, como o da Xiaomi**: para saber se podia tocar sozinho, o site testava um WAV mudo de 10 ms. Esses navegadores aceitam o teste e recusam a música de verdade — então o aviso de toque era pulado, a cena começava muda e a trilha ficava esperando um toque que ninguém sabia que precisava dar. Agora o teste é a própria trilha: se o navegador deixa, a música já começa junto com a abertura; se recusa (a recusa chega em milissegundos, antes de baixar o arquivo), aparece o “toque para abrir o livro ♪” e o toque liga música e cena juntas.
+
 ## [4.5.3] — 2026-11-16
 ### Corrigido (música no Android — ex.: Xiaomi)
 - **O play do celular da mesa desligava a música**: o botão alternava o “mudo”, então com a trilha ligada mas parada (bloqueio do navegador) apertar play a *desligava* e gravava “desligada” no aparelho — e o site passava a abrir sem música. Agora play é play: liga (se preciso) e toca na hora; só pausa quando está tocando.
