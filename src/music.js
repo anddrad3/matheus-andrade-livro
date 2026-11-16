@@ -128,22 +128,38 @@ export function createMusic({ getTheme, onChange }) {
   }
 
   /** liga o som da faixa atual (só quando permitido) com entrada suave */
+  // várias tentativas podem correr juntas (pointerup, touchend e click do mesmo toque):
+  // só a mais recente decide o resultado
+  let attempt = 0;
   function audible() {
     if (muted || !current) return;
     const t = current;
+    const my = ++attempt;
     blocked = false;
-    t.level = 0;
-    render();
+    if (t.el.paused) {
+      t.level = 0;
+      render();
+    }
     t.el.muted = false;
     t.el.play().then(() => {
+      // qualquer tentativa que der certo vale (uma segunda só refaz a entrada suave
+      // a partir do nível atual — sem salto)
+      if (current !== t) return;
       playing = true;
+      stopWaiting();
       fade(t, 1, 250);
       emit();
     }).catch(() => {
+      // recusada: só conta se for a última tentativa e nada estiver tocando
+      if (my !== attempt || !t.el.paused) return;
       blocked = true;
       waitForGesture();
+      emit();
     });
   }
+
+  /** dentro de um toque/clique/tecla? (sem a API, tenta assim mesmo) */
+  const inGesture = () => (navigator.userActivation ? navigator.userActivation.isActive : true);
 
   /**
    * Toca a faixa do tema. Contra o bloqueio de som automático: a faixa corre
@@ -158,12 +174,13 @@ export function createMusic({ getTheme, onChange }) {
       fade(prev, 0, 1400, () => prev.el.pause());
     }
     current = next;
-    if (blocked) {
-      // som ainda bloqueado: a faixa fica pronta (sem baixar o arquivo inteiro para
-      // tocar muda) e entra, do começo, no mesmo toque que dá a partida na abertura
+    if (blocked && !inGesture()) {
+      // som ainda bloqueado e ninguém tocou na tela: a faixa fica pronta (sem baixar o
+      // arquivo inteiro para tocar muda) e entra, do começo, no primeiro toque
       next.level = 1;
       render();
     } else {
+      // dentro de um toque/clique (ex.: o play do celular da mesa) toca na hora
       audible();
     }
   }
@@ -172,18 +189,27 @@ export function createMusic({ getTheme, onChange }) {
   // NÃO contam como gesto (Chrome do Android e Safari do iPhone) — tocar ali era
   // recusado e, no iPhone, o contexto de áudio nascia suspenso (mudo para sempre).
   const GESTURES = ['pointerup', 'touchend', 'click', 'keydown'];
+  // Continua escutando TODOS esses eventos até o som realmente começar: cada navegador
+  // libera o áudio num deles (alguns Android só no touchend ou no click). Antes, o
+  // primeiro evento do toque desligava a escuta — se ali o som era recusado, os eventos
+  // certos daquele mesmo toque já tinham passado, e assim a cada toque.
   let waiting = false;
+  function onGesture(e) {
+    if (e.type === 'keydown' && (e.key === 'Tab' || e.key === 'Escape')) return; // não liberam som
+    unlockCtx();
+    // "ainda não tocando" (e não "bloqueado"): a tentativa do pointerup só é recusada
+    // alguns ms depois — o touchend/click do mesmo toque precisa tentar também
+    if (!playing) audible();
+  }
   function waitForGesture() {
     if (waiting) return;
     waiting = true;
-    const go = (e) => {
-      if (e.type === 'keydown' && (e.key === 'Tab' || e.key === 'Escape')) return; // não liberam som
-      waiting = false;
-      GESTURES.forEach((ev) => window.removeEventListener(ev, go, true));
-      unlockCtx();
-      if (blocked) audible();
-    };
-    GESTURES.forEach((ev) => window.addEventListener(ev, go, true));
+    GESTURES.forEach((ev) => window.addEventListener(ev, onGesture, true));
+  }
+  function stopWaiting() {
+    if (!waiting) return;
+    waiting = false;
+    GESTURES.forEach((ev) => window.removeEventListener(ev, onGesture, true));
   }
 
   /** iOS: o volume passa pelo Web Audio, que precisa nascer/acordar dentro de um gesto */
@@ -303,7 +329,9 @@ export function createMusic({ getTheme, onChange }) {
       } catch {}
       if (muted) return;
       if (blocked) {
-        t.el.play().catch(() => {});
+        // ainda bloqueado: num toque (ex.: reiniciar a abertura) já entra com som
+        current = t;
+        if (inGesture()) audible();
         return;
       }
       t.level = 0;
@@ -315,6 +343,21 @@ export function createMusic({ getTheme, onChange }) {
       }).catch(() => {});
     },
     /** f ∈ [0, 1]: posição da faixa */
+    /**
+     * "Play" de verdade: liga a trilha (desfaz o mudo guardado) e toca agora — feito
+     * para ser chamado num clique. (O toggle desligava a música quando ela estava
+     * ligada mas parada pelo bloqueio do navegador — e guardava "desligada".)
+     */
+    start() {
+      if (muted) {
+        muted = false;
+        write(K_MUTE, 'on');
+      }
+      if (volume < 0.05) volume = 0.4;
+      unlockCtx();
+      play();
+      emit();
+    },
     seek(f) {
       const el = (current ?? track(getTheme())).el;
       if (el.duration) el.currentTime = Math.max(0, Math.min(0.999, f)) * el.duration;

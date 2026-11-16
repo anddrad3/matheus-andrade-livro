@@ -4,7 +4,7 @@
 
 Portfólio de **Matheus da Silva Andrade**, desenvolvedor full stack, professor e pesquisador, em forma de **livro de edição de luxo**, em português e inglês.
 
-**Versão 4.5.2** · histórico completo no [CHANGELOG](CHANGELOG.md).
+**Versão 4.5.3** · histórico completo no [CHANGELOG](CHANGELOG.md).
 
 🔗 **No ar:** [matityahu.alwaysdata.net/dev-matheus-andrade](https://matityahu.alwaysdata.net/dev-matheus-andrade/) · [GitHub Pages](https://anddrad3.github.io/matheus-andrade-livro/)
 

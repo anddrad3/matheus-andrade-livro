@@ -2,6 +2,12 @@
 
 Todas as versões do livro-portfólio. Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/); versões em [SemVer](https://semver.org/lang/pt-BR/).
 
+## [4.5.3] — 2026-11-16
+### Corrigido (música no Android — ex.: Xiaomi)
+- **O play do celular da mesa desligava a música**: o botão alternava o “mudo”, então com a trilha ligada mas parada (bloqueio do navegador) apertar play a *desligava* e gravava “desligada” no aparelho — e o site passava a abrir sem música. Agora play é play: liga (se preciso) e toca na hora; só pausa quando está tocando.
+- **Play não tocava mesmo num clique** (regressão da 4.5.0): com o som ainda bloqueado, a trilha só ficava “pronta” e nunca chamava `play()`, nem dentro de um toque. Agora, dentro de um toque/clique, toca imediatamente.
+- **Primeiro toque sem som em alguns Android**: o código tentava tocar no primeiro evento do toque (`pointerup`) e parava de escutar os outros. Em navegadores que só liberam som no `touchend`/`click`, a tentativa era recusada alguns ms depois — quando os eventos certos do mesmo toque já tinham passado. Agora todos os eventos do toque tentam até o som começar de fato.
+
 ## [4.5.2] — 2026-11-16
 ### Corrigido
 - **Música muda no iPhone**: no iOS a trilha passava pelo Web Audio (o único jeito de controlar o volume lá), e o iOS silencia o Web Audio quando o iPhone está no modo silencioso (chave lateral) — um `<audio>` comum continuaria tocando. Agora a página se declara “reprodução de mídia” (`navigator.audioSession.type = 'playback'`, Safari 17+) e o som toca mesmo no silencioso — inclusive o som de papel das páginas. Em iOS mais antigo a trilha toca direto pelo `<audio>` (volume pelos botões do aparelho; o volume zero do site ainda silencia).

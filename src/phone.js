@@ -149,7 +149,9 @@ export function createPhone({ music, sound, getTheme, switchTheme, onSound }) {
     if (e.target.closest('[data-pm-close]')) close();
   });
   el.play.addEventListener('click', () => {
-    music.toggle();
+    // tocando → pausa (desliga); parada por qualquer motivo → toca agora
+    if (music.playing) music.toggle();
+    else music.start();
     sync();
   });
   el.restart.addEventListener('click', () => {
